@@ -1,0 +1,522 @@
+# Fili.MudAvalonia.Theme
+
+A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light and
+dark, with a gallery app to look at it in.
+
+The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
+aim is the *look* — this is not a component library and carries no controls, services or API
+surface of its own.
+
+```
+src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
+src/Fili.MudAvalonia.Theme.Gallery          gallery UI, shared across heads
+src/Fili.MudAvalonia.Theme.Gallery.Desktop  desktop head
+tst/Fili.MudAvalonia.Theme.UnitTests        headless resource-resolution tests
+```
+
+## Using it
+
+**Standalone: no substrate theme.** Two includes, and order matters - base first, Fili second,
+because later styles win for overlapping setters:
+
+```xml
+<Application.Styles>
+  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
+  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+</Application.Styles>
+```
+
+No `FluentTheme`, no `SimpleTheme`, no `Avalonia.Themes.*` package reference at all. The base is
+this package own fork of Avalonia Simple templates - see *The base* below.
+
+Then use the tokens by key, and the type ramp by class:
+
+```xml
+<Border Classes="surface elevation4" Padding="16">
+  <StackPanel Spacing="4">
+    <TextBlock Classes="h6" Text="Section" />
+    <TextBlock Classes="caption" Text="Supporting line" />
+  </StackPanel>
+</Border>
+
+<Border Background="{DynamicResource FiliPrimaryBrush}" />
+```
+
+Always `DynamicResource`, never `StaticResource` — see **The one rule** below.
+
+### Buttons
+
+Four opt-in classes, each backed by a `ControlTheme`:
+
+```xml
+<Button Classes="primary"   Content="Save" />        raised, primary fill, elevation 2/4/8
+<Button Classes="secondary" Content="Share" />       raised, secondary fill
+<Button Classes="outlined"  Content="Cancel" />      1px line, no fill
+<Button Classes="text"      Content="Learn more" />  flat — Material's actual default
+```
+
+**An unclassed `<Button>` keeps Fluent's theme on purpose.** Avalonia composes several built-in
+controls out of plain Buttons — `ButtonSpinner`, the `DatePicker` presenter, flyout affordances —
+so overriding the default `ControlTheme` for `Button` silently retemplates parts of
+`NumericUpDown` and the pickers too. A class keeps the blast radius to buttons that asked for it.
+
+The raised variants step elevation 2 → 4 → 8 across rest, hover and press, and drop to 0 when
+disabled. That step is the thing Fluent cannot express at all, because `Button` has no `BoxShadow`
+property — only the `Border` inside a template does.
+
+### Text fields
+
+```xml
+<TextBox Classes="filled"   PlaceholderText="Email" />
+<TextBox Classes="outlined" PlaceholderText="Email" />
+<TextBox Classes="outlined error" PlaceholderText="Email" Text="nope" />
+```
+
+**`PlaceholderText` doubles as the floating label.** Avalonia's `TextBox` has no `Label` property,
+and adding an attached one would be the first real API in a package whose point is not having any.
+The cost: these variants have no separate placeholder — the label occupies that slot until it
+floats. If both are ever needed, a `FiliTextField.Label` attached property is the follow-up, in a
+package that depends on this one.
+
+The label floats when the field is **focused or non-empty**, which is expressible as a selector
+only because Avalonia gives `TextBox` an `:empty` pseudo-class. `error` is a class you set, because
+there is no `:error` pseudo-class to hang it on.
+
+The outlined variant masks the border behind the floated label with an opaque patch rather than
+cutting a real notch in the stroke — a notch needs a generated `Geometry`, and the mask is
+indistinguishable when the field sits on `FiliSurface`.
+
+### Selection controls
+
+```xml
+<CheckBox     Classes="fili" Content="Enable sync" />
+<RadioButton  Classes="fili" Content="Weekly" GroupName="cadence" />
+<ToggleSwitch Classes="fili" Content="Dark mode" />
+```
+
+These have **one** Material shape each rather than a family of variants, so the class is a library
+marker — `fili` means "use this theme's template for this control" — instead of a variant name.
+
+What the templates buy that setters cannot:
+
+- **CheckBox** — an 18px box with a 2px *stroke* when unchecked and a solid primary *fill* when
+  checked, plus a drawn check glyph as a stroked `Path` with round caps rather than a font glyph.
+- **RadioButton** — checking it recolours the ring and *grows a separate inner disc*; it does not
+  fill the ring. Filling it is the usual mistake, and the result reads as a round checkbox.
+- **ToggleSwitch** — a 20px thumb that is *larger* than its 14px track, overhanging it above and
+  below, with elevation under the thumb. Fluent puts a smaller thumb inside a taller capsule.
+
+All three centre a circular 40px state layer on the control rather than tinting the whole row,
+which is where the Material hit-target and hover tint live.
+
+### Slider and tabs
+
+```xml
+<Slider     Classes="fili" Value="40" />
+<TabControl Classes="fili"> <TabItem Header="One" /> </TabControl>
+```
+
+- **Slider** — a 4px rail with a 12px knob that *grows* on hover and press (1.3× / 1.5×) rather
+  than only tinting. Structure is dictated by Avalonia, not Material: `Slider` requires a `Track`
+  named `PART_Track`, and the `Track`'s two `RepeatButton`s **are** the active and inactive halves
+  of the rail — there is no separate fill element. Both orientations need their own `Template`; a
+  horizontal one applied to a vertical slider renders sideways rather than degrading.
+- **TabControl** — a flat 48px strip with a 2px primary indicator and a hairline under it.
+  `ItemContainerTheme` is what carries the header theme down to a bare `<TabItem>`; without it the
+  control is themed and its headers are not, which looks like the theme half-applied.
+
+The indicator does not slide between tabs — that needs to measure both headers and animate
+between them, which means code-behind and a custom panel. A per-item indicator that fades is the
+declarative 90%.
+
+### Scrolling and menus
+
+```xml
+<ScrollViewer Classes="fili"> … </ScrollViewer>
+<Menu Classes="fili"> <MenuItem Header="Library"> … </MenuItem> </Menu>
+```
+
+These are **structural rather than decorative**, and they are here because they are prerequisites
+for ever dropping the substrate, not because Material has strong opinions about them.
+
+- **ScrollBar** — a thin buttonless rail with a rounded thumb that darkens on hover and press.
+  Dropping the line buttons is safe (their lookups are null-safe, and wheel/drag/keyboard/touch
+  are `ScrollViewer`'s job) but a `Track` named `PART_Track` is required or the thumb never moves.
+- **ScrollViewer** — almost no decoration at all. It needs `PART_ContentPresenter` to be a
+  `ScrollContentPresenter` specifically, plus `PART_HorizontalScrollBar` and
+  `PART_VerticalScrollBar`. Rename any of the three and you get a control that lays out correctly
+  and does not scroll. The bars overlay rather than inset, so a list does not reflow by 12px the
+  moment it becomes scrollable. Themed `ScrollBar`s are reached *through* here — there is no
+  `ScrollBar.fili` class, because you virtually never place one by hand.
+- **Menu** — **two** item themes, not one. A top-level strip item and a dropdown row look alike in
+  markup and are different controls on screen: the strip item has no chevron, no icon column, and
+  drops its popup downward. The first render of this menu showed `Library >  View >` across the
+  top, because the dropdown template hides its chevron only for *leaf* items and a top-level item
+  always has children. `Menu.ItemContainerTheme` is the strip item; that item's own
+  `ItemContainerTheme` is the row.
+- The reserved icon column means labels line up down a menu whether or not each item has an icon —
+  the detail most hand-rolled menus miss.
+
+### Overlays and Window
+
+`ToolTip`, `FlyoutPresenter` and `MenuFlyoutPresenter` are **the one place this package keys a
+theme by type instead of by class**, and the reason is worth stating because it refines the rule
+rather than breaking it:
+
+> Key by **class** when the control is placed in markup.
+> Key by **type** when the framework creates it for you.
+
+`ToolTip.Tip="text"` builds the ToolTip internally; `<Flyout>` builds its presenter. There is
+nowhere to write `Classes="fili"`. The risk the class rule guards against is also absent — these
+are leaf presentation surfaces, and nothing composes a `ToolTip` into its own template the way
+`NumericUpDown` composes a `Button`.
+
+The tooltip is deliberately **not theme-varying**: a Material tooltip is a dark chip in light and
+dark alike, so it reads as an annotation floating above the UI rather than as another surface of
+it. Flyout templates carry an 8px outer margin because `BoxShadow` draws *outside* the border and
+a popup window is sized to its content — with no room to spill into, the shadow is clipped and the
+flyout reads flat.
+
+`Window` is opt-in (`Classes="fili"`), since a Window *is* written in markup. Two parts in its
+template are load-bearing and invisible until missing:
+
+- **`VisualLayerManager`** hosts the overlay layer — tooltips, flyouts, popups, adorners, drag
+  visuals, dialog hosts. Leave it out and the window renders its content perfectly while every
+  tooltip and flyout in the app silently fails to appear.
+- **`PART_TransparencyFallback`** is looked up by name and painted when the requested transparency
+  level is unavailable, which is most Linux setups. Without it, a window asking for acrylic on a
+  compositor that cannot provide it renders with no background at all.
+
+### The base
+
+**Avalonia ships no implicit default theme.** A `Button` with no `ControlTheme` in scope has no
+template, so it measures to nothing and renders nothing — not an unstyled button, *no* button. Some
+theme has to supply a template for every control type used.
+
+This package supplies its own. `Themes/Base/` holds **79 templates forked verbatim from Avalonia's
+Simple theme at 12.1.2**, rebased onto this package and repaletted by a single hand-written file,
+`Themes/Base/Accents.axaml`, which redefines the ~96 resource keys those templates paint from in
+terms of Fili tokens. One file repalettes all 79.
+
+On top of that sit **17 hand-written Material control themes** — `Button`, `TextBox`, `CheckBox`,
+`RadioButton`, `ToggleSwitch`, `Slider`, `TabControl`, `TabItem`, `ScrollBar`, `ScrollViewer`,
+`Menu`, `MenuItem`, `ContextMenu`, `ToolTip`, `FlyoutPresenter`, `MenuFlyoutPresenter`, `Window` —
+which win over their forked counterparts because `FiliTheme.axaml` is included second.
+
+So the distinction is no longer themed-versus-invisible, it is **hand-written Material versus
+forked-and-repaletted**. Nothing is missing, and nothing external is required.
+
+`Themes/Base/FORK.md` records provenance, the two mechanical edits applied, and the upgrade
+procedure. See also *How the fork earns its keep* below.
+
+<details>
+<summary>Historical: when this package layered over a substrate</summary>
+
+This package used to be tokens plus control themes for **17** control types, with the other **72**
+templated control types (`ComboBox`, `ListBox`, `TreeView`, `DataGrid`, `DatePicker`, `Flyout`,
+`Window` chrome, …) come from the substrate. `FluentTheme` is the choice here; this is a layer on
+top. See *Should the substrate go away?* below for the exact count and what it would take to drop
+it.
+
+Precisely what "invisible" means, because it is narrower than it sounds: **only *templated*
+controls need a theme.** `TextBlock`, `Border`, `Image`, `Panel`, `Canvas` and the shapes draw
+themselves and are unaffected. So a theme-less app is not a blank window — it is text and
+rectangles laid out correctly with every interactive control missing, which is a worse failure
+than blank because it looks half-working.
+
+**The gallery lets you switch substrate at runtime**, Fluent or Simple, from the app bar. Watch the
+themed controls while it flips: they do not change at all, because they carry full templates.
+Everything else does. That difference is the honest measure of how much of the look is still
+borrowed — and it is the right way to settle which substrate to stand on, rather than arguing it.
+
+**What Fluent is actually worth**, beyond "templates exist":
+
+- **It is complete, first-party and versioned in lockstep with Avalonia.** It is regression-tested
+  by the Avalonia team on every platform Avalonia targets. No community theme can promise that.
+- **It covers the work nobody wants.** Not just "controls" — `DataGrid` (thousands of lines),
+  `DatePicker`'s calendar flyout, `ColorPicker`, `NumericUpDown`'s spinner, IME/composition
+  rendering inside `TextBox`, popup placement and flipping, window decorations. These are
+  functional templates, not styling.
+- **It carries accessibility and platform behaviour.** Focus adorners, keyboard affordances,
+  hit-target sizing, high-contrast handling. Every `ControlTheme` written here re-earns all of
+  that by hand, and it is easy to ship a beautiful theme with no visible focus ring.
+- **It absorbs Avalonia's churn.** When a template part is renamed or a pseudo-class added in
+  Avalonia 13, Fluent is updated with it. Every ControlTheme owned here is one that must be
+  updated by hand — which is the argument that cuts hardest against going standalone in a small
+  project.
+- **It fails safe.** Forget a control while layered and it looks Fluent; forget one while
+  standalone and it disappears.
+- **One accent colour retints everything it templates** — a checked `CheckBox`, a `Slider` thumb,
+  the selected `TabItem` underline — without this package knowing those controls exist.
+
+The cost is equally real: shapes you do not control, a `:not()` guard on every blanket style, and
+internal brush keys that move between versions. And the discomfort is not constant — **layering is
+most comfortable at 0% coverage and at 100%, and worst in the middle**, because every control that
+becomes properly Material increases the contrast with the ones that have not. At 13 of 89, that is
+exactly where this repo sits.
+
+That last point is the highest-leverage lever in the repo: one accent colour retints every
+substrate-templated control at once — a checked `CheckBox`, a `Slider` thumb, the selected
+`TabItem` underline — without this package knowing those controls exist.
+
+**Set it through `FluentTheme.Palettes`, not through a `SystemAccentColor` resource.** Fluent
+derives its accent ramp from its own `Palettes` collection, seeded from platform settings, and
+never consults a resource of that name:
+
+```csharp
+var theme = new FluentTheme();
+theme.Palettes[ThemeVariant.Light] = new ColorPaletteResources { Accent = Color.Parse("#594AE2") };
+theme.Palettes[ThemeVariant.Dark]  = new ColorPaletteResources { Accent = Color.Parse("#776BE7") };
+```
+
+Doing it the other way fails **silently** — every unthemed control just stays the OS accent blue.
+That is exactly what the first rendered capture of this gallery showed, after the wrong approach
+had been confidently written down here. `FluentAccentIsTheMudPrimary` now pins it.
+
+`SimpleTheme` has no equivalent and ignores `Palettes` entirely; retinting it means overriding its
+own `ThemeAccentBrush` family. That is not done, so the gallery's Simple substrate still renders
+the OS blue — deliberately left visible rather than papered over.
+
+**Order is load-bearing.** `FluentTheme` first, then `FiliTheme`. Styles are evaluated in order and
+later ones win for overlapping setters, so reversing them leaves Fluent's colours on top.
+
+What this arrangement costs: the app reads as **Fluent shapes wearing Material colours**, except
+for the two controls with real templates. That seam is visible — Fluent separates surfaces with a
+1px border where Material floats them on a shadow, and its controls are geometrically tighter. Each
+`ControlTheme` added shrinks Fluent's role, and Fluent only disappears entirely if every control
+gets one, which is the multi-year project this repo exists to avoid.
+
+**Fluent versus Simple was settled by looking**, with `--capture`, and Fluent won clearly:
+
+| | Fluent | Simple |
+|---|---|---|
+| Accent lever | `Palettes` / `ColorPaletteResources` — one colour retints everything | none; needs its own `ThemeAccentBrush` overrides |
+| Metrics next to the themed controls | close in weight and spacing; mild seam | visibly tighter and smaller, so the seam is *worse* |
+| Tab strip | a coloured underline — near-identical to Material's indicator | a filled box behind the active tab |
+| Scrollbar | thin, unobtrusive | thick, with arrow buttons |
+| ComboBox / NumericUpDown | clean chevrons | small triangles, cramped spinner |
+
+The theory for Simple was that its plainness would be *neutral*, so retinted plain controls would
+read as minimal Material while Fluent's leftovers would read as Windows 11 in purple. **Rendering
+both killed that theory.** Simple does not read as neutral, it reads as Win32 circa 2003 — the tab
+strip and scrollbar give it away instantly — and because its metrics are tighter than Material's,
+the boundary between themed and unthemed controls is *more* obvious, not less.
+
+Fluent also turned out to have an accidental advantage: its `TabItem` indicator is a coloured
+underline, which is very close to what Material does anyway.
+
+Regenerate the evidence any time:
+
+```powershell
+dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop -- --capture screenshots
+```
+
+`Material.Avalonia` would be a visually closer substrate, but consuming it means binding to *its*
+slot names (`PrimaryHueMidBrush`, `MaterialCardBackgroundBrush`) — exactly the coupling
+`Fili.MangaReader` has, and what keeps it on Avalonia 11.
+
+</details>
+
+### How the fork earns its keep
+
+Going standalone was expected to mean writing 72 templates. It did not. It meant **downloading 79
+and rewriting one file.**
+
+The whole adaptation was:
+
+1. Fetch `src/Avalonia.Themes.Simple/Controls/*.xaml` at tag 12.1.2.
+2. `.xaml` → `.axaml`, and rebase `avares://Avalonia.Themes.Simple/...` onto this package. Both by
+   script; no template was touched by hand.
+3. Write `Accents.axaml`, mapping the ~96 keys those templates paint from onto Fili tokens.
+
+Step 3 is the whole trick, and it is why **Simple** rather than Fluent: its key surface is small,
+flat and stable. Fluent's equivalent is hundreds of layered keys that move between versions — the
+same churn that made retinting it a documented caveat earlier in this file.
+
+What this bought, beyond the palette: every `:not()` guard in this repo is now a transitional
+artifact rather than a permanent tax, the accent needs no theme-specific API, and there is no
+external theme package to track across Avalonia releases.
+
+What it costs: the forked templates are this repo's problem now. `FORK.md` documents the upgrade
+as re-download, re-apply the two edits, diff. `SimpleBridgeTests` asserts every contract key still
+resolves in both variants, which is what turns "Avalonia 13 added a key" from a silent rendering
+bug into a failing build.
+
+**One bug found exactly that way, immediately.** The first standalone render looked correct until
+you noticed the substrate-default `ToggleSwitch`es were labels with no switch. Eighteen `*Color`
+keys had been missed while their `*Brush` twins were mapped — and nothing reported it. That is the
+same silent-key failure this repo has now hit four separate times, and the reason the contract test
+exists rather than a comment saying to be careful.
+
+### Two different "use Simple" arguments — do not conflate them
+
+Community guidance for writing a full Avalonia theme is to **copy the Simple theme's `.axaml`
+files out of the Avalonia repo and edit them**, because there is less to strip than in Fluent.
+That advice is real and good — and it is about a *different decision* from the Fluent-vs-Simple
+comparison above.
+
+| | Fork Simple's files | Reference Simple as substrate |
+|---|---|---|
+| What it is | copy ~89 templates into this repo and restyle them | `<SimpleTheme />` in `Application.Styles` |
+| Runtime dependency | **none** — fully standalone | Simple, at runtime |
+| The comparison above applies? | no | yes, and Fluent measured better |
+
+The second is what the gallery switch compares, and Fluent won it. The first dissolves the
+question entirely: fork the files and you depend on no substrate at all.
+
+It also makes standalone **much cheaper than "write 89 templates"**, which is how the sequencing
+below was originally framed. Forking Simple's templates and restyling them reuses all the part
+names, states and keyboard handling — the tested structure — and changes only the visuals. That
+is a far smaller job than Semi's several hundred files from scratch, and it is the route to take
+if this repo ever goes standalone.
+
+Note what the official docs do *not* say: they describe Simple as "a minimal and lightweight theme
+with limited built-in styling" whose "low visual and structural complexity makes it a good choice
+for applications running on embedded devices", and designate **neither** theme as the recommended
+base. The fork-Simple advice is community practice, not documentation.
+
+### Flowery.NET layers over Fluent too
+
+Worth knowing, since it is the closest project to this one: [Flowery.NET](https://github.com/tobitege/Flowery.NET)
+— 95 controls, a DaisyUI port — has exactly this shape in its gallery's `App.axaml`:
+
+```xml
+<Application.Styles>
+    <FluentTheme />
+    <daisy:DaisyUITheme />
+</Application.Styles>
+```
+
+Its `DaisyUITheme.axaml` merges themes only for its own `Daisy*` types. Nothing for Avalonia's
+built-ins — those stay Fluent's.
+
+So there are **three** architectures, not two:
+
+1. **Replace the substrate** — Semi.Avalonia, Material.Avalonia, Classic.Avalonia. Complete
+   `ControlTheme` sets, no Fluent.
+2. **Add new control types over a substrate** — Flowery.NET. New `Daisy*` controls with their own
+   templates; Fluent still renders every built-in.
+3. **Replace the substrate by forking one** — this repo, now. Avalonia's Simple templates taken
+   wholesale and repaletted, with Material themes written over the controls that need them.
+
+The second is the cheapest, and explains how one person shipped 95 controls in nine months: a
+brand-new control type has no existing template to match, no states to preserve and nothing to
+stay compatible with. Retemplating `TextBox` is harder than inventing `DaisyInput`.
+
+The third — forking — turned out far cheaper than the first. Semi wrote several hundred files;
+this repo downloaded 79 and wrote one. The difference is whether you author templates or inherit
+them and change only what they paint from.
+
+`Material.Avalonia` remains the closest *visual* match, but consuming it would mean binding to
+*its* slot names (`PrimaryHueMidBrush`, `MaterialCardBackgroundBrush`) — exactly the coupling
+`Fili.MangaReader` has, and what keeps it on Avalonia 11. Forking Simple avoids taking on anyone
+else's vocabulary.
+
+## The one rule
+
+**A missing or misspelt resource key is silent in Avalonia.** The lookup resolves to nothing and
+whatever was there before simply stays, so a typo becomes a colour that quietly never changed
+rather than an error. Likewise a `StaticResource` where a `DynamicResource` belonged: it freezes
+the light value and that control stops following the theme at runtime, with no warning.
+
+`tst/Fili.MudAvalonia.Theme.UnitTests/ResourceResolutionTests.cs` is what turns both into failures.
+Every token is asserted to resolve under **both** theme variants. Add a token, add it there.
+
+## Tokens
+
+| Group | File | Notes |
+|---|---|---|
+| Palette | `Themes/Palette.axaml` | Light and dark, as `ThemeDictionaries`. Colours and brushes. |
+| Elevation | `Themes/Elevation.axaml` | Levels 0–24, three stacked shadow layers each. |
+| Typography | `Themes/Typography.axaml` | Roboto, embedded; base size **14px**, not 16. |
+| Controls | `Themes/ControlThemes.axaml` | Aggregator; one file per control under `Themes/Controls/`. Opt-in by class. |
+| Geometry | `Themes/Geometry.axaml` | 4px radius, 4px spacing scale, appbar and drawer sizes. |
+
+Three things worth knowing before changing any of them:
+
+- **The primary colour differs by variant.** `#594AE2` is the *light* primary; dark uses
+  `#776BE7`. An app pinned to one variant that seeds from the other gets the brand colour wrong
+  everywhere. `PrimaryDiffersBetweenVariants` pins this.
+- **Base type is 14px.** That smaller baseline is much of why the look reads dense and tidy, and
+  it is the first thing to check when a ported screen feels wrong.
+- **Elevation is not theme-varying**, matching MudBlazor, which uses one shadow array for both.
+
+## Fonts
+
+Roboto is **embedded** (`src/Fili.MudAvalonia.Theme/Assets/Fonts`), in three static instances —
+Light 300, Regular 400, Medium 500 — which are the weights this theme uses.
+
+Two things to know before changing them:
+
+- **Static instances, not the variable `Roboto[wdth,wght].ttf`.** Avalonia resolves a weight by
+  picking a matching *face*, not by setting a variable axis, so a single variable file would
+  render Light and Medium as Regular.
+- **Their name tables are legacy.** `Roboto-Light` reports its family as `Roboto Light` and
+  `Roboto-Medium` as `Roboto Medium`, each with subfamily `Regular`, rather than one `Roboto`
+  family carrying three weights. Avalonia's embedded font collection groups them correctly
+  anyway; `EveryUsedWeightHasItsOwnFace` is what keeps that true, and is why it asserts the
+  family name *starts with* Roboto rather than equals it.
+
+## Gallery
+
+```powershell
+dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
+```
+
+Five tabs: palette swatches with computed WCAG contrast ratios, the elevation ladder, the type
+ramp, a control-state matrix, and a realistic sample screen. The theme toggle in the app bar flips
+the variant at runtime — which is the fastest way to find a token that was wired statically.
+
+The sample screen matters more than the control matrix: a wall of buttons looks fine under any
+theme, and only a real layout exposes flat hierarchy and wrong spacing.
+
+## Known gaps
+
+Seven controls are themed: `Button`, `TextBox`, `CheckBox`, `RadioButton`, `ToggleSwitch`,
+`Slider`, `TabControl`. For the other 82, the substrate decides the *shape* and this theme only
+changes colour, type and elevation. What that leaves undone:
+
+- **ComboBox, ListBox, Menu, ScrollBar, DataGrid** and the long tail — see the coverage number
+  above.
+- **Shadows versus borders.** The substrate separates surfaces with a 1px border; Material floats
+  them on shadows. Retinting cannot fix this — it needs template changes, control by control.
+- **No separate placeholder on themed text fields** — see *Text fields* above.
+- **No helper text or counter** under a field. Both are `MudTextField` features that would need
+  either attached properties or a wrapper control.
+- **No ripple.** Avalonia has no primitive for it; faking it means an animated, clipped ellipse
+  driven from pointer position. The buttons carry the static half — a tinted state layer on hover
+  and press.
+- **No uppercase button text.** Avalonia has no text-transform; the tracking and weight are
+  applied, the casing is not.
+- **Unclassed `Button` stays on Fluent**, deliberately — see *Buttons* above.
+- **No spacing utility classes.** The 4px scale exists as values; `pa-4`-style generated classes
+  do not.
+- **Accent variants are approximations.** The six Fluent accent shades in the gallery's
+  `App.axaml` were hand-picked around the primary, not taken from MudBlazor, which generates its
+  shades at runtime instead of declaring them.
+
+## Prior art in this workspace
+
+`Fili.MangaReader/src/Fili.MangaReader.Views/Themes/MudBlazorPalette.axaml` already applies this
+palette, over **Material.Avalonia** rather than Fluent, on Avalonia 11, **dark only**. It is worth
+reading before changing anything here: it documents the light/dark primary trap and the silent-key
+problem from experience, and its `TestAppFidelityTests` is the same idea as the tests here.
+
+The gap it names as unfinished — "MudBlazor's light palette leans on internal swatch constants
+that were not read back" — is closed here. Those constants are `Colors.cs` in MudBlazor:
+`Pink.Accent2` = `#FF4081`, `Blue.Default` = `#2196F3`, `Green.Accent4` = `#00C853`,
+`Orange.Default` = `#FF9800`, `Red.Default` = `#F44336`, `Gray.Darken3` = `#424242`.
+
+## Licence and attribution
+
+The token *values* come from [MudBlazor](https://github.com/MudBlazor/MudBlazor) (MIT). Colours,
+sizes and shadow definitions are data, not code, and no MudBlazor code is used or derived here.
+
+**This project is not affiliated with, endorsed by, or connected to MudBlazor.** The name is
+descriptive — an Avalonia theme in MudBlazor's visual idiom — and the disclaimer matters more
+now that the package name carries it, not less. Keep this section.
+
+Roboto is © 2011 The Roboto Project Authors, under the **SIL Open Font License 1.1**; the licence
+travels with the fonts in `src/Fili.MudAvalonia.Theme/Assets/Fonts/OFL.txt` and is packed into the
+NuGet package. OFL requires that the licence stays with the font files and that they are not sold
+on their own — neither constrains this use, but the file must not be removed.
