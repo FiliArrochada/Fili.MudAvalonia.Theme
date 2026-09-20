@@ -1,0 +1,33 @@
+<!--
+  Geometry tokens, from MudBlazor Themes/Models/LayoutProperties.cs.
+
+  The 4px corner radius is doing more work than it looks: it is what keeps the look crisp
+  rather than bubbly, and it is markedly tighter than the Avalonia Fluent default.
+
+  The spacing scale is Material 4px units, matching the MudBlazor pa-N / ma-N classes
+  (pa-1 = 4px, pa-4 = 16px). Generated utility Classes are a follow-up; for now these are
+  the raw values to reference from Margin and Padding.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+  <CornerRadius x:Key="FiliCornerRadius">4</CornerRadius>
+  <CornerRadius x:Key="FiliCornerRadiusNone">0</CornerRadius>
+  <CornerRadius x:Key="FiliCornerRadiusPill">9999</CornerRadius>
+
+  <Thickness x:Key="FiliBorderThickness">1</Thickness>
+
+  <sys:Double x:Key="FiliAppbarHeight">64</sys:Double>
+  <sys:Double x:Key="FiliDrawerWidth">240</sys:Double>
+  <sys:Double x:Key="FiliDrawerMiniWidth">56</sys:Double>
+
+  <!-- 4px spacing scale -->
+  <sys:Double x:Key="FiliSpacing1">4</sys:Double>
+  <sys:Double x:Key="FiliSpacing2">8</sys:Double>
+  <sys:Double x:Key="FiliSpacing3">12</sys:Double>
+  <sys:Double x:Key="FiliSpacing4">16</sys:Double>
+  <sys:Double x:Key="FiliSpacing6">24</sys:Double>
+  <sys:Double x:Key="FiliSpacing8">32</sys:Double>
+
+</ResourceDictionary>

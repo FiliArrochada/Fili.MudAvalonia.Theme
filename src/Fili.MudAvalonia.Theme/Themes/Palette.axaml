@@ -1,0 +1,199 @@
+<!--
+  Palette tokens.
+
+  Values are the MudBlazor default light and dark palettes, read from its source
+  (src/MudBlazor/Themes/Models/Palette.cs and PaletteDark.cs) with the Colors.* references
+  resolved to hex. MudBlazor is MIT licensed; these are colour values, not code.
+
+  CSS rgba() alpha is folded into the Avalonia #AARRGGBB form:
+    0.02 -> 05   0.04 -> 0A   0.11 -> 1C   0.12 -> 1F   0.20 -> 33   0.26 -> 42
+    0.30 -> 4D   0.38 -> 61   0.50 -> 80   0.54 -> 8A   0.70 -> B3
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ResourceDictionary.ThemeDictionaries>
+
+    <!-- ============================== LIGHT ============================== -->
+    <ResourceDictionary x:Key="Light">
+
+      <Color x:Key="FiliPrimaryColor">#594AE2</Color>
+      <Color x:Key="FiliPrimaryContrastTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliSecondaryColor">#FF4081</Color>
+      <Color x:Key="FiliSecondaryContrastTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliTertiaryColor">#1EC8A5</Color>
+      <Color x:Key="FiliTertiaryContrastTextColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliInfoColor">#2196F3</Color>
+      <Color x:Key="FiliSuccessColor">#00C853</Color>
+      <Color x:Key="FiliWarningColor">#FF9800</Color>
+      <Color x:Key="FiliErrorColor">#F44336</Color>
+      <Color x:Key="FiliDarkColor">#424242</Color>
+      <Color x:Key="FiliBlackColor">#272C34</Color>
+      <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliTextPrimaryColor">#424242</Color>
+      <Color x:Key="FiliTextSecondaryColor">#8A000000</Color>
+      <Color x:Key="FiliTextDisabledColor">#61000000</Color>
+
+      <Color x:Key="FiliActionDefaultColor">#8A000000</Color>
+      <Color x:Key="FiliActionDisabledColor">#42000000</Color>
+      <Color x:Key="FiliActionDisabledBackgroundColor">#1F000000</Color>
+
+      <Color x:Key="FiliBackgroundColor">#FFFFFF</Color>
+      <Color x:Key="FiliBackgroundGrayColor">#F5F5F5</Color>
+      <Color x:Key="FiliSurfaceColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliAppbarBackgroundColor">#594AE2</Color>
+      <Color x:Key="FiliAppbarTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliDrawerBackgroundColor">#FFFFFF</Color>
+      <Color x:Key="FiliDrawerTextColor">#424242</Color>
+      <Color x:Key="FiliDrawerIconColor">#616161</Color>
+
+      <Color x:Key="FiliLinesDefaultColor">#1F000000</Color>
+      <Color x:Key="FiliLinesInputsColor">#BDBDBD</Color>
+      <Color x:Key="FiliDividerColor">#E0E0E0</Color>
+      <Color x:Key="FiliTableLinesColor">#E0E0E0</Color>
+      <Color x:Key="FiliTableStripedColor">#05000000</Color>
+      <Color x:Key="FiliTableHoverColor">#0A000000</Color>
+      <Color x:Key="FiliSkeletonColor">#1C000000</Color>
+
+      <!-- State-layer overlays. Material behaviour, not a MudBlazor palette token. -->
+      <Color x:Key="FiliOverlayHoverColor">#0A000000</Color>
+      <Color x:Key="FiliOverlayPressedColor">#1F000000</Color>
+
+      <!--
+        Switch off-state. Also Material behaviour rather than a MudBlazor token: a switch track
+        and thumb have no palette slot to borrow that reads correctly in both variants. The track
+        is a 38% scrim; the thumb is a near-white disc that must stay lighter than the track.
+        The ON state needs no tokens - it is Primary, with the track at half opacity.
+      -->
+      <Color x:Key="FiliSwitchThumbOffColor">#FAFAFA</Color>
+      <Color x:Key="FiliSwitchTrackOffColor">#61000000</Color>
+
+      <!--
+        Filled-input fill. TRANSLUCENT ON PURPOSE, and this is the whole point of it: an opaque
+        token cannot work, because the field has to stay visible on every ground it might sit on.
+        Using FiliBackgroundGray here made filled fields vanish in dark mode, where that token IS
+        the page ground. Material's own value, 6% black / 9% white, darkens whatever is beneath.
+      -->
+      <Color x:Key="FiliInputFilledColor">#0F000000</Color>
+
+    </ResourceDictionary>
+
+    <!-- ============================== DARK =============================== -->
+    <ResourceDictionary x:Key="Dark">
+
+      <Color x:Key="FiliPrimaryColor">#776BE7</Color>
+      <Color x:Key="FiliPrimaryContrastTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliSecondaryColor">#FF4081</Color>
+      <Color x:Key="FiliSecondaryContrastTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliTertiaryColor">#1EC8A5</Color>
+      <Color x:Key="FiliTertiaryContrastTextColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliInfoColor">#3299FF</Color>
+      <Color x:Key="FiliSuccessColor">#0BBA83</Color>
+      <Color x:Key="FiliWarningColor">#FFA800</Color>
+      <Color x:Key="FiliErrorColor">#F64E62</Color>
+      <Color x:Key="FiliDarkColor">#27272F</Color>
+      <Color x:Key="FiliBlackColor">#27272F</Color>
+      <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliTextPrimaryColor">#B3FFFFFF</Color>
+      <Color x:Key="FiliTextSecondaryColor">#80FFFFFF</Color>
+      <Color x:Key="FiliTextDisabledColor">#33FFFFFF</Color>
+
+      <Color x:Key="FiliActionDefaultColor">#ADADB1</Color>
+      <Color x:Key="FiliActionDisabledColor">#42FFFFFF</Color>
+      <Color x:Key="FiliActionDisabledBackgroundColor">#1FFFFFFF</Color>
+
+      <Color x:Key="FiliBackgroundColor">#32333D</Color>
+      <Color x:Key="FiliBackgroundGrayColor">#27272F</Color>
+      <Color x:Key="FiliSurfaceColor">#373740</Color>
+
+      <Color x:Key="FiliAppbarBackgroundColor">#27272F</Color>
+      <Color x:Key="FiliAppbarTextColor">#B3FFFFFF</Color>
+      <Color x:Key="FiliDrawerBackgroundColor">#27272F</Color>
+      <Color x:Key="FiliDrawerTextColor">#80FFFFFF</Color>
+      <Color x:Key="FiliDrawerIconColor">#80FFFFFF</Color>
+
+      <Color x:Key="FiliLinesDefaultColor">#1FFFFFFF</Color>
+      <Color x:Key="FiliLinesInputsColor">#4DFFFFFF</Color>
+      <Color x:Key="FiliDividerColor">#1FFFFFFF</Color>
+      <Color x:Key="FiliTableLinesColor">#1FFFFFFF</Color>
+      <Color x:Key="FiliTableStripedColor">#33FFFFFF</Color>
+      <Color x:Key="FiliTableHoverColor">#14FFFFFF</Color>
+      <Color x:Key="FiliSkeletonColor">#1CFFFFFF</Color>
+
+      <Color x:Key="FiliOverlayHoverColor">#14FFFFFF</Color>
+      <Color x:Key="FiliOverlayPressedColor">#29FFFFFF</Color>
+
+      <!-- Dark: the thumb borrows the dark ActionDefault grey so it stays lighter than the track. -->
+      <Color x:Key="FiliSwitchThumbOffColor">#ADADB1</Color>
+      <Color x:Key="FiliSwitchTrackOffColor">#59FFFFFF</Color>
+
+      <Color x:Key="FiliInputFilledColor">#17FFFFFF</Color>
+
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!--
+    Brushes, defined once against the theme-varying Colors above. DynamicResource is
+    mandatory here: StaticResource would freeze the light value and the brush would stop
+    following the theme at runtime, silently. ResourceResolutionTests guards this.
+  -->
+  <SolidColorBrush x:Key="FiliPrimaryBrush"               Color="{DynamicResource FiliPrimaryColor}" />
+  <SolidColorBrush x:Key="FiliPrimaryContrastTextBrush"   Color="{DynamicResource FiliPrimaryContrastTextColor}" />
+  <SolidColorBrush x:Key="FiliSecondaryBrush"             Color="{DynamicResource FiliSecondaryColor}" />
+  <SolidColorBrush x:Key="FiliSecondaryContrastTextBrush" Color="{DynamicResource FiliSecondaryContrastTextColor}" />
+  <SolidColorBrush x:Key="FiliTertiaryBrush"              Color="{DynamicResource FiliTertiaryColor}" />
+  <SolidColorBrush x:Key="FiliTertiaryContrastTextBrush"  Color="{DynamicResource FiliTertiaryContrastTextColor}" />
+
+  <SolidColorBrush x:Key="FiliInfoBrush"    Color="{DynamicResource FiliInfoColor}" />
+  <SolidColorBrush x:Key="FiliSuccessBrush" Color="{DynamicResource FiliSuccessColor}" />
+  <SolidColorBrush x:Key="FiliWarningBrush" Color="{DynamicResource FiliWarningColor}" />
+  <SolidColorBrush x:Key="FiliErrorBrush"   Color="{DynamicResource FiliErrorColor}" />
+  <SolidColorBrush x:Key="FiliDarkBrush"    Color="{DynamicResource FiliDarkColor}" />
+
+  <SolidColorBrush x:Key="FiliTextPrimaryBrush"   Color="{DynamicResource FiliTextPrimaryColor}" />
+  <SolidColorBrush x:Key="FiliTextSecondaryBrush" Color="{DynamicResource FiliTextSecondaryColor}" />
+  <SolidColorBrush x:Key="FiliTextDisabledBrush"  Color="{DynamicResource FiliTextDisabledColor}" />
+
+  <SolidColorBrush x:Key="FiliActionDefaultBrush"            Color="{DynamicResource FiliActionDefaultColor}" />
+  <SolidColorBrush x:Key="FiliActionDisabledBrush"           Color="{DynamicResource FiliActionDisabledColor}" />
+  <SolidColorBrush x:Key="FiliActionDisabledBackgroundBrush" Color="{DynamicResource FiliActionDisabledBackgroundColor}" />
+
+  <SolidColorBrush x:Key="FiliBackgroundBrush"     Color="{DynamicResource FiliBackgroundColor}" />
+  <SolidColorBrush x:Key="FiliBackgroundGrayBrush" Color="{DynamicResource FiliBackgroundGrayColor}" />
+  <SolidColorBrush x:Key="FiliSurfaceBrush"        Color="{DynamicResource FiliSurfaceColor}" />
+
+  <SolidColorBrush x:Key="FiliAppbarBackgroundBrush" Color="{DynamicResource FiliAppbarBackgroundColor}" />
+  <SolidColorBrush x:Key="FiliAppbarTextBrush"       Color="{DynamicResource FiliAppbarTextColor}" />
+  <SolidColorBrush x:Key="FiliDrawerBackgroundBrush" Color="{DynamicResource FiliDrawerBackgroundColor}" />
+  <SolidColorBrush x:Key="FiliDrawerTextBrush"       Color="{DynamicResource FiliDrawerTextColor}" />
+  <SolidColorBrush x:Key="FiliDrawerIconBrush"       Color="{DynamicResource FiliDrawerIconColor}" />
+
+  <SolidColorBrush x:Key="FiliLinesDefaultBrush" Color="{DynamicResource FiliLinesDefaultColor}" />
+  <SolidColorBrush x:Key="FiliLinesInputsBrush"  Color="{DynamicResource FiliLinesInputsColor}" />
+  <SolidColorBrush x:Key="FiliDividerBrush"      Color="{DynamicResource FiliDividerColor}" />
+  <SolidColorBrush x:Key="FiliTableLinesBrush"   Color="{DynamicResource FiliTableLinesColor}" />
+  <SolidColorBrush x:Key="FiliTableStripedBrush" Color="{DynamicResource FiliTableStripedColor}" />
+  <SolidColorBrush x:Key="FiliTableHoverBrush"   Color="{DynamicResource FiliTableHoverColor}" />
+  <SolidColorBrush x:Key="FiliSkeletonBrush"     Color="{DynamicResource FiliSkeletonColor}" />
+
+  <SolidColorBrush x:Key="FiliOverlayHoverBrush"   Color="{DynamicResource FiliOverlayHoverColor}" />
+  <SolidColorBrush x:Key="FiliOverlayPressedBrush" Color="{DynamicResource FiliOverlayPressedColor}" />
+
+  <!--
+    Tooltip fill. NON-VARYING on purpose, like the elevation ladder: a Material tooltip is a dark
+    chip in light and dark alike, so it reads as an annotation floating above the UI rather than
+    as another surface of it. Grey 700 at 90%.
+  -->
+  <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="#E6616161" />
+
+  <SolidColorBrush x:Key="FiliInputFilledBrush"    Color="{DynamicResource FiliInputFilledColor}" />
+  <SolidColorBrush x:Key="FiliSwitchThumbOffBrush" Color="{DynamicResource FiliSwitchThumbOffColor}" />
+  <SolidColorBrush x:Key="FiliSwitchTrackOffBrush" Color="{DynamicResource FiliSwitchTrackOffColor}" />
+
+</ResourceDictionary>

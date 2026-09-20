@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Fili.MudAvalonia.Theme</RootNamespace>
+    <AssemblyName>Fili.MudAvalonia.Theme</AssemblyName>
+    <PackageId>Fili.MudAvalonia.Theme</PackageId>
+    <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light and dark.</Description>
+    <PackageTags>avalonia;theme;material;design-tokens</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Roboto, embedded. Three static instances rather than the variable Roboto[wdth,wght].ttf,
+      because Avalonia resolves a weight by picking a matching face, not by setting a variable
+      axis - a variable file would render Light and Medium as Regular.
+      Light 300 / Regular 400 / Medium 500 are the three weights this theme actually uses.
+    -->
+    <AvaloniaResource Include="Assets\Fonts\*.ttf" />
+    <None Include="Assets\Fonts\OFL.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,309 @@
+<!--
+  Fili.MudAvalonia.Theme entry point.
+
+  Include it AFTER FluentTheme, which supplies the control templates this theme retints:
+
+      <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+      </Application.Styles>
+
+  This stage is tokens plus conventions only - no ControlThemes. Fluent still decides the
+  SHAPE of every control; what changes here is colour, type and elevation. Retinting Fluent
+  itself (its accent, its surface brushes) is done by the consuming app in
+  Application.Resources, because resources declared there reliably win over style
+  resources. See the gallery App.axaml for the working example.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Palette.axaml" />
+        <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Elevation.axaml" />
+        <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Typography.axaml" />
+        <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Geometry.axaml" />
+        <!-- Last: the control themes reference tokens from all four above. -->
+        <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/ControlThemes.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <!-- ============================== Type ramp ==============================
+       Usage: <TextBlock Classes="h6" Text="Section" />
+  -->
+
+  <!--
+    The INHERITABLE defaults go on the container, not on TextBlock.
+
+    This matters more than it looks. FontFamily, FontSize and Foreground all inherit down the
+    tree, so setting them here reaches every TextBlock without a style rule. Setting them on
+    "TextBlock" instead would also hit the TextBlock a ContentPresenter generates for a
+    button's string content - and a style setter beats an inherited value, so white-on-primary
+    button text silently rendered in the body-text grey. Ask how that bug is found: only by
+    looking, which is what the gallery is for.
+  -->
+  <Style Selector="Window, UserControl">
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+  </Style>
+
+  <!--
+    Only the NON-inheritable metrics belong on TextBlock. LineHeight and LetterSpacing do not
+    inherit, so there is no way to set them from the container.
+  -->
+  <Style Selector="TextBlock">
+    <Setter Property="LineHeight" Value="{DynamicResource FiliBody2LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliBody2LetterSpacing}" />
+  </Style>
+
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH1FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH1LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH1LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Light" />
+  </Style>
+
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH2FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH2LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH2LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Light" />
+  </Style>
+
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH3FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH3LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH3LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.h4">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH4FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH4LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH4LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.h5">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH5FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH5LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH5LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.h6">
+    <Setter Property="FontSize" Value="{DynamicResource FiliH6FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliH6LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliH6LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+
+  <Style Selector="TextBlock.subtitle1">
+    <Setter Property="FontSize" Value="{DynamicResource FiliSubtitle1FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliSubtitle1LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliSubtitle1LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.subtitle2">
+    <Setter Property="FontSize" Value="{DynamicResource FiliSubtitle2FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliSubtitle2LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliSubtitle2LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+
+  <Style Selector="TextBlock.body1">
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliBody1LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliBody1LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.body2">
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliBody2LineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliBody2LetterSpacing}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliCaptionLineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliCaptionLetterSpacing}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.overline">
+    <Setter Property="FontSize" Value="{DynamicResource FiliOverlineFontSize}" />
+    <Setter Property="LineHeight" Value="{DynamicResource FiliOverlineLineHeight}" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliOverlineLetterSpacing}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.secondary">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+  </Style>
+
+  <!-- ============================== Surfaces ==============================
+       Usage: <Border Classes="surface elevation4"> ... </Border>
+  -->
+
+  <Style Selector="Border.surface">
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+  </Style>
+
+  <Style Selector="Border.outlined">
+    <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesDefaultBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource FiliBorderThickness}" />
+  </Style>
+
+  <Style Selector="Border.elevation0">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+  </Style>
+  <Style Selector="Border.elevation1">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation1}" />
+  </Style>
+  <Style Selector="Border.elevation2">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation2}" />
+  </Style>
+  <Style Selector="Border.elevation4">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+  </Style>
+  <Style Selector="Border.elevation6">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation6}" />
+  </Style>
+  <Style Selector="Border.elevation8">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation8}" />
+  </Style>
+  <Style Selector="Border.elevation12">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation12}" />
+  </Style>
+  <Style Selector="Border.elevation16">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation16}" />
+  </Style>
+  <Style Selector="Border.elevation24">
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation24}" />
+  </Style>
+
+  <!-- App bar -->
+  <Style Selector="Border.appbar">
+    <Setter Property="Background" Value="{DynamicResource FiliAppbarBackgroundBrush}" />
+    <Setter Property="Height" Value="{DynamicResource FiliAppbarHeight}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+  </Style>
+
+  <Style Selector="Border.appbar TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource FiliAppbarTextBrush}" />
+  </Style>
+
+  <!-- ============================== Controls ==============================
+       Light-touch only: Fluent keeps the template, this adjusts type and radius.
+  -->
+
+  <!--
+    An unclassed Button keeps Fluent's theme, on purpose - see the header of
+    Themes/ControlThemes.axaml for why replacing the default retemplates parts of
+    NumericUpDown and the pickers too. These four classes opt in to the Material shapes.
+
+    The class sets Theme; the ControlTheme's template picks the fill up through
+    TemplateBinding. Styles outrank ControlTheme setters, so "secondary" overriding
+    Background on top of the shared contained theme composes correctly.
+  -->
+  <Style Selector="Button.primary">
+    <Setter Property="Theme" Value="{StaticResource FiliContainedButton}" />
+    <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+  </Style>
+
+  <Style Selector="Button.secondary">
+    <Setter Property="Theme" Value="{StaticResource FiliContainedButton}" />
+    <Setter Property="Background" Value="{DynamicResource FiliSecondaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryContrastTextBrush}" />
+  </Style>
+
+  <Style Selector="Button.text">
+    <Setter Property="Theme" Value="{StaticResource FiliTextButton}" />
+  </Style>
+
+  <Style Selector="Button.outlined">
+    <Setter Property="Theme" Value="{StaticResource FiliOutlinedButton}" />
+  </Style>
+
+  <Style Selector="TextBox.filled">
+    <Setter Property="Theme" Value="{StaticResource FiliFilledTextBox}" />
+  </Style>
+
+  <Style Selector="TextBox.outlined">
+    <Setter Property="Theme" Value="{StaticResource FiliOutlinedTextBox}" />
+  </Style>
+
+  <!--
+    Fluent-templated inputs get type and radius only.
+
+    Note the :not() guards on TextBox. A Style ALWAYS outranks a ControlTheme setter, so a blanket
+    CornerRadius here would quietly flatten the filled field's 4,4,0,0 top-only rounding back to a
+    full 4 - the same trap as the TextBlock Foreground one above, in a different costume. Any
+    blanket style that sets a property a ControlTheme also sets needs this guard.
+  -->
+  <Style Selector="TextBox:not(.filled):not(.outlined), ComboBox, NumericUpDown, DatePicker, TimePicker, AutoCompleteBox">
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+  </Style>
+
+  <!--
+    Selection controls. These have ONE Material shape each, not a family of variants, so the class
+    is a library marker rather than a variant name: Classes="fili" means "use this theme's
+    template for this control".
+
+    Opt-in for consistency with Button and TextBox, though the risk is genuinely lower here -
+    only DataGridCheckBoxColumn embeds one of these, and restyling that would arguably be wanted.
+    Making them the default is therefore a defensible future change, but a deliberate one.
+  -->
+  <Style Selector="CheckBox.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliCheckBox}" />
+  </Style>
+
+  <Style Selector="RadioButton.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliRadioButton}" />
+  </Style>
+
+  <Style Selector="ToggleSwitch.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliToggleSwitch}" />
+  </Style>
+
+  <Style Selector="Slider.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliSlider}" />
+  </Style>
+
+  <Style Selector="Window.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliWindow}" />
+  </Style>
+
+  <Style Selector="ScrollViewer.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliScrollViewer}" />
+  </Style>
+
+  <Style Selector="Menu.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliMenu}" />
+  </Style>
+
+  <Style Selector="TabControl.fili">
+    <Setter Property="Theme" Value="{StaticResource FiliTabControl}" />
+  </Style>
+
+  <!-- Guarded, per the rule above: a Style outranks a ControlTheme setter. -->
+  <Style Selector="CheckBox:not(.fili), RadioButton:not(.fili), ToggleSwitch:not(.fili), Slider:not(.fili)">
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+  </Style>
+
+  <Style Selector="Separator">
+    <Setter Property="Background" Value="{DynamicResource FiliDividerBrush}" />
+  </Style>
+
+</Styles>
