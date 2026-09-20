@@ -1,0 +1,114 @@
+<!--
+  TabControl and TabItem: the Material tab strip.
+
+  Two themes, wired together by ItemContainerTheme on the TabControl - that is what makes a bare
+  <TabItem> inside a themed TabControl pick the matching header theme up without the app naming
+  it. Setting the TabControl theme alone would leave the headers on the substrate.
+
+  The Material tab is a flat strip with a 2px indicator under the selected header, in primary,
+  and an uppercase-weight label that goes from secondary text to primary on selection. Fluent's
+  own tab happens to be close to this already, which is part of why it is a better substrate
+  than Simple - but "close" still means the wrong height, the wrong tracking and an indicator
+  that is not the right thickness.
+
+  The indicator does NOT slide between tabs. A sliding indicator has to measure the previous and
+  next header and animate between them, which needs code-behind and a custom panel; a per-item
+  indicator that fades is the honest 90% and stays declarative.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliTabItem" TargetType="TabItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <Setter Property="Padding" Value="16,0" />
+    <Setter Property="MinHeight" Value="48" />
+    <Setter Property="MinWidth" Value="90" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root" Background="Transparent">
+          <Panel>
+            <Border x:Name="PART_StateLayer" Background="Transparent" />
+
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Content="{TemplateBinding Header}"
+                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              Padding="{TemplateBinding Padding}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+            <!-- Indicator. Present always, revealed on selection, so the header does not resize. -->
+            <Border x:Name="PART_Indicator"
+                    Height="2"
+                    VerticalAlignment="Bottom"
+                    Background="{DynamicResource FiliPrimaryBrush}"
+                    Opacity="0">
+              <Border.Transitions>
+                <Transitions>
+                  <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+              </Border.Transitions>
+            </Border>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:selected">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:selected /template/ Border#PART_Indicator">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliTabControl" TargetType="TabControl">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <!-- This is the line that carries the header theme down to bare <TabItem> children. -->
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliTabItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+          <DockPanel>
+            <!-- The strip sits on a hairline, which the indicator then sits on top of. -->
+            <Border DockPanel.Dock="Top"
+                    BorderBrush="{DynamicResource FiliDividerBrush}"
+                    BorderThickness="0,0,0,1">
+              <ItemsPresenter x:Name="PART_ItemsPresenter"
+                              ItemsPanel="{TemplateBinding ItemsPanel}" />
+            </Border>
+
+            <ContentPresenter x:Name="PART_SelectedContentHost"
+                              Content="{TemplateBinding SelectedContent}"
+                              ContentTemplate="{TemplateBinding SelectedContentTemplate}"
+                              Margin="{TemplateBinding Padding}" />
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

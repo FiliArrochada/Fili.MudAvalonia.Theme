@@ -1,0 +1,113 @@
+<!--
+  ToolTip, FlyoutPresenter and MenuFlyoutPresenter: the floating surfaces.
+
+  THESE BREAK THE OPT-IN RULE, DELIBERATELY, AND IT IS WORTH UNDERSTANDING WHY.
+
+  Everywhere else in this package a ControlTheme is keyed by name and applied through a class,
+  because Avalonia builds controls out of other controls and a default-keyed theme retemplates
+  things that never asked (a Button theme reaches ButtonSpinner; a TextBox theme reaches
+  AutoCompleteBox, NumericUpDown and the pickers).
+
+  That reasoning does not apply here, because these three are instantiated BY THE FRAMEWORK and
+  have no markup site to carry a class. `ToolTip.Tip="text"` builds the ToolTip internally;
+  `<Flyout>` builds its presenter. There is nowhere to write Classes="fili". So the rule's real
+  shape is narrower than "always use a class":
+
+      Key by class when the control is placed in markup.
+      Key by type when the framework creates it for you.
+
+  Each theme below is therefore declared once under a name - so the inventory and the readiness
+  test can see it - and then aliased to its type key, which is what makes it take effect.
+
+  The risk that justified the rule is also absent: these are leaf presentation surfaces. Nothing
+  composes a ToolTip or a FlyoutPresenter into its own template the way NumericUpDown composes a
+  Button.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliToolTip" TargetType="ToolTip">
+    <!--
+      Deliberately NOT theme-varying. A Material tooltip is a dark chip in light and dark alike -
+      it reads as an annotation floating above the UI rather than as another surface of it. The
+      palette has no slot for that, so FiliTooltipBackgroundBrush is declared outside the theme
+      dictionaries in Palette.axaml, next to the elevation ladder which is non-varying for the
+      same kind of reason.
+    -->
+    <Setter Property="Background" Value="{DynamicResource FiliTooltipBackgroundBrush}" />
+    <Setter Property="Foreground" Value="#FFFFFFFF" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="MaxWidth" Value="320" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Padding}">
+          <ContentPresenter Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            TextBlock.TextWrapping="Wrap" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliFlyoutPresenter" TargetType="FlyoutPresenter">
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Padding" Value="16" />
+    <Setter Property="MinWidth" Value="160" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <!--
+          The margin is not decoration: BoxShadow draws OUTSIDE the border's bounds, and the
+          popup window is sized to its content. Without room to spill into, the shadow is
+          clipped away and the flyout reads as a flat rectangle.
+        -->
+        <Border Margin="8"
+                Background="{TemplateBinding Background}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                BoxShadow="{DynamicResource FiliElevation8}"
+                Padding="{TemplateBinding Padding}">
+          <ContentPresenter Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliMenuFlyoutPresenter" TargetType="MenuFlyoutPresenter">
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliMenuItem}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Margin="8"
+                Background="{TemplateBinding Background}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                BoxShadow="{DynamicResource FiliElevation8}"
+                Padding="0,8"
+                MinWidth="160">
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <!-- The aliases that actually put the three in effect. -->
+  <ControlTheme x:Key="{x:Type ToolTip}" TargetType="ToolTip" BasedOn="{StaticResource FiliToolTip}" />
+  <ControlTheme x:Key="{x:Type FlyoutPresenter}" TargetType="FlyoutPresenter" BasedOn="{StaticResource FiliFlyoutPresenter}" />
+  <ControlTheme x:Key="{x:Type MenuFlyoutPresenter}" TargetType="MenuFlyoutPresenter" BasedOn="{StaticResource FiliMenuFlyoutPresenter}" />
+
+</ResourceDictionary>

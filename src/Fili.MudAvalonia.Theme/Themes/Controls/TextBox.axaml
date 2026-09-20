@@ -1,0 +1,247 @@
+<!--
+  TextBox: the Material text field.
+
+  This is the most recognisable control in the idiom and the one Fluent looks least like. Three
+  things make it, and all three need a template - none can be reached with setters:
+
+    1. A LABEL THAT FLOATS. At rest it sits where the text will go; on focus, or as soon as there
+       is content, it shrinks and rises. Driven here by two pseudo-classes, :focus and :empty.
+    2. AN UNDERLINE THAT ACTIVATES. A 1px resting rule, with a 2px accent rule scaling out from
+       the centre on focus.
+    3. A FILL WITH ONLY TOP CORNERS ROUNDED (4,4,0,0), which is what makes the filled variant read
+       as a sheet of paper resting on its underline rather than as a box.
+
+  PlaceholderText DOUBLES AS THE LABEL, deliberately. Avalonia's TextBox has no Label property,
+  and adding an attached one would be the first real API in a package whose whole point is not
+  having any. The cost is that these variants have no separate placeholder: the label occupies
+  that slot until it floats. If both are ever needed, an attached FiliTextField.Label is the
+  follow-up, and it belongs in a package that depends on this one.
+
+  Opt-in by class, for the same reason as Button - see Controls/Button.axaml. An unclassed TextBox
+  keeps Fluent's theme, which also leaves AutoCompleteBox, NumericUpDown, DatePicker and editable
+  ComboBox alone; every one of them embeds a TextBox and would be retemplated by a default here.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    Filled. The default Material field: tinted sheet, rounded top, underline along the bottom.
+  -->
+  <ControlTheme x:Key="FiliFilledTextBox" TargetType="TextBox">
+    <Setter Property="Background" Value="{DynamicResource FiliInputFilledBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="4,4,0,0" />
+    <Setter Property="MinHeight" Value="56" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+    <Setter Property="CaretBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="IBeam" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                MinHeight="{TemplateBinding MinHeight}">
+          <Panel>
+
+            <!-- Content. Top padding leaves the room the label rises into. -->
+            <DockPanel Margin="12,20,12,8">
+              <ContentPresenter x:Name="PART_InnerLeftContent"
+                                Content="{TemplateBinding InnerLeftContent}"
+                                DockPanel.Dock="Left"
+                                VerticalAlignment="Center" />
+              <ContentPresenter x:Name="PART_InnerRightContent"
+                                Content="{TemplateBinding InnerRightContent}"
+                                DockPanel.Dock="Right"
+                                VerticalAlignment="Center" />
+              <ScrollViewer x:Name="PART_ScrollViewer"
+                            HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                            VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
+                <TextPresenter x:Name="PART_TextPresenter"
+                               Text="{TemplateBinding Text, Mode=TwoWay}"
+                               CaretIndex="{TemplateBinding CaretIndex}"
+                               SelectionStart="{TemplateBinding SelectionStart}"
+                               SelectionEnd="{TemplateBinding SelectionEnd}"
+                               TextAlignment="{TemplateBinding TextAlignment}"
+                               TextWrapping="{TemplateBinding TextWrapping}"
+                               PasswordChar="{TemplateBinding PasswordChar}"
+                               RevealPassword="{TemplateBinding RevealPassword}"
+                               SelectionBrush="{TemplateBinding SelectionBrush}"
+                               SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                               CaretBrush="{TemplateBinding CaretBrush}"
+                               VerticalAlignment="Center" />
+              </ScrollViewer>
+            </DockPanel>
+
+            <!--
+              The floating label. Resting state is defined here; the two selectors below move it.
+              RenderTransform is written in the CSS-like form so TransformOperationsTransition can
+              interpolate it - a TranslateTransform object cannot be transitioned.
+            -->
+            <TextBlock x:Name="PART_FloatingLabel"
+                       Text="{TemplateBinding PlaceholderText}"
+                       Margin="12,0,12,0"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
+                       FontSize="{DynamicResource FiliBody1FontSize}"
+                       LineHeight="NaN"
+                       Foreground="{DynamicResource FiliTextSecondaryBrush}"
+                       RenderTransform="translateY(0px)">
+              <TextBlock.Transitions>
+                <Transitions>
+                  <DoubleTransition Property="FontSize" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+              </TextBlock.Transitions>
+            </TextBlock>
+
+            <!-- Resting rule, always present. -->
+            <Border x:Name="PART_Underline"
+                    Height="1"
+                    VerticalAlignment="Bottom"
+                    Background="{DynamicResource FiliLinesInputsBrush}" />
+
+            <!-- Accent rule, scaled out from the centre on focus. -->
+            <Border x:Name="PART_UnderlineActive"
+                    Height="2"
+                    VerticalAlignment="Bottom"
+                    Background="{DynamicResource FiliPrimaryBrush}"
+                    RenderTransformOrigin="50%,50%"
+                    RenderTransform="scaleX(0)">
+              <Border.Transitions>
+                <Transitions>
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+              </Border.Transitions>
+            </Border>
+
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Hover: Material darkens the sheet slightly rather than colouring the rule. -->
+    <Style Selector="^:pointerover /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:focus /template/ Border#PART_UnderlineActive">
+      <Setter Property="RenderTransform" Value="scaleX(1)" />
+    </Style>
+
+    <!--
+      The float condition, in two halves: focused, OR carrying content. Avalonia's :empty
+      pseudo-class on TextBox is what makes the second half expressible in a selector at all.
+    -->
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+      <Setter Property="RenderTransform" Value="translateY(-16px)" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+      <Setter Property="RenderTransform" Value="translateY(-16px)" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <!--
+      Set on the TextBox, not on PART_TextPresenter. TextPresenter has no Foreground
+      AvaloniaProperty of its own - it picks the inherited TextElement.Foreground up from its
+      parent - so a setter targeting the part fails to compile with AVLN3000.
+    -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+
+    <!-- Error. TextBox has no :error pseudo-class, so this is a class the app sets. -->
+    <Style Selector="^.error /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Border#PART_UnderlineActive">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!--
+    Outlined. Same mechanics, boxed instead of filled.
+
+    The floated label gets an opaque background so it masks the stretch of border it crosses.
+    Material cuts a real notch in the stroke; that needs a generated Geometry and is not worth it
+    here. The mask is only applied in the floated selectors, so a resting field does not paint a
+    surface-coloured patch over whatever it sits on.
+
+    THE MASK ONLY BLENDS ON FiliSurface. It is painted with FiliSurfaceBrush, so on any other
+    background - the page ground, a tinted card, an app bar - the floated label sits on a visible
+    rectangle of the wrong shade. Rendering the gallery in dark mode shows this plainly. Use the
+    filled variant off-surface, or cut a real notch, if that ever matters more than it does now.
+  -->
+  <ControlTheme x:Key="FiliOutlinedTextBox" TargetType="TextBox" BasedOn="{StaticResource FiliFilledTextBox}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+
+    <!-- Boxed fields carry no rules at all. -->
+    <Style Selector="^ /template/ Border#PART_Underline">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^ /template/ Border#PART_UnderlineActive">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:focus /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="Padding" Value="4,0" />
+      <Setter Property="Margin" Value="8,0,12,0" />
+      <Setter Property="RenderTransform" Value="translateY(-28px)" />
+    </Style>
+
+    <Style Selector="^:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="Padding" Value="4,0" />
+      <Setter Property="Margin" Value="8,0,12,0" />
+      <Setter Property="RenderTransform" Value="translateY(-28px)" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="^.error /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

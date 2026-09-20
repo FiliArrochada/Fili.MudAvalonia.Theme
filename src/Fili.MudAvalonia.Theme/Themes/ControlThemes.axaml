@@ -1,0 +1,34 @@
+<!--
+  Control themes, aggregated. One file per control under Controls/.
+
+  Every theme in here is OPT-IN, keyed and applied through a class in FiliTheme.axaml rather than
+  by overriding the default ControlTheme for the type. That is the rule for this package, and the
+  reason is the same each time: Avalonia composes built-in controls out of other built-in
+  controls. Keying a theme to {x:Type Button} retemplates the spinners inside NumericUpDown;
+  keying one to {x:Type TextBox} retemplates the editor inside AutoCompleteBox, NumericUpDown,
+  DatePicker and editable ComboBox. A class keeps the blast radius to controls that asked.
+
+  The line for what belongs here at all: RETEMPLATING an Avalonia control is in scope, INVENTING
+  one is not. Button needed a template because Button has no BoxShadow. TextBox needed one because
+  a floating label is structure, not colour. A Card or a Chip would be a new control and belongs
+  in a package that depends on this one.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Button.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TextBox.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/CheckBox.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/RadioButton.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ToggleSwitch.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Slider.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TabControl.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ScrollBar.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ScrollViewer.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Menu.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Overlays.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Window.axaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

@@ -1,0 +1,234 @@
+<!--
+  Menu, MenuItem and the flyout surface behind a submenu.
+
+  MenuItem is the most state-heavy control in this package, because one type plays three roles:
+  a top-level strip item, a nested row with an icon column and a gesture hint, and a separator.
+  Avalonia distinguishes them with pseudo-classes - :separator, :empty (no children, so no
+  chevron), :selected, :open - which is what lets all three live in one template.
+
+  PART_Popup is required: MenuItem.OnApplyTemplate wires submenu opening to it by name. A submenu
+  therefore gets its elevation from the Border INSIDE that popup rather than from the popup
+  itself, which is a plain host with no visual of its own.
+
+  The icon column is reserved whether or not an item has an icon, so labels line up down the menu
+  instead of shifting by item. That is a Material rule and the thing most hand-rolled menus miss.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliMenuItem" TargetType="MenuItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root" Background="Transparent" CornerRadius="{DynamicResource FiliCornerRadius}">
+          <Panel>
+            <Border x:Name="PART_StateLayer"
+                    Background="Transparent"
+                    CornerRadius="{DynamicResource FiliCornerRadius}" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="{TemplateBinding Padding}">
+              <!-- Reserved icon column: keeps labels aligned whether or not icons exist. -->
+              <ContentPresenter x:Name="PART_IconPresenter"
+                                Grid.Column="0"
+                                Width="20"
+                                Margin="0,0,12,0"
+                                Content="{TemplateBinding Icon}"
+                                VerticalAlignment="Center" />
+
+              <ContentPresenter x:Name="PART_HeaderPresenter"
+                                Grid.Column="1"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                VerticalAlignment="Center" />
+
+              <!-- No converter on InputGesture: Avalonia 12 exposes no public KeyGesture
+                   converter, and the binding stringifies the gesture on its own. -->
+              <TextBlock x:Name="PART_GestureText"
+                         Grid.Column="2"
+                         Classes="caption"
+                         Margin="24,0,0,0"
+                         Text="{TemplateBinding InputGesture}"
+                         VerticalAlignment="Center" />
+
+              <!-- Submenu chevron, hidden when the item has no children. -->
+              <Path x:Name="PART_Chevron"
+                    Grid.Column="3"
+                    Margin="12,0,0,0"
+                    Width="6" Height="10"
+                    Stretch="Uniform"
+                    Data="M 0,0 L 6,5 L 0,10"
+                    Stroke="{DynamicResource FiliActionDefaultBrush}"
+                    StrokeThickness="1.5"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    VerticalAlignment="Center" />
+            </Grid>
+
+            <Popup x:Name="PART_Popup"
+                   WindowManagerAddShadowHint="False"
+                   Placement="RightEdgeAlignedTop"
+                   HorizontalOffset="-4"
+                   IsLightDismissEnabled="False"
+                   IsOpen="{TemplateBinding IsSubMenuOpen, Mode=TwoWay}">
+              <Border Background="{DynamicResource FiliSurfaceBrush}"
+                      CornerRadius="{DynamicResource FiliCornerRadius}"
+                      BoxShadow="{DynamicResource FiliElevation8}"
+                      Padding="0,8"
+                      MinWidth="160"
+                      Margin="8">
+                <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                ItemsPanel="{TemplateBinding ItemsPanel}" />
+              </Border>
+            </Popup>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- A leaf item carries no chevron. -->
+    <Style Selector="^:empty /template/ Path#PART_Chevron">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^:selected /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:open /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+
+    <!-- Separator: one hairline, the whole row. -->
+    <Style Selector="^:separator">
+      <Setter Property="MinHeight" Value="1" />
+      <Setter Property="Margin" Value="0,8" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Height="1" Background="{DynamicResource FiliDividerBrush}" />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </ControlTheme>
+
+  <!--
+    Top-level strip item. A separate theme from the dropdown row on purpose: the two look alike
+    in a markup tree and are different controls on screen.
+
+    A strip item has NO chevron - the first render of this menu showed "Library >  View >" across
+    the top, because the dropdown template hides its chevron only for leaf items and a top-level
+    item always has children. It also has no icon column, since there is nothing below it to
+    align with, and its popup drops DOWNWARD rather than to the right.
+
+    Its own ItemContainerTheme is the dropdown row, which is what makes one level of the menu
+    strip-shaped and every level under it row-shaped.
+  -->
+  <ControlTheme x:Key="FiliTopLevelMenuItem" TargetType="MenuItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliMenuItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root" Background="Transparent" CornerRadius="{DynamicResource FiliCornerRadius}">
+          <Panel>
+            <Border x:Name="PART_StateLayer"
+                    Background="Transparent"
+                    CornerRadius="{DynamicResource FiliCornerRadius}" />
+
+            <ContentPresenter x:Name="PART_HeaderPresenter"
+                              Content="{TemplateBinding Header}"
+                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              Margin="{TemplateBinding Padding}"
+                              VerticalAlignment="Center" />
+
+            <Popup x:Name="PART_Popup"
+                   WindowManagerAddShadowHint="False"
+                   Placement="BottomEdgeAlignedLeft"
+                   IsLightDismissEnabled="True"
+                   IsOpen="{TemplateBinding IsSubMenuOpen, Mode=TwoWay}">
+              <Border Background="{DynamicResource FiliSurfaceBrush}"
+                      CornerRadius="{DynamicResource FiliCornerRadius}"
+                      BoxShadow="{DynamicResource FiliElevation8}"
+                      Padding="0,8"
+                      MinWidth="180"
+                      Margin="8">
+                <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                ItemsPanel="{TemplateBinding ItemsPanel}" />
+              </Border>
+            </Popup>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:selected /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:open /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:open">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliMenu" TargetType="Menu">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliTopLevelMenuItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}"
+                          KeyboardNavigation.TabNavigation="Continue" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliContextMenu" TargetType="ContextMenu">
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliMenuItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                CornerRadius="{DynamicResource FiliCornerRadius}"
+                BoxShadow="{DynamicResource FiliElevation8}"
+                Padding="0,8"
+                MinWidth="160">
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

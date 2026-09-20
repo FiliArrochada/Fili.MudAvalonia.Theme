@@ -1,0 +1,52 @@
+<!--
+  Window: the client area.
+
+  Almost nothing here is styling. A Window ControlTheme exists because it is the last structural
+  piece before a theme can stand without a substrate, and because two parts inside it are
+  load-bearing in ways that are invisible until they are missing:
+
+    * VisualLayerManager hosts the OVERLAY LAYER. Tooltips, flyouts, popups, adorners, drag
+      visuals and dialog hosts all render into it. Leave it out and the window still shows its
+      content perfectly while every tooltip and flyout in the app silently fails to appear.
+
+    * PART_TransparencyFallback is looked up by Window by name and painted when the requested
+      transparency level is not available - which is most Linux setups. Without it, a window
+      asking for acrylic or blur on a compositor that cannot provide it renders with no
+      background at all.
+
+  Opt-in by class, because unlike ToolTip and FlyoutPresenter a Window IS written in markup, so
+  there is somewhere to put one.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliWindow" TargetType="Window">
+    <Setter Property="Background" Value="{DynamicResource FiliBackgroundGrayBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_TransparencyFallback" IsHitTestVisible="False" />
+
+          <Border Background="{TemplateBinding Background}" IsHitTestVisible="False" />
+
+          <!-- Reserves the strip the OS decorations occupy when they are drawn client-side. -->
+          <Panel Background="Transparent" Margin="{TemplateBinding WindowDecorationMargin}" />
+
+          <VisualLayerManager>
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Margin="{TemplateBinding Padding}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </VisualLayerManager>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

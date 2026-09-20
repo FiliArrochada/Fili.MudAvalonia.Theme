@@ -1,0 +1,120 @@
+<!--
+  CheckBox: the Material checkbox.
+
+  Three things distinguish it from Fluent's, and all three are structural:
+
+    1. An 18px box with a 2px STROKE when unchecked and a solid PRIMARY FILL when checked. Fluent
+       keeps a filled chip in both states and only changes its tint.
+    2. A CIRCULAR state layer, 40px, centred on the box rather than on the whole row. That circle
+       is the Material hit-target and the thing the hover tint lands on.
+    3. A drawn CHECK GLYPH, as a stroked Path with round caps, rather than a font glyph - so it
+       scales and recolours with the theme instead of depending on a symbol font being present.
+
+  Opt-in by class, as everything here is. Unclassed CheckBox stays on the substrate theme, which
+  also leaves the checkboxes inside TreeView, DataGrid and MenuItem templates alone.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliCheckBox" TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="MinHeight" Value="40" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*">
+
+          <Panel Grid.Column="0" Width="40" Height="40">
+
+            <!-- State layer: circular, centred on the box, not on the row. -->
+            <Ellipse x:Name="PART_StateLayer"
+                     Width="40" Height="40"
+                     Fill="Transparent" />
+
+            <Border x:Name="PART_Box"
+                    Width="18" Height="18"
+                    CornerRadius="2"
+                    BorderThickness="2"
+                    BorderBrush="{DynamicResource FiliActionDefaultBrush}"
+                    Background="Transparent"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+              <Panel>
+                <!-- Checked -->
+                <Path x:Name="PART_CheckGlyph"
+                      Data="M 2,7 L 5.2,10.2 L 11.5,3.4"
+                      Stroke="{DynamicResource FiliPrimaryContrastTextBrush}"
+                      StrokeThickness="2"
+                      StrokeLineCap="Round"
+                      StrokeJoin="Round"
+                      IsVisible="False" />
+
+                <!-- Indeterminate -->
+                <Border x:Name="PART_IndeterminateGlyph"
+                        Width="10" Height="2"
+                        CornerRadius="1"
+                        Background="{DynamicResource FiliPrimaryContrastTextBrush}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsVisible="False" />
+              </Panel>
+            </Border>
+          </Panel>
+
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Grid.Column="1"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Checked and indeterminate both fill the box; only the glyph differs. -->
+    <Style Selector="^:checked /template/ Border#PART_Box">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:checked /template/ Path#PART_CheckGlyph">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <Style Selector="^:indeterminate /template/ Border#PART_Box">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:indeterminate /template/ Border#PART_IndeterminateGlyph">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Box">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled:checked /template/ Border#PART_Box">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled:indeterminate /template/ Border#PART_Box">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

@@ -1,0 +1,61 @@
+<!--
+  ScrollViewer: the host that gives the scroll bars something to scroll.
+
+  There is almost nothing decorative here, and that is the point - ScrollViewer is a structural
+  control, not a styled one. It is in this package because it is one of the pieces that has to
+  exist before the substrate can be dropped: without a ScrollViewer template there is no
+  ScrollContentPresenter, and with no ScrollContentPresenter nothing scrolls at all.
+
+  Three part names are required by ScrollViewer.OnApplyTemplate and are not optional:
+  PART_ContentPresenter (which must be a ScrollContentPresenter, not a plain one),
+  PART_HorizontalScrollBar and PART_VerticalScrollBar. Renaming any of them yields a control that
+  lays out correctly and does not scroll.
+
+  The bars overlay the content rather than insetting it, which is what keeps a scrolled list from
+  reflowing by 12px the moment it becomes scrollable.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliScrollViewer" TargetType="ScrollViewer">
+    <Setter Property="Background" Value="Transparent" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,Auto">
+
+            <ScrollContentPresenter x:Name="PART_ContentPresenter"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.RowSpan="2"
+                                    Grid.ColumnSpan="2"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Padding="{TemplateBinding Padding}"
+                                    HorizontalSnapPointsType="{TemplateBinding HorizontalSnapPointsType}"
+                                    VerticalSnapPointsType="{TemplateBinding VerticalSnapPointsType}"
+                                    HorizontalSnapPointsAlignment="{TemplateBinding HorizontalSnapPointsAlignment}"
+                                    VerticalSnapPointsAlignment="{TemplateBinding VerticalSnapPointsAlignment}" />
+
+            <ScrollBar x:Name="PART_VerticalScrollBar"
+                       Grid.Row="0"
+                       Grid.Column="1"
+                       Theme="{StaticResource FiliScrollBar}"
+                       Orientation="Vertical" />
+
+            <ScrollBar x:Name="PART_HorizontalScrollBar"
+                       Grid.Row="1"
+                       Grid.Column="0"
+                       Theme="{StaticResource FiliScrollBar}"
+                       Orientation="Horizontal" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

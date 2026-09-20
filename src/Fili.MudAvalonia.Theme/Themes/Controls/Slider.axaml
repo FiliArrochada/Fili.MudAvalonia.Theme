@@ -1,0 +1,147 @@
+<!--
+  Slider: the Material slider.
+
+  Structure is dictated by Avalonia, not by Material: Slider.OnApplyTemplate requires a Track
+  named PART_Track, and the Track in turn requires a Thumb plus a DecreaseButton and an
+  IncreaseButton. Those two RepeatButtons ARE the active and inactive halves of the rail - the
+  active half is not a separate element - so the Material look comes from theming them as thin
+  rounded bars rather than as buttons.
+
+  Both orientations need their own Template. A single horizontal template applied to a vertical
+  Slider does not degrade, it renders sideways, so the :vertical override below is not optional.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- A rail half. Height/width is set by the orientation selectors on the Slider itself. -->
+  <ControlTheme x:Key="FiliSliderTrackPiece" TargetType="RepeatButton">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" CornerRadius="2" />
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliSliderThumb" TargetType="Thumb">
+    <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="Width" Value="40" />
+    <Setter Property="Height" Value="40" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <!-- 40px state layer, same circular halo as the selection controls. -->
+          <Ellipse x:Name="PART_StateLayer" Width="40" Height="40" Fill="Transparent" />
+          <Ellipse x:Name="PART_Knob"
+                   Width="12" Height="12"
+                   Fill="{TemplateBinding Background}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   RenderTransformOrigin="50%,50%"
+                   RenderTransform="scale(1)">
+            <Ellipse.Transitions>
+              <Transitions>
+                <TransformOperationsTransition Property="RenderTransform"
+                                               Duration="0:0:0.15"
+                                               Easing="CubicEaseOut" />
+              </Transitions>
+            </Ellipse.Transitions>
+          </Ellipse>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Material grows the knob on interaction rather than only tinting it. -->
+    <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Ellipse#PART_Knob">
+      <Setter Property="RenderTransform" Value="scale(1.3)" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#PART_Knob">
+      <Setter Property="RenderTransform" Value="scale(1.5)" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliSlider" TargetType="Slider">
+    <Setter Property="Background" Value="{DynamicResource FiliLinesInputsBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="MinHeight" Value="40" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid x:Name="PART_Container" Margin="{TemplateBinding Padding}">
+          <Track x:Name="PART_Track"
+                 Minimum="{TemplateBinding Minimum}"
+                 Maximum="{TemplateBinding Maximum}"
+                 Value="{TemplateBinding Value, Mode=TwoWay}"
+                 IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                 Orientation="Horizontal">
+            <Track.DecreaseButton>
+              <RepeatButton x:Name="PART_DecreaseButton"
+                            Theme="{StaticResource FiliSliderTrackPiece}"
+                            Background="{TemplateBinding Foreground}"
+                            Height="4"
+                            VerticalAlignment="Center" />
+            </Track.DecreaseButton>
+            <Track.IncreaseButton>
+              <RepeatButton x:Name="PART_IncreaseButton"
+                            Theme="{StaticResource FiliSliderTrackPiece}"
+                            Background="{TemplateBinding Background}"
+                            Height="4"
+                            VerticalAlignment="Center" />
+            </Track.IncreaseButton>
+            <Thumb x:Name="PART_Thumb"
+                   Theme="{StaticResource FiliSliderThumb}"
+                   Background="{TemplateBinding Foreground}" />
+          </Track>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:vertical">
+      <Setter Property="MinWidth" Value="40" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Grid x:Name="PART_Container" Margin="{TemplateBinding Padding}">
+            <Track x:Name="PART_Track"
+                   Minimum="{TemplateBinding Minimum}"
+                   Maximum="{TemplateBinding Maximum}"
+                   Value="{TemplateBinding Value, Mode=TwoWay}"
+                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                   Orientation="Vertical">
+              <Track.DecreaseButton>
+                <RepeatButton x:Name="PART_DecreaseButton"
+                              Theme="{StaticResource FiliSliderTrackPiece}"
+                              Background="{TemplateBinding Foreground}"
+                              Width="4"
+                              HorizontalAlignment="Center" />
+              </Track.DecreaseButton>
+              <Track.IncreaseButton>
+                <RepeatButton x:Name="PART_IncreaseButton"
+                              Theme="{StaticResource FiliSliderTrackPiece}"
+                              Background="{TemplateBinding Background}"
+                              Width="4"
+                              HorizontalAlignment="Center" />
+              </Track.IncreaseButton>
+              <Thumb x:Name="PART_Thumb"
+                     Theme="{StaticResource FiliSliderThumb}"
+                     Background="{TemplateBinding Foreground}" />
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

@@ -1,0 +1,158 @@
+<!--
+  Control themes.
+
+  These are OPT-IN, applied through a class rather than by overriding the default
+  ControlTheme for Button. That is deliberate: Avalonia composes several built-in controls
+  out of plain Buttons (ButtonSpinner, the DatePicker presenter, flyout affordances), so
+  replacing the default theme silently retemplates parts of NumericUpDown and the pickers
+  too. A class keeps the blast radius to buttons this app actually asked for.
+
+  Usage:
+    <Button Classes="primary"  Content="Save" />     raised, primary fill
+    <Button Classes="secondary" Content="Share" />   raised, secondary fill
+    <Button Classes="outlined" Content="Cancel" />   bordered, transparent
+    <Button Classes="text"     Content="Learn more" /> flat, transparent
+
+  NOT HERE: the ripple. Material's touch feedback has no Avalonia primitive, and faking it
+  needs an animated, clipped ellipse driven from pointer position in the template - real work
+  with real perf implications. The state layer below (a tinted overlay on hover and press) is
+  the static half of the same idea and carries most of the affordance.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    Contained / raised. The elevation change across rest -> hover -> press is the whole point:
+    it is what Fluent cannot express, because Button has no BoxShadow property and only the
+    Border inside a template does.
+  -->
+  <ControlTheme x:Key="FiliContainedButton" TargetType="Button">
+    <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="Padding" Value="16,0" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="MinWidth" Value="64" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                BoxShadow="{DynamicResource FiliElevation2}">
+          <Panel>
+            <!-- State layer. Sits under the content, over the fill. -->
+            <Border x:Name="PART_StateLayer"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Background="Transparent" />
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              Padding="{TemplateBinding Padding}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation8}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <!-- Disabled drops to the ground: no shadow at all, not a dimmed one. -->
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Text / flat. Material's actual default button. No fill, no elevation, ever. -->
+  <ControlTheme x:Key="FiliTextButton" TargetType="Button">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="MinWidth" Value="64" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Panel>
+            <Border x:Name="PART_StateLayer"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Background="Transparent" />
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              Padding="{TemplateBinding Padding}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Outlined. Text button plus a 1px line in the palette's input-line colour. -->
+  <ControlTheme x:Key="FiliOutlinedButton" TargetType="Button" BasedOn="{StaticResource FiliTextButton}">
+    <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="16,0" />
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

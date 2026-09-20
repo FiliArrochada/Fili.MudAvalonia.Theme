@@ -1,0 +1,134 @@
+<!--
+  ToggleSwitch: the Material switch.
+
+  The shape is the point, and it is unlike Fluent's. Material puts a 20px thumb that is LARGER
+  than its 14px track, overhanging it above and below, with elevation under the thumb. Fluent
+  puts a smaller thumb inside a taller capsule. Nothing about that is reachable with setters.
+
+  ON is Primary for the thumb with the track at half opacity - so the track reads as a tint of
+  the thumb rather than as its own colour. That is why the on-state needs no palette tokens; only
+  the off-state does, and those two are declared in Palette.axaml as Material behaviour.
+
+  PART NAMES ARE LOAD-BEARING. ToggleSwitch.OnApplyTemplate looks up PART_SwitchKnob and
+  PART_MovingKnobs to wire knob dragging. The lookups are null-safe, so omitting them costs the
+  drag gesture rather than crashing - but then the switch only responds to clicks, which is a
+  silent downgrade. They are kept, and the checked-state transform is applied to PART_Thumb
+  INSIDE PART_MovingKnobs so it composes with the drag transform instead of fighting it.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliToggleSwitch" TargetType="ToggleSwitch">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="MinHeight" Value="40" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*">
+
+          <Panel Grid.Column="0" Width="52" Height="40">
+
+            <!-- Track: 34x14, sits behind and is overhung by the thumb. -->
+            <Border x:Name="PART_Track"
+                    Width="34" Height="14"
+                    CornerRadius="7"
+                    Background="{DynamicResource FiliSwitchTrackOffBrush}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+
+            <!-- Travel area. Width is track width, so the thumb can sit at either end. -->
+            <Panel x:Name="PART_SwitchKnob"
+                   Width="34" Height="20"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center">
+
+              <!-- Avalonia translates THIS panel while a drag is in progress. -->
+              <Panel x:Name="PART_MovingKnobs">
+
+                <Ellipse x:Name="PART_ThumbStateLayer"
+                         Width="40" Height="40"
+                         Fill="Transparent"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Center"
+                         Margin="-10,0,0,0"
+                         RenderTransform="translateX(0px)">
+                  <Ellipse.Transitions>
+                    <Transitions>
+                      <TransformOperationsTransition Property="RenderTransform"
+                                                     Duration="0:0:0.15"
+                                                     Easing="CubicEaseOut" />
+                    </Transitions>
+                  </Ellipse.Transitions>
+                </Ellipse>
+
+                <Border x:Name="PART_Thumb"
+                        Width="20" Height="20"
+                        CornerRadius="10"
+                        Background="{DynamicResource FiliSwitchThumbOffBrush}"
+                        BoxShadow="{DynamicResource FiliElevation2}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        RenderTransform="translateX(0px)">
+                  <Border.Transitions>
+                    <Transitions>
+                      <TransformOperationsTransition Property="RenderTransform"
+                                                     Duration="0:0:0.15"
+                                                     Easing="CubicEaseOut" />
+                      <BrushTransition Property="Background" Duration="0:0:0.15" />
+                    </Transitions>
+                  </Border.Transitions>
+                </Border>
+              </Panel>
+            </Panel>
+          </Panel>
+
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Grid.Column="1"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Travel is track width minus thumb width: 34 - 20 = 14. -->
+    <Style Selector="^:checked /template/ Border#PART_Thumb">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="RenderTransform" Value="translateX(14px)" />
+    </Style>
+    <Style Selector="^:checked /template/ Ellipse#PART_ThumbStateLayer">
+      <Setter Property="RenderTransform" Value="translateX(14px)" />
+    </Style>
+    <Style Selector="^:checked /template/ Border#PART_Track">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#PART_ThumbStateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#PART_ThumbStateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Thumb">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Border#PART_Track">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

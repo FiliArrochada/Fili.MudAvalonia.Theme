@@ -1,0 +1,96 @@
+<!--
+  RadioButton: the Material radio.
+
+  Same skeleton as the checkbox - 40px circular state layer, 20px control, label to the right -
+  with one difference that matters: the checked state does NOT fill the outer ring. It recolours
+  the ring to primary and grows a separate inner disc. Filling the ring instead, the way a
+  checkbox fills its box, is the usual mistake and reads as a checkbox that happens to be round.
+
+  The inner disc scales rather than appears, so selection has the same easing as the rest of the
+  theme. RenderTransform is written in the CSS-like form because only TransformOperations can be
+  interpolated by a transition.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliRadioButton" TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="MinHeight" Value="40" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*">
+
+          <Panel Grid.Column="0" Width="40" Height="40">
+
+            <Ellipse x:Name="PART_StateLayer"
+                     Width="40" Height="40"
+                     Fill="Transparent" />
+
+            <Ellipse x:Name="PART_Ring"
+                     Width="20" Height="20"
+                     StrokeThickness="2"
+                     Stroke="{DynamicResource FiliActionDefaultBrush}"
+                     Fill="Transparent"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+
+            <Ellipse x:Name="PART_Dot"
+                     Width="10" Height="10"
+                     Fill="{DynamicResource FiliPrimaryBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     RenderTransformOrigin="50%,50%"
+                     RenderTransform="scale(0)">
+              <Ellipse.Transitions>
+                <Transitions>
+                  <TransformOperationsTransition Property="RenderTransform"
+                                                 Duration="0:0:0.15"
+                                                 Easing="CubicEaseOut" />
+                </Transitions>
+              </Ellipse.Transitions>
+            </Ellipse>
+          </Panel>
+
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Grid.Column="1"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:checked /template/ Ellipse#PART_Ring">
+      <Setter Property="Stroke" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:checked /template/ Ellipse#PART_Dot">
+      <Setter Property="RenderTransform" Value="scale(1)" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Ellipse#PART_Ring">
+      <Setter Property="Stroke" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Ellipse#PART_Dot">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>
