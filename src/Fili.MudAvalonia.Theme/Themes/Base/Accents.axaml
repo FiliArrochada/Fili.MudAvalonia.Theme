@@ -1,0 +1,172 @@
+<!--
+  The bridge. This is the whole trick of the fork.
+
+  The 79 templates under Base/Controls are Avalonia's Simple theme, taken verbatim at 12.1.2 and
+  rebased onto this package. Not one of them was restyled. They all paint themselves out of the
+  ~75 resource keys defined here, so REPLACING THIS ONE FILE REPALETTES EVERY CONTROL AT ONCE -
+  which is why forking Simple is so much cheaper than writing 72 templates.
+
+  That small, stable key surface is the actual reason to fork Simple rather than Fluent. Fluent's
+  equivalent is hundreds of layered keys that shift between versions; Simple's is this list.
+
+  Everything is declared OUTSIDE ThemeDictionaries and bound with DynamicResource to the Fili
+  tokens, which are themselves theme-varying. So light/dark is handled once, in Palette.axaml,
+  and never duplicated here.
+
+  Where a mapping is a judgement rather than an obvious equivalence, it is commented. The two
+  worth knowing: ThemeBackground is mapped to SURFACE rather than to the page ground, because
+  Simple uses it for control interiors; and the accent ramp is expressed with Opacity rather than
+  baked alpha, so it follows the primary without four more tokens.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+
+  <!--
+    ============================ Raw Colors ============================
+
+    The templates ask for both `*Brush` and `*Color` forms of most tokens, and a Color entry
+    cannot be bound - DynamicResource has nowhere to go in a bare <Color> value. So these are
+    the one place in this package where palette values are duplicated as literals, per variant.
+
+    Defining only the brushes is what broke the first standalone render: eighteen Color keys
+    resolved to nothing, and the controls that painted from them - ToggleSwitch most visibly -
+    rendered as labels with no switch. A missing key is silent, as ever.
+
+    KEEP THESE IN STEP WITH Palette.axaml. SimpleBridgeResolvesEveryKey asserts they resolve;
+    it cannot assert they still match.
+  -->
+  <ResourceDictionary.ThemeDictionaries>
+
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="ThemeForegroundColor">#424242</Color>
+      <Color x:Key="ThemeForegroundLowColor">#8A000000</Color>
+      <Color x:Key="ThemeForegroundMidColor">#8A000000</Color>
+      <Color x:Key="ThemeDisabledColor">#42000000</Color>
+      <Color x:Key="ThemeBorderLowColor">#E0E0E0</Color>
+      <Color x:Key="ThemeBorderMidColor">#BDBDBD</Color>
+      <Color x:Key="ThemeBorderHighColor">#424242</Color>
+      <Color x:Key="ThemeControlLowColor">#F5F5F5</Color>
+      <Color x:Key="ThemeControlMidColor">#F5F5F5</Color>
+      <Color x:Key="ThemeControlMidHighColor">#BDBDBD</Color>
+      <Color x:Key="ThemeControlHighColor">#8A000000</Color>
+      <Color x:Key="ThemeControlHighlightMidColor">#1F000000</Color>
+      <Color x:Key="ThemeAccentColor">#594AE2</Color>
+      <Color x:Key="ThemeAccentColor2">#99594AE2</Color>
+      <Color x:Key="ThemeAccentColor3">#66594AE2</Color>
+      <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="ThemeForegroundColor">#B3FFFFFF</Color>
+      <Color x:Key="ThemeForegroundLowColor">#80FFFFFF</Color>
+      <Color x:Key="ThemeForegroundMidColor">#ADADB1</Color>
+      <Color x:Key="ThemeDisabledColor">#42FFFFFF</Color>
+      <Color x:Key="ThemeBorderLowColor">#1FFFFFFF</Color>
+      <Color x:Key="ThemeBorderMidColor">#4DFFFFFF</Color>
+      <Color x:Key="ThemeBorderHighColor">#B3FFFFFF</Color>
+      <Color x:Key="ThemeControlLowColor">#27272F</Color>
+      <Color x:Key="ThemeControlMidColor">#27272F</Color>
+      <Color x:Key="ThemeControlMidHighColor">#4DFFFFFF</Color>
+      <Color x:Key="ThemeControlHighColor">#ADADB1</Color>
+      <Color x:Key="ThemeControlHighlightMidColor">#29FFFFFF</Color>
+      <Color x:Key="ThemeAccentColor">#776BE7</Color>
+      <Color x:Key="ThemeAccentColor2">#99776BE7</Color>
+      <Color x:Key="ThemeAccentColor3">#66776BE7</Color>
+      <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+
+  <SolidColorBrush x:Key="DatePickerSpacerFill" Color="{DynamicResource FiliDividerColor}" />
+  <SolidColorBrush x:Key="TimePickerSpacerFill" Color="{DynamicResource FiliDividerColor}" />
+
+  <!-- ============================ Surfaces and text ============================ -->
+
+  <!-- Simple uses ThemeBackground for control interiors (TextBox, ComboBox, popups),
+       not for the page. Mapping it to the page ground would make every input disappear. -->
+  <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{DynamicResource FiliSurfaceColor}" />
+  <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{DynamicResource FiliTextPrimaryColor}" />
+  <SolidColorBrush x:Key="ThemeForegroundLowBrush" Color="{DynamicResource FiliTextSecondaryColor}" />
+
+  <SolidColorBrush x:Key="ThemeBorderLowBrush" Color="{DynamicResource FiliDividerColor}" />
+  <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{DynamicResource FiliLinesInputsColor}" />
+  <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{DynamicResource FiliTextPrimaryColor}" />
+
+  <SolidColorBrush x:Key="ThemeControlLowBrush" Color="{DynamicResource FiliBackgroundGrayColor}" />
+  <SolidColorBrush x:Key="ThemeControlMidBrush" Color="{DynamicResource FiliBackgroundGrayColor}" />
+  <SolidColorBrush x:Key="ThemeControlMidHighBrush" Color="{DynamicResource FiliLinesInputsColor}" />
+  <SolidColorBrush x:Key="ThemeControlHighBrush" Color="{DynamicResource FiliActionDefaultColor}" />
+  <SolidColorBrush x:Key="ThemeControlVeryHighBrush" Color="{DynamicResource FiliTextPrimaryColor}" />
+  <SolidColorBrush x:Key="ThemeControlTransparentBrush" Color="Transparent" />
+
+  <!-- The highlight ladder is Material's state layer, so it maps straight onto the overlays. -->
+  <SolidColorBrush x:Key="ThemeControlHighlightLowBrush" Color="{DynamicResource FiliOverlayHoverColor}" />
+  <SolidColorBrush x:Key="ThemeControlHighlightMidBrush" Color="{DynamicResource FiliOverlayPressedColor}" />
+  <SolidColorBrush x:Key="ThemeControlHighlightHighBrush" Color="{DynamicResource FiliActionDefaultColor}" />
+
+  <!-- ============================ Accent and selection ============================ -->
+
+  <!-- Opacity rather than baked alpha, so the ramp follows FiliPrimary in both variants
+       without four more palette tokens to keep in step. -->
+  <SolidColorBrush x:Key="ThemeAccentBrush" Color="{DynamicResource FiliPrimaryColor}" />
+  <SolidColorBrush x:Key="ThemeAccentBrush2" Color="{DynamicResource FiliPrimaryColor}" Opacity="0.6" />
+  <SolidColorBrush x:Key="ThemeAccentBrush3" Color="{DynamicResource FiliPrimaryColor}" Opacity="0.4" />
+  <SolidColorBrush x:Key="ThemeAccentBrush4" Color="{DynamicResource FiliPrimaryColor}" Opacity="0.2" />
+
+  <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource FiliPrimaryColor}" />
+  <SolidColorBrush x:Key="HighlightBrush2" Color="{DynamicResource FiliPrimaryColor}" Opacity="0.75" />
+  <SolidColorBrush x:Key="HighlightForegroundBrush" Color="{DynamicResource FiliPrimaryContrastTextColor}" />
+
+  <SolidColorBrush x:Key="HyperlinkVisitedBrush" Color="{DynamicResource FiliTertiaryColor}" />
+
+  <SolidColorBrush x:Key="ErrorBrush" Color="{DynamicResource FiliErrorColor}" />
+  <SolidColorBrush x:Key="ErrorLowBrush" Color="{DynamicResource FiliErrorColor}" Opacity="0.12" />
+
+  <SolidColorBrush x:Key="DatePickerFlyoutPresenterHighlightFill"
+                   Color="{DynamicResource FiliPrimaryColor}" Opacity="0.4" />
+  <SolidColorBrush x:Key="TimePickerFlyoutPresenterHighlightFill"
+                   Color="{DynamicResource FiliPrimaryColor}" Opacity="0.4" />
+
+  <!-- ============================ Window chrome ============================ -->
+
+  <SolidColorBrush x:Key="CaptionButtonForeground" Color="{DynamicResource FiliAppbarTextColor}" />
+  <SolidColorBrush x:Key="CaptionButtonBackground" Color="{DynamicResource FiliAppbarBackgroundColor}" />
+  <SolidColorBrush x:Key="CaptionButtonBorderBrush" Color="{DynamicResource FiliDividerColor}" />
+  <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="{DynamicResource FiliAppbarBackgroundColor}" />
+
+  <SolidColorBrush x:Key="RefreshVisualizerForeground" Color="{DynamicResource FiliTextPrimaryColor}" />
+  <SolidColorBrush x:Key="RefreshVisualizerBackground" Color="Transparent" />
+
+  <!-- ============================ Notifications ============================ -->
+
+  <SolidColorBrush x:Key="NotificationCardBackgroundBrush" Color="{DynamicResource FiliSurfaceColor}" />
+  <SolidColorBrush x:Key="NotificationCardInformationBackgroundBrush" Color="{DynamicResource FiliInfoColor}" />
+  <SolidColorBrush x:Key="NotificationCardSuccessBackgroundBrush" Color="{DynamicResource FiliSuccessColor}" />
+  <SolidColorBrush x:Key="NotificationCardWarningBackgroundBrush" Color="{DynamicResource FiliWarningColor}" />
+  <SolidColorBrush x:Key="NotificationCardErrorBackgroundBrush" Color="{DynamicResource FiliErrorColor}" />
+
+  <!-- ============================ Metrics ============================ -->
+
+  <StaticResource x:Key="ContentControlThemeFontFamily" ResourceKey="FiliFontFamily" />
+
+  <!-- Simple ships 10/12/16. These are the Fili ramp instead: caption, body2, subtitle1. -->
+  <sys:Double x:Key="FontSizeSmall">12</sys:Double>
+  <sys:Double x:Key="FontSizeNormal">14</sys:Double>
+  <sys:Double x:Key="FontSizeLarge">16</sys:Double>
+
+  <Thickness x:Key="ThemeBorderThickness">1</Thickness>
+  <sys:Double x:Key="ThemeDisabledOpacity">0.5</sys:Double>
+
+  <!-- Matches the hand-written ScrollBar theme, so forked and themed bars agree. -->
+  <sys:Double x:Key="ScrollBarThickness">12</sys:Double>
+  <sys:Double x:Key="ScrollBarThumbThickness">8</sys:Double>
+
+  <sys:Double x:Key="IconElementThemeHeight">20</sys:Double>
+  <sys:Double x:Key="IconElementThemeWidth">20</sys:Double>
+
+  <!-- 1.0, not Simple's 0.5: FiliTextSecondary already carries its own alpha, and dimming it
+       again puts placeholder text below the contrast floor. -->
+  <sys:Double x:Key="TextControlPlaceholderOpacity">1.0</sys:Double>
+
+</ResourceDictionary>

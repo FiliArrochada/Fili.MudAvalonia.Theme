@@ -1,0 +1,37 @@
+<!--
+  The base layer: templates for every Avalonia control, so this package needs no substrate.
+
+  This replaces FluentTheme exactly where it used to sit:
+
+      <Application.Styles>
+        <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
+        <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+      </Application.Styles>
+
+  Order is still load-bearing, for the same reason as before: base first, Fili second, because
+  later styles win for overlapping setters. The seventeen hand-written control themes in
+  FiliTheme override their forked counterparts precisely because they come after this.
+
+  Kept as a separate entry point rather than folded into FiliTheme so that the precedence stays
+  explicit and inspectable, instead of depending on how resource lookup orders a parent Styles
+  against a child StyleInclude.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!-- Tokens first: Accents.axaml binds Simple's key surface to them. -->
+        <MergeResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Palette.axaml" />
+        <MergeResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Typography.axaml" />
+        <MergeResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Geometry.axaml" />
+        <MergeResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/Accents.axaml" />
+        <MergeResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/InvariantResources.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/Controls/SimpleControls.axaml" />
+
+</Styles>
