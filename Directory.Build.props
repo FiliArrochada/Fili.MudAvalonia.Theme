@@ -1,0 +1,43 @@
+<Project>
+
+  <!-- =====================================================================================
+       SHARED BLOCK - identical in every repo in this workspace. Source of truth: the
+       "Anatomy of a service repo" recipe in the workspace CLAUDE.md. Copy it verbatim; put
+       this repo's own settings below the separator, in this same file.
+       ===================================================================================== -->
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- Binding redirects for projects that carry an app.config or a web.config.
+       GenerateBindingRedirectsOutputType extends the generation to library and test outputs,
+       which are skipped otherwise. -->
+  <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)/app.config') Or Exists('$(MSBuildProjectDirectory)/web.config')">
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <!-- ================================ end of shared block ================================ -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!--
+      Globalization stays on. The gallery renders the type ramp with real text, and
+      string.Normalize is a no-op in invariant globalization mode.
+    -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Company>FiliArroxada</Company>
+    <Authors>FiliArroxada</Authors>
+    <Product>Fili.MudAvalonia.Theme</Product>
+    <Copyright>Copyright (c) FiliArroxada</Copyright>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+</Project>
