@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Fili.MudAvalonia.Theme.Gallery.Views.TypographyView">
+
+  <ScrollViewer>
+    <StackPanel Margin="24" Spacing="4" MaxWidth="900" HorizontalAlignment="Left">
+
+      <TextBlock Classes="h6" Text="Type ramp" />
+      <TextBlock Classes="body2 secondary"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,16"
+                 Text="Note the base size: body2 is 14px, not 16px. That smaller baseline is a large part of why the look reads dense and tidy, and it is the first thing to check if a ported screen feels wrong." />
+
+      <TextBlock Classes="overline" Text="h1 — 96px / 300" />
+      <TextBlock Classes="h1" Text="Heading one" />
+
+      <TextBlock Classes="overline" Text="h2 — 60px / 300" Margin="0,16,0,0" />
+      <TextBlock Classes="h2" Text="Heading two" />
+
+      <TextBlock Classes="overline" Text="h3 — 48px / 400" Margin="0,16,0,0" />
+      <TextBlock Classes="h3" Text="Heading three" />
+
+      <TextBlock Classes="overline" Text="h4 — 34px / 400" Margin="0,16,0,0" />
+      <TextBlock Classes="h4" Text="Heading four" />
+
+      <TextBlock Classes="overline" Text="h5 — 24px / 400" Margin="0,16,0,0" />
+      <TextBlock Classes="h5" Text="Heading five" />
+
+      <TextBlock Classes="overline" Text="h6 — 20px / 500" Margin="0,16,0,0" />
+      <TextBlock Classes="h6" Text="Heading six" />
+
+      <TextBlock Classes="overline" Text="subtitle1 — 16px / 400" Margin="0,16,0,0" />
+      <TextBlock Classes="subtitle1" Text="Subtitle one, used above a block of body copy" />
+
+      <TextBlock Classes="overline" Text="subtitle2 — 14px / 500" Margin="0,16,0,0" />
+      <TextBlock Classes="subtitle2" Text="Subtitle two, the denser list-header weight" />
+
+      <TextBlock Classes="overline" Text="body1 — 16px / 400" Margin="0,16,0,0" />
+      <TextBlock Classes="body1"
+                 TextWrapping="Wrap"
+                 Text="Body one is the comfortable reading size. Line height is 24px, letter spacing 0.15. Use it for prose that someone is expected to actually read rather than scan." />
+
+      <TextBlock Classes="overline" Text="body2 — 14px / 400 — the default" Margin="0,16,0,0" />
+      <TextBlock Classes="body2"
+                 TextWrapping="Wrap"
+                 Text="Body two is the application default, applied to every TextBlock without a class. Line height 20px. Most interface text lands here: labels, list rows, descriptions, table cells." />
+
+      <TextBlock Classes="overline" Text="caption — 12px / 400 — secondary colour" Margin="0,16,0,0" />
+      <TextBlock Classes="caption" Text="Caption, for helper text under an input and metadata under a title" />
+
+      <TextBlock Classes="overline" Text="overline — 12px / 400 / 1px tracking" Margin="0,16,0,0" />
+      <TextBlock Classes="overline" Text="OVERLINE, THE SECTION LABEL ABOVE A GROUP" />
+
+    </StackPanel>
+  </ScrollViewer>
+
+</UserControl>

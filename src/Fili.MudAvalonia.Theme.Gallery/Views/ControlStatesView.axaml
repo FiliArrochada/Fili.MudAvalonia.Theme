@@ -1,0 +1,268 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Fili.MudAvalonia.Theme.Gallery.Views.ControlStatesView">
+
+  <ScrollViewer>
+    <StackPanel Margin="24" Spacing="24">
+
+      <StackPanel Spacing="4">
+        <TextBlock Classes="h6" Text="Control states" />
+        <TextBlock Classes="body2 secondary"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="States are where a theme breaks, and they are exactly what you never notice using the app normally. Hover and press each column, then flip the theme and do it again — a token wired with StaticResource will hold its light value here." />
+      </StackPanel>
+
+      <!-- Buttons -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Button — enabled" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button Content="Primary" Classes="primary" />
+          <Button Content="Secondary" Classes="secondary" />
+          <Button Content="Outlined" Classes="outlined" />
+          <Button Content="Text" Classes="text" />
+          <Button Content="Base default" />
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Button — disabled" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button Content="Primary" Classes="primary" IsEnabled="False" />
+          <Button Content="Secondary" Classes="secondary" IsEnabled="False" />
+          <Button Content="Outlined" Classes="outlined" IsEnabled="False" />
+          <Button Content="Text" Classes="text" IsEnabled="False" />
+          <Button Content="Base default" IsEnabled="False" />
+        </StackPanel>
+
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="Hover and press the raised ones: elevation steps 2 → 4 → 8, which no substrate template expresses because Button has no BoxShadow. The last button in each row is deliberately left on the forked base, so the difference is visible side by side. No ripple — the tinted state layer is the static half of it." />
+      </StackPanel>
+
+      <!-- Selection -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Selection — themed" />
+        <StackPanel Orientation="Horizontal" Spacing="24">
+          <StackPanel Spacing="4">
+            <CheckBox Classes="fili" Content="Unchecked" />
+            <CheckBox Classes="fili" Content="Checked" IsChecked="True" />
+            <CheckBox Classes="fili" Content="Indeterminate" IsChecked="{x:Null}" IsThreeState="True" />
+            <CheckBox Classes="fili" Content="Disabled" IsEnabled="False" IsChecked="True" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <RadioButton Classes="fili" Content="Option one" GroupName="themed" IsChecked="True" />
+            <RadioButton Classes="fili" Content="Option two" GroupName="themed" />
+            <RadioButton Classes="fili" Content="Disabled" GroupName="themed" IsEnabled="False" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <ToggleSwitch Classes="fili" Content="On" IsChecked="True" />
+            <ToggleSwitch Classes="fili" Content="Off" />
+            <ToggleSwitch Classes="fili" Content="Disabled" IsEnabled="False" IsChecked="True" />
+          </StackPanel>
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Selection — substrate default" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="24">
+          <StackPanel Spacing="4">
+            <CheckBox Content="Unchecked" />
+            <CheckBox Content="Checked" IsChecked="True" />
+            <CheckBox Content="Indeterminate" IsChecked="{x:Null}" IsThreeState="True" />
+            <CheckBox Content="Disabled" IsEnabled="False" IsChecked="True" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <RadioButton Content="Option one" GroupName="plain" IsChecked="True" />
+            <RadioButton Content="Option two" GroupName="plain" />
+            <RadioButton Content="Disabled" GroupName="plain" IsEnabled="False" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <ToggleSwitch OnContent="On" OffContent="Off" IsChecked="True" />
+            <ToggleSwitch OnContent="On" OffContent="Off" />
+            <ToggleSwitch OnContent="On" OffContent="Off" IsEnabled="False" />
+          </StackPanel>
+        </StackPanel>
+
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="The second row uses the forked base templates rather than a hand-written Material theme. The app bar can swap that base for FluentTheme, which is now only a comparison — the shipping configuration depends on neither. Note the radio: checked recolours the ring and grows an inner disc rather than filling the ring, which is what keeps it from reading as a round checkbox." />
+      </StackPanel>
+
+      <!-- Inputs -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Text field — filled" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <TextBox Classes="filled" Width="190" PlaceholderText="Label" />
+          <TextBox Classes="filled" Width="190" PlaceholderText="Label" Text="With content" />
+          <TextBox Classes="filled error" Width="190" PlaceholderText="Label" Text="Invalid" />
+          <TextBox Classes="filled" Width="190" PlaceholderText="Label" IsEnabled="False" />
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Text field — outlined" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <TextBox Classes="outlined" Width="190" PlaceholderText="Label" />
+          <TextBox Classes="outlined" Width="190" PlaceholderText="Label" Text="With content" />
+          <TextBox Classes="outlined error" Width="190" PlaceholderText="Label" Text="Invalid" />
+          <TextBox Classes="outlined" Width="190" PlaceholderText="Label" IsEnabled="False" />
+        </StackPanel>
+
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="Click into an empty one: the label shrinks and rises, and the accent rule scales out from the centre. Type, then click away — the label stays up, because the float condition is focused OR not empty. PlaceholderText is the label, so these variants have no separate placeholder." />
+
+        <TextBlock Classes="overline" Text="Text input — base default" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <TextBox Width="190" PlaceholderText="Placeholder" />
+          <TextBox Width="190" Text="With content" />
+          <TextBox Width="190" Text="Read only" IsReadOnly="True" />
+          <TextBox Width="190" Text="Disabled" IsEnabled="False" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <ComboBox Width="190" SelectedIndex="0">
+            <ComboBoxItem>Combo box</ComboBoxItem>
+            <ComboBoxItem>Second item</ComboBoxItem>
+            <ComboBoxItem>Third item</ComboBoxItem>
+          </ComboBox>
+          <ComboBox Width="190" IsEnabled="False" SelectedIndex="0">
+            <ComboBoxItem>Disabled</ComboBoxItem>
+          </ComboBox>
+          <NumericUpDown Width="190" Value="42" />
+          <AutoCompleteBox Width="190" PlaceholderText="Autocomplete" />
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Range and progress -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Range and progress" />
+        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+          <Slider Classes="fili" Width="220" Value="40" />
+          <Slider Classes="fili" Width="220" Value="40" IsEnabled="False" />
+          <Slider Width="220" Value="40" />
+          <ProgressBar Width="220" Value="65" />
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Surfaces -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Surfaces" />
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <Border Classes="surface elevation1" Width="200" Height="96" Padding="16">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="subtitle2" Text="Elevated surface" />
+              <TextBlock Classes="caption" Text="elevation1" />
+            </StackPanel>
+          </Border>
+          <Border Classes="surface elevation4" Width="200" Height="96" Padding="16">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="subtitle2" Text="Card" />
+              <TextBlock Classes="caption" Text="elevation4" />
+            </StackPanel>
+          </Border>
+          <Border Classes="surface outlined" Width="200" Height="96" Padding="16">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="subtitle2" Text="Outlined" />
+              <TextBlock Classes="caption" Text="no shadow" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Lists and tabs -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Lists, tabs and menus" />
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <ListBox Width="220" Height="140" SelectedIndex="1">
+            <ListBoxItem>First item</ListBoxItem>
+            <ListBoxItem>Selected item</ListBoxItem>
+            <ListBoxItem>Third item</ListBoxItem>
+            <ListBoxItem IsEnabled="False">Disabled item</ListBoxItem>
+          </ListBox>
+          <TabControl Classes="fili" Width="330" Height="140">
+            <TabItem Header="One">
+              <TextBlock Classes="body2" Margin="12" Text="First tab content" />
+            </TabItem>
+            <TabItem Header="Two">
+              <TextBlock Classes="body2" Margin="12" Text="Second tab content" />
+            </TabItem>
+            <TabItem Header="Disabled" IsEnabled="False" />
+          </TabControl>
+          <TabControl Width="330" Height="140">
+            <TabItem Header="One">
+              <TextBlock Classes="body2" Margin="12" Text="Substrate default" />
+            </TabItem>
+            <TabItem Header="Two" />
+            <TabItem Header="Disabled" IsEnabled="False" />
+          </TabControl>
+          <TreeView Width="220" Height="140">
+            <TreeViewItem Header="Library" IsExpanded="True">
+              <TreeViewItem Header="Installed" />
+              <TreeViewItem Header="Collections" />
+            </TreeViewItem>
+          </TreeView>
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Menu and scrolling" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <Border Classes="surface elevation1" Width="380" Height="140">
+            <StackPanel>
+              <Menu Classes="fili">
+                <MenuItem Header="Library">
+                  <MenuItem Header="Scan for games" InputGesture="Ctrl+R" />
+                  <MenuItem Header="Add folder" />
+                  <Separator />
+                  <MenuItem Header="Export" />
+                </MenuItem>
+                <MenuItem Header="View">
+                  <MenuItem Header="Grid" />
+                  <MenuItem Header="List" />
+                </MenuItem>
+                <MenuItem Header="Help" />
+              </Menu>
+              <TextBlock Classes="caption" Margin="12,12,12,0"
+                         Text="Top-level strip; submenus open on a raised surface." />
+            </StackPanel>
+          </Border>
+
+          <!-- The scroll bar is themed through the ScrollViewer that hosts it. -->
+          <ScrollViewer Classes="fili" Width="330" Height="140"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="12" Spacing="8">
+              <TextBlock Classes="subtitle2" Text="Themed scrolling" />
+              <TextBlock Classes="body2" TextWrapping="Wrap"
+                         Text="A thin rail with a rounded thumb and no line buttons, overlaying the content rather than insetting it — so a list does not reflow by twelve pixels the moment it becomes scrollable." />
+              <TextBlock Classes="body2" TextWrapping="Wrap"
+                         Text="Scroll this panel to see the thumb. It darkens on hover and again on press." />
+              <TextBlock Classes="body2" TextWrapping="Wrap"
+                         Text="ScrollViewer is a structural control rather than a decorative one: without its template there is no ScrollContentPresenter, and nothing scrolls at all." />
+            </StackPanel>
+          </ScrollViewer>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Semantic colours in use -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Semantic colours" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Border Classes="surface elevation1" Padding="12,8" Background="{DynamicResource FiliInfoBrush}">
+            <TextBlock Classes="body2" Foreground="White" Text="Info" />
+          </Border>
+          <Border Classes="surface elevation1" Padding="12,8" Background="{DynamicResource FiliSuccessBrush}">
+            <TextBlock Classes="body2" Foreground="White" Text="Success" />
+          </Border>
+          <Border Classes="surface elevation1" Padding="12,8" Background="{DynamicResource FiliWarningBrush}">
+            <TextBlock Classes="body2" Foreground="White" Text="Warning" />
+          </Border>
+          <Border Classes="surface elevation1" Padding="12,8" Background="{DynamicResource FiliErrorBrush}">
+            <TextBlock Classes="body2" Foreground="White" Text="Error" />
+          </Border>
+        </StackPanel>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+
+</UserControl>

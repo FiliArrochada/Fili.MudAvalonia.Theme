@@ -1,0 +1,69 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:Fili.MudAvalonia.Theme.Gallery.Views"
+        x:Class="Fili.MudAvalonia.Theme.Gallery.MainWindow"
+        Title="Fili.MudAvalonia.Theme - Gallery"
+        Width="1180" Height="820"
+        Background="{DynamicResource FiliBackgroundGrayBrush}">
+
+  <DockPanel>
+
+    <!-- App bar. Primary in light, near-black in dark - that is the MudBlazor behaviour. -->
+    <Border Classes="appbar" DockPanel.Dock="Top">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="24,0">
+        <TextBlock Grid.Column="0"
+                   Classes="h6"
+                   VerticalAlignment="Center"
+                   Text="Fili.MudAvalonia.Theme" />
+        <TextBlock Grid.Column="1"
+                   Classes="caption"
+                   Margin="16,0,0,0"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource FiliAppbarTextBrush}"
+                   Text="design tokens on Avalonia 12 + FluentTheme" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Classes="caption"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource FiliAppbarTextBrush}"
+                       Text="Substrate" />
+            <ComboBox x:Name="SubstrateSelector"
+                      Width="110"
+                      SelectedIndex="0"
+                      VerticalAlignment="Center"
+                      SelectionChanged="OnSubstrateChanged">
+              <ComboBoxItem>Standalone</ComboBoxItem>
+              <ComboBoxItem>Fluent</ComboBoxItem>
+            </ComboBox>
+          </StackPanel>
+          <ToggleSwitch x:Name="ThemeToggle"
+                        VerticalAlignment="Center"
+                        OnContent="Dark"
+                        OffContent="Light"
+                        Foreground="{DynamicResource FiliAppbarTextBrush}"
+                        IsCheckedChanged="OnThemeToggled" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <TabControl Margin="16">
+      <TabItem Header="Palette">
+        <views:PaletteView />
+      </TabItem>
+      <TabItem Header="Elevation">
+        <views:ElevationView />
+      </TabItem>
+      <TabItem Header="Typography">
+        <views:TypographyView />
+      </TabItem>
+      <TabItem Header="Control states">
+        <views:ControlStatesView />
+      </TabItem>
+      <TabItem Header="Sample screen">
+        <views:SampleScreenView />
+      </TabItem>
+    </TabControl>
+
+  </DockPanel>
+
+</Window>
