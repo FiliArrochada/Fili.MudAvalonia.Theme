@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Fili.MudAvalonia.Theme.UnitTests</RootNamespace>
+    <AssemblyName>Fili.MudAvalonia.Theme.UnitTests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Fili.MudAvalonia.Theme\Fili.MudAvalonia.Theme.csproj" />
+    <!-- The gallery carries the reference substrate wiring that consumers copy, so it is tested. -->
+    <ProjectReference Include="..\..\src\Fili.MudAvalonia.Theme.Gallery\Fili.MudAvalonia.Theme.Gallery.csproj" />
+  </ItemGroup>
+
+</Project>
