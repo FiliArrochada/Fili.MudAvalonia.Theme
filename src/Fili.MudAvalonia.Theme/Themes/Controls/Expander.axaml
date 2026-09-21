@@ -1,0 +1,269 @@
+<!--
+  Expander: MudExpansionPanel.
+
+  Transcribed from _expansionpanel.scss:
+
+    .mud-expand-panel                colour text-primary, background surface
+    .mud-expand-panel-header         min-height: 48px; padding: 16px 0; font-size: .9375rem
+    .mud-expand-panel-header-gutters padding-left / padding-right: 24px   (on by default)
+    header :focus-visible            background: action-default-hover
+    .mud-expand-panel-icon           transition: .3s cubic-bezier(.25,.8,.5,1)
+    .mud-expand-panel-icon.mud-transform  transform: rotate(-180deg)
+    .mud-expand-panel-content        padding-bottom: 16px, gutters 24px
+    .mud-expansion-panels            border-radius: the default radius, elevation 1
+
+  .9375rem is 15px, which is neither body1 (16) nor body2 (14) - MudBlazor sizes this header on
+  its own. It is written as a literal here for that reason, not pulled from the type scale.
+
+  The panel carries the surface and the elevation because MudExpansionPanels is a MudPaper: a bare
+  expander on a page ground would otherwise have nothing to sit on. What is NOT carried over is
+  the group behaviour - the 1px separators between stacked panels and the 16px margin an expanded
+  one grows - because those are relationships between siblings, and an Avalonia Expander has no
+  group to be a sibling in.
+
+  All four ExpandDirections are templated. MudBlazor only expands downward, so Up/Left/Right are
+  the same parts rearranged rather than anything transcribed; templating them is what stops an
+  app that uses one from getting a downward layout with the chevron pointing the wrong way.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliExpanderToggle" TargetType="ToggleButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="MinHeight" Value="48" />
+    <Setter Property="Padding" Value="24,16" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer" Background="Transparent" />
+          <Grid ColumnDefinitions="*,Auto" Margin="{TemplateBinding Padding}">
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Grid.Column="0"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{Binding $parent[Expander].HeaderTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+            <Path x:Name="PART_Chevron"
+                  Grid.Column="1"
+                  Margin="8,0,0,0"
+                  Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliExpandMoreGeometry}"
+                  Fill="{DynamicResource FiliActionDefaultBrush}"
+                  VerticalAlignment="Center"
+                  RenderTransformOrigin="50%,50%"
+                  RenderTransform="rotate(0deg)">
+              <Path.Transitions>
+                <Transitions>
+                  <!-- .3s cubic-bezier(.25,.8,.5,1), MudBlazor's own curve for this icon. -->
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3">
+                    <TransformOperationsTransition.Easing>
+                      <SplineEasing X1="0.25" Y1="0.8" X2="0.5" Y2="1" />
+                    </TransformOperationsTransition.Easing>
+                  </TransformOperationsTransition>
+                </Transitions>
+              </Path.Transitions>
+            </Path>
+          </Grid>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
+    <!-- rotate(-180deg), not 180: the two land in the same place but spin opposite ways. -->
+    <Style Selector="^:checked /template/ Path#PART_Chevron">
+      <Setter Property="RenderTransform" Value="rotate(-180deg)" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextDisabledBrush}" />
+      <Setter Property="Cursor" Value="Arrow" />
+    </Style>
+    <Style Selector="^:disabled /template/ Path#PART_Chevron">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliExpander" TargetType="Expander">
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="Padding" Value="24,0,24,16" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="ContentTransition">
+      <Setter.Value>
+        <CrossFade Duration="0:0:0.25" />
+      </Setter.Value>
+    </Setter>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                BoxShadow="{DynamicResource FiliElevation1}">
+          <Grid RowDefinitions="Auto,*">
+            <ToggleButton x:Name="PART_toggle"
+                          Grid.Row="0"
+                          Theme="{StaticResource FiliExpanderToggle}"
+                          Content="{TemplateBinding Header}"
+                          IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Grid.Row="1"
+                              Padding="{TemplateBinding Padding}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              IsVisible="{TemplateBinding IsExpanded}" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^[ExpandDirection=Up]">
+      <Setter Property="Padding" Value="24,16,24,0" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="PART_Root"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BoxShadow="{DynamicResource FiliElevation1}">
+            <Grid RowDefinitions="*,Auto">
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Row="0"
+                                Padding="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                IsVisible="{TemplateBinding IsExpanded}" />
+              <ToggleButton x:Name="PART_toggle"
+                            Grid.Row="1"
+                            Theme="{StaticResource FiliExpanderToggle}"
+                            Content="{TemplateBinding Header}"
+                            IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <!-- The chevron starts pointing up, so the resting and expanded rotations swap. -->
+      <Style Selector="^ /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(-180deg)" />
+      </Style>
+      <Style Selector="^:expanded /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(0deg)" />
+      </Style>
+    </Style>
+
+    <Style Selector="^[ExpandDirection=Right]">
+      <Setter Property="Padding" Value="0,16,24,16" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="PART_Root"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BoxShadow="{DynamicResource FiliElevation1}">
+            <Grid ColumnDefinitions="Auto,*">
+              <ToggleButton x:Name="PART_toggle"
+                            Grid.Column="0"
+                            Theme="{StaticResource FiliExpanderToggle}"
+                            Content="{TemplateBinding Header}"
+                            IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Column="1"
+                                Padding="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                IsVisible="{TemplateBinding IsExpanded}" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^ /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(-90deg)" />
+      </Style>
+      <Style Selector="^:expanded /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(-180deg)" />
+      </Style>
+    </Style>
+
+    <Style Selector="^[ExpandDirection=Left]">
+      <Setter Property="Padding" Value="24,16,0,16" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="PART_Root"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BoxShadow="{DynamicResource FiliElevation1}">
+            <Grid ColumnDefinitions="*,Auto">
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Column="0"
+                                Padding="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                IsVisible="{TemplateBinding IsExpanded}" />
+              <ToggleButton x:Name="PART_toggle"
+                            Grid.Column="1"
+                            Theme="{StaticResource FiliExpanderToggle}"
+                            Content="{TemplateBinding Header}"
+                            IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^ /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(90deg)" />
+      </Style>
+      <Style Selector="^:expanded /template/ ToggleButton#PART_toggle /template/ Path#PART_Chevron">
+        <Setter Property="RenderTransform" Value="rotate(-180deg)" />
+      </Style>
+    </Style>
+
+    <!-- A panel inside a list or a drawer already has a ground; this drops both surface and
+         shadow so it does not stack a card on a card. -->
+    <Style Selector="^.flat">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="^.flat /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Expander}" TargetType="Expander" BasedOn="{StaticResource FiliExpander}" />
+
+</ResourceDictionary>

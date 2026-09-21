@@ -1,35 +1,37 @@
 <!--
-  Button: MudButton.
+  ToggleButton and RepeatButton: MudToggleItem, and a Button that repeats.
 
-  Usage - the classes are VARIANTS, not opt-in. An unclassed Button is already the text one,
-  because MudButton.Variant defaults to Variant.Text:
+  From _togglegroup.scss:
 
-    <Button Content="Learn more" />                  flat, transparent - the default
-    <Button Classes="primary"  Content="Save" />     raised, primary fill
-    <Button Classes="secondary" Content="Share" />   raised, secondary fill
-    <Button Classes="outlined" Content="Cancel" />   bordered, transparent
+    .mud-toggle-item              padding: 6px; min-width: auto; border-style: none
+    .mud-toggle-item > label      min-height: 20px
+    .mud-toggle-item-size-small   padding: 4px
+    .mud-toggle-item-size-large   padding: 8px
+    outlined group items          padding: 5px, absorbing the group's 1px border
 
-  NOT HERE: the ripple. Material's touch feedback has no Avalonia primitive, and faking it
-  needs an animated, clipped ellipse driven from pointer position in the template - real work
-  with real perf implications. The state layer below (a tinted overlay on hover and press) is
-  the static half of the same idea and carries most of the affordance.
+  `min-width: auto` is the one that matters: a toggle is NOT a MudButton with a checked state,
+  it drops the 64px minimum because a group of them is usually icons or single words. Everything
+  else is the text button.
+
+  Selected is MudToggleItem's own treatment, the same rule as a selected list row: the label
+  takes the colour and the ground takes that colour at 6%. A filled bar would be MudButton
+  Variant.Filled, which is a different control.
+
+  RepeatButton has no MudBlazor counterpart at all - it is an Avalonia primitive used inside
+  spinners and scroll bars. It gets the text button verbatim so that the two places it shows up
+  unstyled (NumericUpDown's spinners) do not look foreign.
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!--
-    Contained / raised. The elevation change across rest -> hover -> press is the whole point:
-    it is what Fluent cannot express, because Button has no BoxShadow property and only the
-    Border inside a template does.
-  -->
-  <ControlTheme x:Key="FiliContainedButton" TargetType="Button">
-    <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
-    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+  <ControlTheme x:Key="FiliToggleButton" TargetType="ToggleButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
-    <Setter Property="Padding" Value="16,6" />
-    <Setter Property="MinWidth" Value="64" />
+    <Setter Property="Padding" Value="6" />
+    <Setter Property="MinHeight" Value="32" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
     <Setter Property="FontWeight" Value="Medium" />
@@ -44,10 +46,8 @@
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                CornerRadius="{TemplateBinding CornerRadius}"
-                BoxShadow="{DynamicResource FiliElevation2}">
+                CornerRadius="{TemplateBinding CornerRadius}">
           <Panel>
-            <!-- State layer. Sits under the content, over the fill. -->
             <Border x:Name="PART_StateLayer"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     Background="Transparent" />
@@ -63,43 +63,64 @@
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^:pointerover /template/ Border#PART_Root">
-      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+    <Style Selector="^.small">
+      <Setter Property="Padding" Value="4" />
     </Style>
-    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    <Style Selector="^.large">
+      <Setter Property="Padding" Value="8" />
     </Style>
 
-    <Style Selector="^:pressed /template/ Border#PART_Root">
-      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation8}" />
+    <!-- .mud-toggle-group-outlined absorbs its 1px border into the item padding, so an outlined
+         toggle is 5px rather than 6px and ends up the same height as the plain one. -->
+    <Style Selector="^.outlined">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="5" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
     <Style Selector="^:pressed /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
     </Style>
 
-    <!-- Disabled drops to the ground: no shadow at all, not a dimmed one. -->
-    <Style Selector="^:disabled /template/ Border#PART_Root">
-      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
-      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    <Style Selector="^:checked">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
     </Style>
+    <Style Selector="^:checked /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^:checked:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:checked.outlined">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+
+    <!-- Indeterminate is not a MudBlazor state; it reads as "not on", which is the safe default. -->
+    <Style Selector="^:indeterminate">
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    </Style>
+
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
+    <Style Selector="^:disabled.outlined /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
   </ControlTheme>
 
-  <!-- Text / flat. Material's actual default button. No fill, no elevation, ever. -->
-  <ControlTheme x:Key="FiliTextButton" TargetType="Button">
+  <ControlTheme x:Key="FiliRepeatButton" TargetType="RepeatButton">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
     <Setter Property="Padding" Value="8,6" />
-    <Setter Property="MinWidth" Value="64" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
     <Setter Property="FontWeight" Value="Medium" />
-    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Cursor" Value="Hand" />
@@ -138,22 +159,7 @@
     </Style>
   </ControlTheme>
 
-  <!-- Outlined. Text button plus a 1px line in the palette's input-line colour. -->
-  <ControlTheme x:Key="FiliOutlinedButton" TargetType="Button" BasedOn="{StaticResource FiliTextButton}">
-    <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="Padding" Value="15,5" />
-
-    <Style Selector="^:disabled /template/ Border#PART_Root">
-      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
-    </Style>
-  </ControlTheme>
-
-  <!--
-    MudButton defaults to Variant.Text, so an unclassed Button is the FLAT one. primary /
-    secondary / outlined opt UP from there, which is the MudBlazor mental model rather than an
-    Avalonia one.
-  -->
-  <ControlTheme x:Key="{x:Type Button}" TargetType="Button" BasedOn="{StaticResource FiliTextButton}" />
+  <ControlTheme x:Key="{x:Type ToggleButton}" TargetType="ToggleButton" BasedOn="{StaticResource FiliToggleButton}" />
+  <ControlTheme x:Key="{x:Type RepeatButton}" TargetType="RepeatButton" BasedOn="{StaticResource FiliRepeatButton}" />
 
 </ResourceDictionary>

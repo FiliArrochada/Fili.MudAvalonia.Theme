@@ -1,0 +1,61 @@
+<!--
+  Separator: MudDivider.
+
+  The whole of _divider.scss, which is short enough to quote:
+
+    .mud-divider          margin: 0; border-color: the palette divider token;
+                          border-width: 1px; border-style: solid none none none
+    .mud-divider-vertical border-style: none solid none none; height: 100%
+    .mud-divider-inset    margin-left: 72px
+    .mud-divider-middle   margin-left: 16px; margin-right: 16px
+    .mud-divider-light    border-color: the palette divider-light token
+
+  Note `margin: 0`. The forked Simple template ships `Margin="29,1,0,1"` - a menu-shaped indent
+  baked into every divider - and FiliTheme.axaml previously recoloured it with a blanket Style
+  while leaving that margin in place. Both are replaced here: a divider is a hairline at the edge
+  of its container unless `inset` or `middle` says otherwise.
+
+  `light` is not implemented: it needs a divider-light token that the palette does not carry yet,
+  and adding one is a Palette.axaml + ResourceResolutionTests change rather than a drive-by.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliSeparator" TargetType="Separator">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Background" Value="{DynamicResource FiliDividerBrush}" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Height" Value="1" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" />
+      </ControlTemplate>
+    </Setter>
+
+    <!-- .mud-divider-vertical: the rule turns 90 degrees, so the fixed dimension swaps. -->
+    <Style Selector="^.vertical">
+      <Setter Property="Height" Value="NaN" />
+      <Setter Property="Width" Value="1" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="^.inset">
+      <Setter Property="Margin" Value="72,0,0,0" />
+    </Style>
+    <Style Selector="^.middle">
+      <Setter Property="Margin" Value="16,0" />
+    </Style>
+    <Style Selector="^.vertical.inset">
+      <Setter Property="Margin" Value="0,72,0,0" />
+    </Style>
+    <Style Selector="^.vertical.middle">
+      <Setter Property="Margin" Value="0,16" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Separator}" TargetType="Separator" BasedOn="{StaticResource FiliSeparator}" />
+
+</ResourceDictionary>

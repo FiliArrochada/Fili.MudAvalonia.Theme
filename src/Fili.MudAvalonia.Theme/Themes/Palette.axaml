@@ -58,26 +58,26 @@
       <Color x:Key="FiliTableHoverColor">#0A000000</Color>
       <Color x:Key="FiliSkeletonColor">#1C000000</Color>
 
+      <!--
+        Primary at 6%. MudBlazor Palette.cs derives it as PrimaryColor with HoverOpacity, and it
+        is what a selected list row paints under itself (`mud-primary-hover`, alongside
+        `mud-primary-text` on the label) - so selection is a tint plus a colour change, never a
+        filled bar.
+      -->
+      <Color x:Key="FiliPrimaryHoverColor">#0F594AE2</Color>
+
       <!-- State-layer overlays. Material behaviour, not a MudBlazor palette token. -->
       <Color x:Key="FiliOverlayHoverColor">#0A000000</Color>
       <Color x:Key="FiliOverlayPressedColor">#1F000000</Color>
 
       <!--
-        Switch off-state. Also Material behaviour rather than a MudBlazor token: a switch track
-        and thumb have no palette slot to borrow that reads correctly in both variants. The track
-        is a 38% scrim; the thumb is a near-white disc that must stay lighter than the track.
-        The ON state needs no tokens - it is Primary, with the track at half opacity.
-      -->
-      <Color x:Key="FiliSwitchThumbOffColor">#FAFAFA</Color>
-      <Color x:Key="FiliSwitchTrackOffColor">#61000000</Color>
-
-      <!--
         Filled-input fill. TRANSLUCENT ON PURPOSE, and this is the whole point of it: an opaque
         token cannot work, because the field has to stay visible on every ground it might sit on.
         Using FiliBackgroundGray here made filled fields vanish in dark mode, where that token IS
-        the page ground. Material's own value, 6% black / 9% white, darkens whatever is beneath.
+        the page ground. MudBlazor _input.scss paints rgba(0,0,0,.09) light and the white equivalent dark - 9% in
+        both, not Material spec 6%.
       -->
-      <Color x:Key="FiliInputFilledColor">#0F000000</Color>
+      <Color x:Key="FiliInputFilledColor">#17000000</Color>
 
     </ResourceDictionary>
 
@@ -125,12 +125,10 @@
       <Color x:Key="FiliTableHoverColor">#14FFFFFF</Color>
       <Color x:Key="FiliSkeletonColor">#1CFFFFFF</Color>
 
+      <Color x:Key="FiliPrimaryHoverColor">#0F776BE7</Color>
+
       <Color x:Key="FiliOverlayHoverColor">#14FFFFFF</Color>
       <Color x:Key="FiliOverlayPressedColor">#29FFFFFF</Color>
-
-      <!-- Dark: the thumb borrows the dark ActionDefault grey so it stays lighter than the track. -->
-      <Color x:Key="FiliSwitchThumbOffColor">#ADADB1</Color>
-      <Color x:Key="FiliSwitchTrackOffColor">#59FFFFFF</Color>
 
       <Color x:Key="FiliInputFilledColor">#17FFFFFF</Color>
 
@@ -182,18 +180,19 @@
   <SolidColorBrush x:Key="FiliTableHoverBrush"   Color="{DynamicResource FiliTableHoverColor}" />
   <SolidColorBrush x:Key="FiliSkeletonBrush"     Color="{DynamicResource FiliSkeletonColor}" />
 
+  <SolidColorBrush x:Key="FiliPrimaryHoverBrush"   Color="{DynamicResource FiliPrimaryHoverColor}" />
   <SolidColorBrush x:Key="FiliOverlayHoverBrush"   Color="{DynamicResource FiliOverlayHoverColor}" />
   <SolidColorBrush x:Key="FiliOverlayPressedBrush" Color="{DynamicResource FiliOverlayPressedColor}" />
 
   <!--
-    Tooltip fill. NON-VARYING on purpose, like the elevation ladder: a Material tooltip is a dark
-    chip in light and dark alike, so it reads as an annotation floating above the UI rather than
-    as another surface of it. Grey 700 at 90%.
+    Tooltip fill. NON-VARYING on purpose, and transcribed rather than chosen: MudBlazor _tooltip.scss
+    paints background-color from the CSS variable `mud-palette-gray-darker`, which is
+    Palette.GrayDarker =
+    Colors.Gray.Darken2 = #616161, SOLID. An earlier version used 90% alpha, which was Material
+    spec rather than what MudBlazor renders.
   -->
-  <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="#E6616161" />
+  <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="#616161" />
 
   <SolidColorBrush x:Key="FiliInputFilledBrush"    Color="{DynamicResource FiliInputFilledColor}" />
-  <SolidColorBrush x:Key="FiliSwitchThumbOffBrush" Color="{DynamicResource FiliSwitchThumbOffColor}" />
-  <SolidColorBrush x:Key="FiliSwitchTrackOffBrush" Color="{DynamicResource FiliSwitchTrackOffColor}" />
 
 </ResourceDictionary>

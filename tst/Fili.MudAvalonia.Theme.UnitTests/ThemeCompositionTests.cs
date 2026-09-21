@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
+using Shapes = Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -120,6 +120,7 @@ public class ThemeCompositionTests
     });
 
     [Theory]
+    [InlineData("FiliStandardTextBox")]
     [InlineData("FiliFilledTextBox")]
     [InlineData("FiliOutlinedTextBox")]
     public Task TextBoxControlThemesResolve(string key) => UiThread.RunAsync(() =>
@@ -139,9 +140,16 @@ public class ThemeCompositionTests
     [Theory]
     [InlineData("filled")]
     [InlineData("outlined")]
+    [InlineData("")]  // standard - the type-keyed default, no class at all
     public Task TextFieldHasAFloatingLabel(string variant) => UiThread.RunAsync(() =>
     {
-        var box = Templated(new TextBox { Classes = { variant }, PlaceholderText = "Label" });
+        var box = new TextBox { PlaceholderText = "Label" };
+        if (variant.Length > 0)
+        {
+            box.Classes.Add(variant);
+        }
+
+        Templated(box);
 
         var label = box.GetVisualDescendants()
             .OfType<TextBlock>()
@@ -212,32 +220,59 @@ public class ThemeCompositionTests
         Assert.Equal(target, Assert.IsType<ControlTheme>(value).TargetType);
     });
 
+    /// <summary>
+    /// Selection is a GLYPH SWAP, not a box that fills.
+    /// <para>
+    /// MudCheckBox renders <c>Icons.Material.Filled.CheckBox</c> / <c>CheckBoxOutlineBlank</c> /
+    /// <c>IndeterminateCheckBox</c> through MudIcon — it does not draw a box. An earlier version
+    /// of this theme built an 18px Border with a stroked tick, which is Material's *spec* rather
+    /// than MudBlazor's *implementation*, and could match neither the glyph corners nor the
+    /// indeterminate bar. These assertions pin the swap so that cannot quietly come back.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData(true, "PART_Checked", "PART_Unchecked")]
+    [InlineData(false, "PART_Unchecked", "PART_Checked")]
+    public Task CheckBoxSwapsGlyphs(bool isChecked, string shown, string hidden) =>
+        UiThread.RunAsync(() =>
+        {
+            var box = Templated(new CheckBox { Classes = { "fili" }, IsChecked = isChecked });
+
+            var glyphs = box.GetVisualDescendants().OfType<Shapes.Path>().ToList();
+
+            Assert.True(glyphs.Single(p => p.Name == shown).IsVisible, $"{shown} should be shown.");
+            Assert.False(glyphs.Single(p => p.Name == hidden).IsVisible, $"{hidden} should be hidden.");
+        });
+
     [Fact]
-    public Task CheckedCheckBoxFillsItsBox() => UiThread.RunAsync(() =>
+    public Task CheckedCheckBoxGlyphIsPrimary() => UiThread.RunAsync(() =>
     {
         var box = Templated(new CheckBox { Classes = { "fili" }, IsChecked = true });
 
-        var chip = box.GetVisualDescendants().OfType<Border>().First(b => b.Name == "PART_Box");
+        var glyph = box.GetVisualDescendants().OfType<Shapes.Path>().Single(p => p.Name == "PART_Checked");
 
-        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(chip.Background).Color);
+        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(glyph.Fill).Color);
     });
 
     /// <summary>
-    /// The difference that separates a radio from a round checkbox: selecting it recolours the
-    /// ring and grows a separate inner disc, it does NOT fill the ring. Filling it is the usual
-    /// mistake and the result reads as a checkbox that happens to be round.
+    /// Same correction for the radio: MudRadio swaps RadioButtonChecked for
+    /// RadioButtonUnchecked. The checked glyph is ONE path carrying both ring and dot, so there
+    /// is no separate inner disc to grow — the earlier version's scale transition was Material
+    /// spec, not MudBlazor.
     /// </summary>
     [Fact]
-    public Task CheckedRadioButtonDoesNotFillItsRing() => UiThread.RunAsync(() =>
+    public Task RadioButtonSwapsGlyphs() => UiThread.RunAsync(() =>
     {
         var radio = Templated(new RadioButton { Classes = { "fili" }, IsChecked = true });
 
-        var ring = radio.GetVisualDescendants().OfType<Ellipse>().First(e => e.Name == "PART_Ring");
-        var dot = radio.GetVisualDescendants().OfType<Ellipse>().First(e => e.Name == "PART_Dot");
+        var glyphs = radio.GetVisualDescendants().OfType<Shapes.Path>().ToList();
 
-        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(ring.Stroke).Color);
-        Assert.Equal(Colors.Transparent, Assert.IsAssignableFrom<ISolidColorBrush>(ring.Fill).Color);
-        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(dot.Fill).Color);
+        Assert.True(glyphs.Single(p => p.Name == "PART_Checked").IsVisible);
+        Assert.False(glyphs.Single(p => p.Name == "PART_Unchecked").IsVisible);
+        Assert.Equal(
+            Primary(),
+            Assert.IsAssignableFrom<ISolidColorBrush>(
+                glyphs.Single(p => p.Name == "PART_Checked").Fill).Color);
     });
 
     /// <summary>
@@ -276,8 +311,15 @@ public class ThemeCompositionTests
         var off = Track(Templated(new ToggleSwitch { Classes = { "fili" } }));
         var on = Track(Templated(new ToggleSwitch { Classes = { "fili" }, IsChecked = true }));
 
-        Assert.Equal(1.0, off.Opacity);
-        Assert.Equal(0.5, on.Opacity);
+        // MudBlazor _switch.scss holds the track at opacity .48 in BOTH states and changes only
+        // its colour — action-default when off, the accent when on. An earlier version stepped
+        // 1.0 -> 0.5, which is Material spec rather than what MudBlazor renders.
+        Assert.Equal(0.48, off.Opacity);
+        Assert.Equal(0.48, on.Opacity);
+
+        Assert.Equal(
+            ActionDefault(),
+            Assert.IsAssignableFrom<ISolidColorBrush>(off.Background).Color);
         Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(on.Background).Color);
     });
 
@@ -332,6 +374,165 @@ public class ThemeCompositionTests
 
         Assert.NotNull(indicator);
     });
+
+    /// <summary>
+    /// The select's label floats when it HOLDS A VALUE, not when it has items.
+    /// <para>
+    /// The first version of this theme floated it with <c>:not(:empty)</c>, which reads like
+    /// "has a selection" and means "has items" — so every select rendered with a permanently
+    /// raised label and no resting state at all. There is no pseudoclass for a selection, so the
+    /// theme swaps two TextBlocks on a null check instead, and this is what pins that.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task SelectFloatsItsLabelOnlyWhenSomethingIsSelected() => UiThread.RunAsync(() =>
+    {
+        static (bool Resting, bool Floated) Labels(ComboBox box)
+        {
+            var blocks = box.GetVisualDescendants().OfType<TextBlock>().ToList();
+
+            return (blocks.Single(b => b.Name == "PART_FloatingLabel").IsVisible,
+                    blocks.Single(b => b.Name == "PART_SelectedLabel").IsVisible);
+        }
+
+        var empty = new ComboBox { PlaceholderText = "Label", Width = 190 };
+        empty.Items.Add(new ComboBoxItem { Content = "One" });
+        Templated(empty);
+
+        var chosen = new ComboBox { PlaceholderText = "Label", Width = 190 };
+        chosen.Items.Add(new ComboBoxItem { Content = "One" });
+        chosen.SelectedIndex = 0;
+        Templated(chosen);
+
+        Assert.Equal((true, false), Labels(empty));
+        Assert.Equal((false, true), Labels(chosen));
+    });
+
+    /// <summary>
+    /// MudProgressLinear's Size defaults to Size.Small, so a bare bar is 4px — not the 8px that
+    /// looking at a MudBlazor screenshot would suggest, and not the 16px the forked base sets.
+    /// </summary>
+    [Theory]
+    [InlineData(null, 4d)]
+    [InlineData("medium", 8d)]
+    [InlineData("large", 12d)]
+    public Task ProgressBarHeightFollowsTheMudSize(string? size, double expected) =>
+        UiThread.RunAsync(() =>
+        {
+            var bar = new ProgressBar { Value = 50, Width = 220 };
+            if (size is not null)
+            {
+                bar.Classes.Add(size);
+            }
+
+            Templated(bar);
+
+            Assert.Equal(expected, bar.Bounds.Height);
+        });
+
+    /// <summary>
+    /// The indeterminate bars are sized by a converter, and a converter that returns
+    /// <c>UnsetValue</c> fails the way everything in this package fails — silently, leaving the
+    /// bar at its natural size. This renders one and checks a bar actually got a width.
+    /// <para>
+    /// It also covers the class of bug that found the converter in the first place: a key frame
+    /// value is parsed at RUNTIME, so a malformed one compiles cleanly and throws only when the
+    /// template is instantiated.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task IndeterminateBarsAreSizedFromTheRail() => UiThread.RunAsync(() =>
+    {
+        var bar = Templated(new ProgressBar { IsIndeterminate = true, Width = 200 });
+
+        var bars = bar.GetVisualDescendants()
+            .OfType<Border>()
+            .Where(b => b.Name is "PART_IndeterminateIndicator" or "PART_IndeterminateIndicator2")
+            .ToList();
+
+        Assert.Equal(2, bars.Count);
+
+        // ContainerWidth is 40% of the rail, so 200px gives 80.
+        Assert.Equal(80d, bar.TemplateSettings.ContainerWidth);
+
+        // Bar 1 runs from 0.875 of that (70px — MudBlazor's 35% of the whole rail) to 2.25 of it
+        // (180px, the 90% frame). The assertion is a RANGE, not 70: the animation is already
+        // interpolating by the time the test reads it, the same reason transitioned properties
+        // cannot be asserted exactly anywhere else in this suite. If the converter returned
+        // UnsetValue the width would be NaN, which is outside any range.
+        var first = bars.Single(b => b.Name == "PART_IndeterminateIndicator");
+        Assert.InRange(first.Width, 70d, 180d);
+
+        // Bar 2 is still inside its 1.15s delay, so it rests at zero rather than at its natural
+        // size. That resting value is the thing being pinned: without it, every indeterminate bar
+        // flashes a solid full-width block for the first second.
+        var second = bars.Single(b => b.Name == "PART_IndeterminateIndicator2");
+        Assert.Equal(0d, second.Width);
+    });
+
+    /// <summary>
+    /// <c>.mud-divider</c> is <c>margin: 0</c>. The forked Simple template ships
+    /// <c>Margin="29,1,0,1"</c> — a menu-shaped indent baked into every divider — so this pins
+    /// that the hand-written theme is the one in force.
+    /// </summary>
+    [Fact]
+    public Task DividerHasNoMarginOfItsOwn() => UiThread.RunAsync(() =>
+    {
+        var separator = Templated(new Separator());
+
+        Assert.Equal(default, separator.Margin);
+        Assert.Equal(1d, separator.Bounds.Height);
+    });
+
+    /// <summary>
+    /// A failing binding shows its MESSAGE under the field, not its exception type.
+    /// <para>
+    /// Both halves of this were bugs. The template had no <c>DataValidationErrors</c> host at
+    /// all, so an invalid field showed nothing; and once it did, binding straight to the error
+    /// object rendered <c>"System.InvalidOperationException: ..."</c>, because an entry in that
+    /// collection is an exception and <c>ToString()</c> on one carries the type name.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task AnInvalidFieldShowsTheMessageAndNotTheExceptionType() => UiThread.RunAsync(() =>
+    {
+        var box = new TextBox { Width = 220, PlaceholderText = "Email" };
+        DataValidationErrors.SetError(box, new InvalidOperationException("Must be an email"));
+
+        Templated(box);
+
+        var texts = box.GetVisualDescendants()
+            .OfType<TextBlock>()
+            .Select(t => t.Text)
+            .ToList();
+
+        Assert.Contains("Must be an email", texts);
+        Assert.DoesNotContain(texts, t => t?.Contains("InvalidOperationException") == true);
+    });
+
+    /// <summary>
+    /// The spin column is 24px because _inputcontrol.scss reserves exactly that much padding for
+    /// it — "This must be the same width of the spinners". A different width here would leave the
+    /// number either colliding with the arrows or floating short of them.
+    /// </summary>
+    [Fact]
+    public Task NumericFieldSpinColumnIsTwentyFourWide() => UiThread.RunAsync(() =>
+    {
+        var numeric = Templated(new NumericUpDown { Value = 42, Width = 190 });
+
+        var spinners = numeric.GetVisualDescendants()
+            .OfType<UniformGrid>()
+            .Single(g => g.Name == "PART_SpinnerPanel");
+
+        Assert.Equal(24d, spinners.Bounds.Width);
+        Assert.Equal(2, spinners.Rows);
+    });
+
+    private static Color ActionDefault()
+    {
+        Application.Current!.TryFindResource("FiliActionDefaultColor", ThemeVariant.Light, out var value);
+        return (Color)value!;
+    }
 
     private static Color Primary()
     {

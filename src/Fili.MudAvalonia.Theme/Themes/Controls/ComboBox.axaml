@@ -1,0 +1,252 @@
+<!--
+  ComboBox and ComboBoxItem: MudSelect.
+
+  The important finding from _select.scss is a NEGATIVE one: `.mud-select` has no box model at
+  all. It is `display: block; position: relative` and nothing else - every visual comes from
+  `.mud-select-input`, which is a MudInput. So a select in MudBlazor IS a text field, with a
+  dropdown arrow as an end adornment.
+
+  That settles the design: this mirrors Controls/TextBox.axaml's standard variant - transparent
+  ground, a 1px resting rule, a 2px accent rule scaling from the centre on focus, and the same
+  floating label. Anything else would make selects and fields disagree in the same form.
+
+  The popup surface and the rows come from _list.scss, which also feeds Controls/Menu.axaml:
+    padding-left / padding-right: 16px   on a row
+    padding-top / padding-bottom: 8px    on the list
+
+  Avalonia requires PART_Popup and PART_ItemsPresenter by name; PART_EditableTextBox is only
+  needed for IsEditable, which this theme does not style differently.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliComboBoxItem" TargetType="ComboBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Padding" Value="16,8" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer" Background="Transparent" />
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <!-- Selection is a tint plus a colour change, never a filled bar: MudList marks the chosen
+         row with `mud-selected-item mud-primary-text mud-primary-hover`. Same rule as
+         Controls/ListBox.axaml, because a select's options ARE list items. -->
+    <Style Selector="^:selected /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^:selected:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:selected">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliComboBox" TargetType="ComboBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="MinHeight" Value="48" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliComboBoxItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="PART_Root"
+                Background="{TemplateBinding Background}"
+                MinHeight="{TemplateBinding MinHeight}">
+          <Panel>
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,20,0,7">
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Column="0"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding ItemTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+              <!-- The end adornment: MudSelect's is ArrowDropDown, a SOLID triangle, not the
+                   thin chevron an expander uses. Drawn at 24 with Stretch="None", like every
+                   other Material glyph in Themes/Icons.axaml. -->
+              <Path x:Name="PART_Chevron"
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliArrowDropDownGeometry}"
+                    Fill="{DynamicResource FiliActionDefaultBrush}"
+                    VerticalAlignment="Center" />
+            </Grid>
+
+            <!--
+              The label is TWO TextBlocks at the same place, and the reason is worth knowing.
+
+              A select has to float its label when it holds a value, not only when it has focus -
+              otherwise the resting label sits on top of the selected text. Avalonia gives no
+              pseudoclass for "has a selection" (`:empty` on an ItemsControl means no ITEMS, which
+              is why the first attempt floated every label permanently), and a Style selector is
+              the only thing that can drive an animation.
+
+              So: PART_FloatingLabel is the animated one and exists only while nothing is selected,
+              rising on focus exactly as the TextBox's does. PART_SelectedLabel is a static copy
+              already in the floated position, shown once there is a selection. They share
+              position, size and colour, so the handover is invisible.
+            -->
+            <TextBlock x:Name="PART_FloatingLabel"
+                       Text="{TemplateBinding PlaceholderText}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
+                       FontSize="{DynamicResource FiliBody1FontSize}"
+                       LineHeight="NaN"
+                       Foreground="{DynamicResource FiliTextSecondaryBrush}"
+                       RenderTransform="translateY(0px)"
+                       IsVisible="{Binding SelectionBoxItem, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}">
+              <TextBlock.Transitions>
+                <Transitions>
+                  <DoubleTransition Property="FontSize" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+              </TextBlock.Transitions>
+            </TextBlock>
+
+            <TextBlock x:Name="PART_SelectedLabel"
+                       Text="{TemplateBinding PlaceholderText}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
+                       FontSize="{DynamicResource FiliCaptionFontSize}"
+                       LineHeight="NaN"
+                       Foreground="{DynamicResource FiliTextSecondaryBrush}"
+                       RenderTransform="translateY(-14px)"
+                       IsVisible="{Binding SelectionBoxItem, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <Border x:Name="PART_Underline"
+                    Height="1"
+                    VerticalAlignment="Bottom"
+                    Background="{DynamicResource FiliLinesInputsBrush}" />
+
+            <Border x:Name="PART_UnderlineActive"
+                    Height="2"
+                    VerticalAlignment="Bottom"
+                    Background="{DynamicResource FiliPrimaryBrush}"
+                    RenderTransformOrigin="50%,50%"
+                    RenderTransform="scaleX(0)">
+              <Border.Transitions>
+                <Transitions>
+                  <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+              </Border.Transitions>
+            </Border>
+
+            <Popup x:Name="PART_Popup"
+                   WindowManagerAddShadowHint="False"
+                   PlacementTarget="{TemplateBinding}"
+                   Placement="BottomEdgeAlignedLeft"
+                   IsLightDismissEnabled="True"
+                   IsOpen="{TemplateBinding IsDropDownOpen, Mode=TwoWay}">
+              <Border Background="{DynamicResource FiliSurfaceBrush}"
+                      CornerRadius="{DynamicResource FiliCornerRadius}"
+                      BoxShadow="{DynamicResource FiliElevation8}"
+                      Padding="0,8"
+                      Margin="8"
+                      MinWidth="{Binding $parent[ComboBox].Bounds.Width}"
+                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                <ScrollViewer>
+                  <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                  ItemsPanel="{TemplateBinding ItemsPanel}" />
+                </ScrollViewer>
+              </Border>
+            </Popup>
+
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDefaultBrush}" />
+    </Style>
+
+    <!-- A select signals focus when its drop-down is open, not only on keyboard focus. -->
+    <Style Selector="^:focus /template/ Border#PART_UnderlineActive">
+      <Setter Property="RenderTransform" Value="scaleX(1)" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ Border#PART_UnderlineActive">
+      <Setter Property="RenderTransform" Value="scaleX(1)" />
+    </Style>
+
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+      <Setter Property="RenderTransform" Value="translateY(-14px)" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+      <Setter Property="RenderTransform" Value="translateY(-14px)" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:focus /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Path#PART_Chevron">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+
+    <Style Selector="^.error /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Border#PART_UnderlineActive">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ComboBox}" TargetType="ComboBox" BasedOn="{StaticResource FiliComboBox}" />
+  <ControlTheme x:Key="{x:Type ComboBoxItem}" TargetType="ComboBoxItem" BasedOn="{StaticResource FiliComboBoxItem}" />
+
+</ResourceDictionary>

@@ -1,14 +1,17 @@
 <!--
-  RadioButton: the Material radio.
+  RadioButton, re-derived from MudBlazor.
 
-  Same skeleton as the checkbox - 40px circular state layer, 20px control, label to the right -
-  with one difference that matters: the checked state does NOT fill the outer ring. It recolours
-  the ring to primary and grows a separate inner disc. Filling the ring instead, the way a
-  checkbox fills its box, is the usual mistake and reads as a checkbox that happens to be round.
+  Same correction as CheckBox: MudRadio renders Material icon glyphs
+  (RadioButtonChecked / RadioButtonUnchecked) rather than drawing a ring and a disc.
 
-  The inner disc scales rather than appears, so selection has the same easing as the rest of the
-  theme. RenderTransform is written in the CSS-like form because only TransformOperations can be
-  interpolated by a transition.
+  That difference is not cosmetic here. The earlier hand-drawn version grew a separate inner
+  disc with a scale transition - which reads well, but is not what MudBlazor does. The checked
+  glyph is one path containing both ring and dot, so selection is a glyph swap and a colour
+  change, with no independent animation.
+
+  Transcribed from:
+    Components/Radio/MudRadio.razor.cs   the two icon constants
+    Styles/components/_radio.scss        padding: 4px around the icon
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -19,7 +22,6 @@
     <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Cursor" Value="Hand" />
-    <Setter Property="MinHeight" Value="40" />
 
     <Setter Property="Template">
       <ControlTemplate>
@@ -31,29 +33,22 @@
                      Width="40" Height="40"
                      Fill="Transparent" />
 
-            <Ellipse x:Name="PART_Ring"
-                     Width="20" Height="20"
-                     StrokeThickness="2"
-                     Stroke="{DynamicResource FiliActionDefaultBrush}"
-                     Fill="Transparent"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center" />
+            <Path x:Name="PART_Unchecked"
+                  Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliRadioUncheckedGeometry}"
+                  Fill="{DynamicResource FiliActionDefaultBrush}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
 
-            <Ellipse x:Name="PART_Dot"
-                     Width="10" Height="10"
-                     Fill="{DynamicResource FiliPrimaryBrush}"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"
-                     RenderTransformOrigin="50%,50%"
-                     RenderTransform="scale(0)">
-              <Ellipse.Transitions>
-                <Transitions>
-                  <TransformOperationsTransition Property="RenderTransform"
-                                                 Duration="0:0:0.15"
-                                                 Easing="CubicEaseOut" />
-                </Transitions>
-              </Ellipse.Transitions>
-            </Ellipse>
+            <Path x:Name="PART_Checked"
+                  Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliRadioCheckedGeometry}"
+                  Fill="{DynamicResource FiliPrimaryBrush}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  IsVisible="False" />
           </Panel>
 
           <ContentPresenter x:Name="PART_ContentPresenter"
@@ -68,11 +63,11 @@
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^:checked /template/ Ellipse#PART_Ring">
-      <Setter Property="Stroke" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Style Selector="^:checked /template/ Path#PART_Unchecked">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style Selector="^:checked /template/ Ellipse#PART_Dot">
-      <Setter Property="RenderTransform" Value="scale(1)" />
+    <Style Selector="^:checked /template/ Path#PART_Checked">
+      <Setter Property="IsVisible" Value="True" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
@@ -82,15 +77,17 @@
       <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
     </Style>
 
-    <Style Selector="^:disabled /template/ Ellipse#PART_Ring">
-      <Setter Property="Stroke" Value="{DynamicResource FiliActionDisabledBrush}" />
+    <Style Selector="^:disabled /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
-    <Style Selector="^:disabled /template/ Ellipse#PART_Dot">
+    <Style Selector="^:disabled /template/ Path#PART_Checked">
       <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
     <Style Selector="^:disabled">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
   </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type RadioButton}" TargetType="RadioButton" BasedOn="{StaticResource FiliRadioButton}" />
 
 </ResourceDictionary>

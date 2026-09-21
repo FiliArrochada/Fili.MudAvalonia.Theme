@@ -1,0 +1,68 @@
+<!--
+  AutoCompleteBox: MudAutocomplete.
+
+  Like MudSelect, MudAutocomplete has no box model of its own - it is a MudInput with a popup of
+  MudListItems under it. Both halves are already themed: the inner TextBox wears
+  Controls/TextBox.axaml and the inner ListBox wears Controls/ListBox.axaml.
+
+  So this theme exists for the third thing, which neither of those covers: the popup SURFACE.
+  MudBlazor renders it through MudPopover, which is a MudPaper - surface colour, the default 4px
+  radius and elevation 8, the same drop the select and the menu use. The substrate's version is a
+  1px grey rectangle with no shadow, which reads as a different component entirely.
+
+  PART_TextBox, PART_Popup and PART_SelectingItemsControl are all required by name.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliAutoCompleteBox" TargetType="AutoCompleteBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <TextBox x:Name="PART_TextBox"
+                   Padding="{TemplateBinding Padding}"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   CaretIndex="{TemplateBinding CaretIndex, Mode=TwoWay}"
+                   ClearSelectionOnLostFocus="{TemplateBinding ClearSelectionOnLostFocus}"
+                   DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
+                   PlaceholderText="{TemplateBinding PlaceholderText}"
+                   MaxLength="{TemplateBinding MaxLength}"
+                   InnerLeftContent="{TemplateBinding InnerLeftContent}"
+                   InnerRightContent="{TemplateBinding InnerRightContent}" />
+
+          <Popup x:Name="PART_Popup"
+                 MinWidth="{Binding Bounds.Width, RelativeSource={RelativeSource TemplatedParent}}"
+                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                 IsLightDismissEnabled="True"
+                 WindowManagerAddShadowHint="False"
+                 PlacementTarget="{TemplateBinding}">
+            <Border Background="{DynamicResource FiliSurfaceBrush}"
+                    CornerRadius="{DynamicResource FiliCornerRadius}"
+                    BoxShadow="{DynamicResource FiliElevation8}"
+                    Margin="8">
+              <ListBox x:Name="PART_SelectingItemsControl"
+                       Background="Transparent"
+                       BorderThickness="0"
+                       Foreground="{TemplateBinding Foreground}"
+                       ItemTemplate="{TemplateBinding ItemTemplate}"
+                       ScrollViewer.IsScrollChainingEnabled="False"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            </Border>
+          </Popup>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type AutoCompleteBox}" TargetType="AutoCompleteBox" BasedOn="{StaticResource FiliAutoCompleteBox}" />
+
+</ResourceDictionary>

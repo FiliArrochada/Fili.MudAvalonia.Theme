@@ -1,27 +1,16 @@
 <!--
   ToolTip, FlyoutPresenter and MenuFlyoutPresenter: the floating surfaces.
 
-  THESE BREAK THE OPT-IN RULE, DELIBERATELY, AND IT IS WORTH UNDERSTANDING WHY.
+  These three were the FIRST themes in this package keyed by type, back when everything else was
+  keyed by a class, and the reason is worth keeping: they are instantiated BY THE FRAMEWORK and
+  have no markup site to carry a class at all. `ToolTip.Tip="text"` builds the ToolTip
+  internally; `<Flyout>` builds its presenter.
 
-  Everywhere else in this package a ControlTheme is keyed by name and applied through a class,
-  because Avalonia builds controls out of other controls and a default-keyed theme retemplates
-  things that never asked (a Button theme reaches ButtonSpinner; a TextBox theme reaches
-  AutoCompleteBox, NumericUpDown and the pickers).
+  The rest of the package has since caught up - every theme is keyed by type now - so this file
+  is no longer an exception to anything. It is just the place the argument was first made.
 
-  That reasoning does not apply here, because these three are instantiated BY THE FRAMEWORK and
-  have no markup site to carry a class. `ToolTip.Tip="text"` builds the ToolTip internally;
-  `<Flyout>` builds its presenter. There is nowhere to write Classes="fili". So the rule's real
-  shape is narrower than "always use a class":
-
-      Key by class when the control is placed in markup.
-      Key by type when the framework creates it for you.
-
-  Each theme below is therefore declared once under a name - so the inventory and the readiness
-  test can see it - and then aliased to its type key, which is what makes it take effect.
-
-  The risk that justified the rule is also absent: these are leaf presentation surfaces. Nothing
-  composes a ToolTip or a FlyoutPresenter into its own template the way NumericUpDown composes a
-  Button.
+  Each theme below is declared once under a name, so the inventory and the readiness test can see
+  it, and then aliased to its type key, which is what makes it take effect.
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -38,7 +27,7 @@
     <Setter Property="Foreground" Value="#FFFFFFFF" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
-    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="Padding" Value="8,4" />
     <Setter Property="MaxWidth" Value="320" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
 

@@ -80,4 +80,6 @@
     </Style>
   </ControlTheme>
 
+  <ControlTheme x:Key="{x:Type ScrollBar}" TargetType="ScrollBar" BasedOn="{StaticResource FiliScrollBar}" />
+
 </ResourceDictionary>

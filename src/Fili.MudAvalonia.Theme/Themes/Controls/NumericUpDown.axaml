@@ -1,0 +1,172 @@
+<!--
+  NumericUpDown and ButtonSpinner: MudNumericField.
+
+  A MudNumericField is a MudInput with a spin column, and _inputcontrol.scss says exactly what
+  that column is:
+
+    .mud-input-numeric-spin       position: absolute; right: 0; top: 0; bottom: 0;
+                                  flex-direction: column; justify-content: space-between
+    .mud-input-numeric-spin > button   padding: 2px 0; min-width: unset; min-height: unset
+    .mud-input-showspin input     padding-right: 24px   ("This must be the same width of the
+                                  spinners" - so the column is 24 wide, and that is where the
+                                  number below comes from rather than from taste)
+
+  Everything else - the underline, the floating label, the accent rule - belongs to the TextBox
+  inside, which already wears Controls/TextBox.axaml. So this theme's real job is to REMOVE the
+  box the substrate draws around that TextBox: its own border, background and padding would
+  otherwise frame a field that is already drawn.
+
+  Avalonia requires PART_Spinner and PART_TextBox on NumericUpDown, and PART_IncreaseButton,
+  PART_DecreaseButton and PART_ContentPresenter on the ButtonSpinner inside it. PART_SpinnerPanel
+  is looked up too, for the button-location flip.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- One spin button: a 24px-wide RepeatButton with 2px of vertical padding and no minimums. -->
+  <ControlTheme x:Key="FiliSpinnerButton" TargetType="RepeatButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,2" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer"
+                  Background="Transparent"
+                  CornerRadius="{DynamicResource FiliCornerRadius}" />
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliButtonSpinner" TargetType="ButtonSpinner">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Focusable" Value="True" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DataValidationErrors>
+          <Border x:Name="border"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}">
+            <DockPanel>
+              <!-- justify-content: space-between over the field's full height, which is what a
+                   two-row UniformGrid gives once the panel stretches. -->
+              <UniformGrid x:Name="PART_SpinnerPanel"
+                           Rows="2"
+                           Width="24"
+                           TabIndex="2"
+                           DockPanel.Dock="Right"
+                           VerticalAlignment="Stretch"
+                           IsVisible="{TemplateBinding ShowButtonSpinner}">
+                <RepeatButton x:Name="PART_IncreaseButton"
+                              Theme="{StaticResource FiliSpinnerButton}"
+                              IsTabStop="{TemplateBinding IsTabStop}">
+                  <Path Width="24" Height="24"
+                        Stretch="None"
+                        Data="{StaticResource FiliArrowDropUpGeometry}"
+                        Fill="{DynamicResource FiliActionDefaultBrush}" />
+                </RepeatButton>
+                <RepeatButton x:Name="PART_DecreaseButton"
+                              Theme="{StaticResource FiliSpinnerButton}"
+                              IsTabStop="{TemplateBinding IsTabStop}">
+                  <Path Width="24" Height="24"
+                        Stretch="None"
+                        Data="{StaticResource FiliArrowDropDownGeometry}"
+                        Fill="{DynamicResource FiliActionDefaultBrush}" />
+                </RepeatButton>
+              </UniformGrid>
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                TabIndex="1"
+                                Padding="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </DockPanel>
+          </Border>
+        </DataValidationErrors>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:left /template/ UniformGrid#PART_SpinnerPanel">
+      <Setter Property="DockPanel.Dock" Value="Left" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Path">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliNumericUpDown" TargetType="NumericUpDown">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DataValidationErrors>
+          <ButtonSpinner x:Name="PART_Spinner"
+                         Theme="{StaticResource FiliButtonSpinner}"
+                         IsTabStop="False"
+                         Padding="0"
+                         MinWidth="0"
+                         AllowSpin="{TemplateBinding AllowSpin}"
+                         ButtonSpinnerLocation="{TemplateBinding ButtonSpinnerLocation}"
+                         ShowButtonSpinner="{TemplateBinding ShowButtonSpinner}"
+                         HorizontalContentAlignment="Stretch"
+                         VerticalContentAlignment="Stretch">
+            <!-- No Margin and no BorderThickness: the TextBox already IS the field. -->
+            <TextBox x:Name="PART_TextBox"
+                     MinWidth="20"
+                     Margin="0"
+                     Padding="{TemplateBinding Padding}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     AcceptsReturn="False"
+                     TextWrapping="NoWrap"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                     IsReadOnly="{TemplateBinding IsReadOnly}"
+                     Text="{TemplateBinding Text}"
+                     TextAlignment="{TemplateBinding TextAlignment}"
+                     PlaceholderText="{TemplateBinding PlaceholderText}"
+                     InnerLeftContent="{Binding InnerLeftContent, RelativeSource={RelativeSource TemplatedParent}}"
+                     InnerRightContent="{Binding InnerRightContent, RelativeSource={RelativeSource TemplatedParent}}" />
+          </ButtonSpinner>
+        </DataValidationErrors>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ButtonSpinner}" TargetType="ButtonSpinner" BasedOn="{StaticResource FiliButtonSpinner}" />
+  <ControlTheme x:Key="{x:Type NumericUpDown}" TargetType="NumericUpDown" BasedOn="{StaticResource FiliNumericUpDown}" />
+
+</ResourceDictionary>

@@ -33,12 +33,20 @@ public class StandaloneReadinessTests
     private static readonly string[] ThemeKeys =
     [
         "FiliContainedButton", "FiliTextButton", "FiliOutlinedButton",
-        "FiliFilledTextBox", "FiliOutlinedTextBox",
+        "FiliStandardTextBox", "FiliFilledTextBox", "FiliOutlinedTextBox",
         "FiliCheckBox", "FiliRadioButton", "FiliToggleSwitch",
+        "FiliToggleButton", "FiliRepeatButton", "FiliHyperlinkButton",
+        "FiliComboBox", "FiliComboBoxItem",
+        "FiliListBox", "FiliListBoxItem",
+        "FiliNumericUpDown", "FiliButtonSpinner", "FiliSpinnerButton",
+        "FiliAutoCompleteBox",
+        "FiliExpander", "FiliExpanderToggle",
+        "FiliLabel", "FiliDataValidationErrors",
         "FiliSlider", "FiliTabControl", "FiliTabItem",
-        "FiliScrollBar", "FiliScrollViewer",
+        "FiliProgressBar", "FiliSeparator",
+        "FiliScrollBar",
         "FiliMenu", "FiliMenuItem", "FiliTopLevelMenuItem", "FiliContextMenu",
-        "FiliToolTip", "FiliFlyoutPresenter", "FiliMenuFlyoutPresenter", "FiliWindow",
+        "FiliToolTip", "FiliFlyoutPresenter", "FiliMenuFlyoutPresenter",
     ];
 
     [Fact]
@@ -76,19 +84,22 @@ public class StandaloneReadinessTests
 
         Assert.Equal(
             [
-                "Button", "CheckBox", "ContextMenu", "FlyoutPresenter", "Menu",
-                "MenuFlyoutPresenter", "MenuItem", "RadioButton", "ScrollBar", "ScrollViewer",
-                "Slider", "TabControl", "TabItem", "TextBox", "ToggleSwitch", "ToolTip", "Window",
+                "AutoCompleteBox", "Button", "ButtonSpinner", "CheckBox", "ComboBox",
+                "ComboBoxItem", "ContextMenu", "DataValidationErrors", "Expander",
+                "FlyoutPresenter", "HyperlinkButton", "Label", "ListBox", "ListBoxItem", "Menu",
+                "MenuFlyoutPresenter", "MenuItem", "NumericUpDown", "ProgressBar", "RadioButton",
+                "RepeatButton", "ScrollBar", "Separator", "Slider", "TabControl", "TabItem",
+                "TextBox", "ToggleButton", "ToggleSwitch", "ToolTip",
             ],
             themed.Select(t => t.Name).ToArray());
 
-        // THE NUMBER THAT DECIDES THE ARCHITECTURE. 17 of 89 templated controls are themed here,
-        // so dropping the substrate today would leave 72 control types with no template — which
-        // means invisible, not ugly. Pinned rather than merely reported, so it cannot drift
+        // THE NUMBER THAT SAYS HOW MUCH OF THE FORK IS STILL DOING THE WORK. 30 of 89 templated
+        // control types are hand-written here; the other 59 are still wearing the forked Simple
+        // templates from Themes/Base. Pinned rather than merely reported, so it cannot drift
         // unnoticed and so an Avalonia version that adds controls surfaces as a failure here.
         var templated = TemplatedControlTypes();
 
-        Assert.Equal(17, themed.Count);
+        Assert.Equal(30, themed.Count);
         Assert.Equal(89, templated.Count);
     });
 

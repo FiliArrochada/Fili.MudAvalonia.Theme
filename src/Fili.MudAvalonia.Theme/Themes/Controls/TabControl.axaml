@@ -24,7 +24,7 @@
     <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
     <Setter Property="FontWeight" Value="Medium" />
     <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
-    <Setter Property="Padding" Value="16,0" />
+    <Setter Property="Padding" Value="12,6" />
     <Setter Property="MinHeight" Value="48" />
     <Setter Property="MinWidth" Value="90" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -110,5 +110,9 @@
       </ControlTemplate>
     </Setter>
   </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type TabControl}" TargetType="TabControl" BasedOn="{StaticResource FiliTabControl}" />
+
+  <ControlTheme x:Key="{x:Type TabItem}" TargetType="TabItem" BasedOn="{StaticResource FiliTabItem}" />
 
 </ResourceDictionary>

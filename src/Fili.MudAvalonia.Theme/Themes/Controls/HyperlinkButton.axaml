@@ -1,0 +1,89 @@
+<!--
+  HyperlinkButton: MudLink.
+
+  _link.scss is almost entirely about the underline, and the default is the interesting part:
+
+    .mud-link-underline-none     text-decoration: none
+    .mud-link-underline-hover    none, underlined on :hover, :focus-visible and :active
+    .mud-link-underline-always   text-decoration: underline
+    .mud-link-disabled           colour action-disabled, and no underline unless "always"
+    icon-start / icon-end        margin 4px on the inner side
+
+  MudLink.Underline defaults to Underline.Hover, so a bare link here is NOT underlined until the
+  pointer is on it. Colour defaults to Color.Primary. Everything else - size, weight, spacing -
+  is inherited from the surrounding text, which is why this theme sets no FontSize: a link inside
+  body2 should be body2, and a link inside a heading should be the heading.
+
+  The underline is applied through a style that reaches the TextBlock a ContentPresenter makes
+  for string content. That is the same mechanism that once repainted button labels body-grey
+  (see CLAUDE.md), used deliberately here and scoped to this template.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliHyperlinkButton" TargetType="HyperlinkButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter x:Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Foreground="{TemplateBinding Foreground}"
+                          Padding="{TemplateBinding Padding}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Underline.Hover, the MudLink default. -->
+    <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+
+    <!-- Underline.Always -->
+    <Style Selector="^.underline /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+
+    <!-- Underline.None: still no underline when hovered. -->
+    <Style Selector="^.no-underline:pointerover /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="{x:Null}" />
+    </Style>
+    <Style Selector="^.no-underline:pressed /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="{x:Null}" />
+    </Style>
+
+    <Style Selector="^.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.inherit">
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="Cursor" Value="Arrow" />
+    </Style>
+    <Style Selector="^:disabled:pointerover /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="{x:Null}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type HyperlinkButton}" TargetType="HyperlinkButton" BasedOn="{StaticResource FiliHyperlinkButton}" />
+
+</ResourceDictionary>

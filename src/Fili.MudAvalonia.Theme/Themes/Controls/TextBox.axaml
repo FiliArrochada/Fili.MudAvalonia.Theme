@@ -1,39 +1,50 @@
 <!--
-  TextBox: the Material text field.
+  TextBox: the MudBlazor text field, in its three variants.
 
-  This is the most recognisable control in the idiom and the one Fluent looks least like. Three
-  things make it, and all three need a template - none can be reached with setters:
+  STANDARD IS THE BASE, and that ordering mirrors _input.scss, where `.mud-input` carries the box
+  model and `.mud-input-filled` / `.mud-input-outlined` are modifiers on top of it.
+  MudTextField.Variant defaults to Variant.Text, so standard is also what a bare <TextBox/> gets -
+  which is why it is the type-keyed default at the bottom of this file.
 
-    1. A LABEL THAT FLOATS. At rest it sits where the text will go; on focus, or as soon as there
-       is content, it shrinks and rises. Driven here by two pseudo-classes, :focus and :empty.
-    2. AN UNDERLINE THAT ACTIVATES. A 1px resting rule, with a 2px accent rule scaling out from
-       the centre on focus.
-    3. A FILL WITH ONLY TOP CORNERS ROUNDED (4,4,0,0), which is what makes the filled variant read
-       as a sheet of paper resting on its underline rather than as a box.
+  Three things make the field, and none can be reached with setters:
 
-  PlaceholderText DOUBLES AS THE LABEL, deliberately. Avalonia's TextBox has no Label property,
-  and adding an attached one would be the first real API in a package whose whole point is not
-  having any. The cost is that these variants have no separate placeholder: the label occupies
-  that slot until it floats. If both are ever needed, an attached FiliTextField.Label is the
-  follow-up, and it belongs in a package that depends on this one.
+    1. A LABEL THAT FLOATS, driven by :focus and :empty.
+    2. AN UNDERLINE THAT ACTIVATES - a 1px resting rule with a 2px accent rule scaling out from
+       the centre (_input.scss: transform scaleX(0) -> scaleX(1)).
+    3. A FILL WITH ONLY TOP CORNERS ROUNDED, on the filled variant, which is what makes it read
+       as paper resting on its rule rather than as a box.
 
-  Opt-in by class, for the same reason as Button - see Controls/Button.axaml. An unclassed TextBox
-  keeps Fluent's theme, which also leaves AutoCompleteBox, NumericUpDown, DatePicker and editable
-  ComboBox alone; every one of them embeds a TextBox and would be retemplated by a default here.
+  Transcribed from _input.scss and _inputlabel.scss:
+
+    variant    content padding    label resting        label floated
+    standard   6px 0 7px          translate(0, 24)     translate(0, 1.5)  scale(.75)
+    filled     12px horizontal    translate(12, 20)    translate(12, 10)  scale(.75)
+    outlined   14px horizontal    translate(14, 20)    translate(0, 1.5)  scale(.75)
+
+  Two deliberate deviations, flagged because they are NOT transcriptions:
+
+    * The label shrinks by FontSize 16 -> 12 rather than MudBlazor's scale(0.75) with
+      transform-origin top-left. On 16px text those give the same 12px result, and FontSize keeps
+      native hinting where a scale transform would blur the glyphs.
+    * The outlined label masks the stroke with an opaque patch. MudBlazor cuts a real notch
+      through a fieldset legend; Avalonia has no fieldset, and the mask only blends on
+      FiliSurface.
+
+  PlaceholderText DOUBLES AS THE LABEL. Avalonia's TextBox has no Label property, and adding an
+  attached one would be the first real API in a package whose point is not having any. The cost
+  is that these variants have no separate placeholder.
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!--
-    Filled. The default Material field: tinted sheet, rounded top, underline along the bottom.
-  -->
-  <ControlTheme x:Key="FiliFilledTextBox" TargetType="TextBox">
-    <Setter Property="Background" Value="{DynamicResource FiliInputFilledBrush}" />
+  <!-- Standard / Variant.Text: no fill, no box, just the rule. MudTextField's default. -->
+  <ControlTheme x:Key="FiliStandardTextBox" TargetType="TextBox">
+    <Setter Property="Background" Value="Transparent" />
     <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="CornerRadius" Value="4,4,0,0" />
-    <Setter Property="MinHeight" Value="56" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="MinHeight" Value="48" />
     <Setter Property="Padding" Value="0" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
@@ -45,6 +56,11 @@
 
     <Setter Property="Template">
       <ControlTemplate>
+        <!-- The DataValidationErrors wrapper is what makes a binding error VISIBLE. Without it
+             a field with a failing binding shows the red rule and no message at all, because
+             nothing in the template hosts the error list. Controls/Fields.axaml themes it to
+             put that message under the field, the way MudBlazor does. -->
+        <DataValidationErrors>
         <Border x:Name="PART_Root"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
@@ -53,8 +69,8 @@
                 MinHeight="{TemplateBinding MinHeight}">
           <Panel>
 
-            <!-- Content. Top padding leaves the room the label rises into. -->
-            <DockPanel Margin="12,20,12,8">
+            <!-- Named so the variants below can change the box model without a new template. -->
+            <DockPanel x:Name="PART_ContentArea" Margin="0,20,0,7">
               <ContentPresenter x:Name="PART_InnerLeftContent"
                                 Content="{TemplateBinding InnerLeftContent}"
                                 DockPanel.Dock="Left"
@@ -82,14 +98,11 @@
               </ScrollViewer>
             </DockPanel>
 
-            <!--
-              The floating label. Resting state is defined here; the two selectors below move it.
-              RenderTransform is written in the CSS-like form so TransformOperationsTransition can
-              interpolate it - a TranslateTransform object cannot be transitioned.
-            -->
+            <!-- RenderTransform is written in the CSS-like form so TransformOperationsTransition
+                 can interpolate it; a TranslateTransform object cannot be transitioned. -->
             <TextBlock x:Name="PART_FloatingLabel"
                        Text="{TemplateBinding PlaceholderText}"
-                       Margin="12,0,12,0"
+                       Margin="0"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"
                        IsHitTestVisible="False"
@@ -105,13 +118,11 @@
               </TextBlock.Transitions>
             </TextBlock>
 
-            <!-- Resting rule, always present. -->
             <Border x:Name="PART_Underline"
                     Height="1"
                     VerticalAlignment="Bottom"
                     Background="{DynamicResource FiliLinesInputsBrush}" />
 
-            <!-- Accent rule, scaled out from the centre on focus. -->
             <Border x:Name="PART_UnderlineActive"
                     Height="2"
                     VerticalAlignment="Bottom"
@@ -127,35 +138,34 @@
 
           </Panel>
         </Border>
+        </DataValidationErrors>
       </ControlTemplate>
     </Setter>
 
-    <!-- Hover: Material darkens the sheet slightly rather than colouring the rule. -->
     <Style Selector="^:pointerover /template/ Border#PART_Underline">
-      <Setter Property="Background" Value="{DynamicResource FiliTextPrimaryBrush}" />
+      <Setter Property="Background" Value="{DynamicResource FiliActionDefaultBrush}" />
     </Style>
 
     <Style Selector="^:focus /template/ Border#PART_UnderlineActive">
       <Setter Property="RenderTransform" Value="scaleX(1)" />
     </Style>
 
-    <!--
-      The float condition, in two halves: focused, OR carrying content. Avalonia's :empty
-      pseudo-class on TextBox is what makes the second half expressible in a selector at all.
-    -->
+    <!-- The float condition: focused OR carrying content. Avalonia's :empty pseudo-class on
+         TextBox is what makes the second half expressible in a selector at all. -->
     <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
-      <Setter Property="RenderTransform" Value="translateY(-16px)" />
+      <Setter Property="RenderTransform" Value="translateY(-14px)" />
       <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
     </Style>
-
     <Style Selector="^:not(:empty) /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
-      <Setter Property="RenderTransform" Value="translateY(-16px)" />
+      <Setter Property="RenderTransform" Value="translateY(-14px)" />
     </Style>
 
-    <Style Selector="^:disabled /template/ Border#PART_Root">
-      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    <!-- Set on the TextBox, not on PART_TextPresenter: TextPresenter has no Foreground
+         AvaloniaProperty of its own and a setter targeting the part fails with AVLN3000. -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
     <Style Selector="^:disabled /template/ Border#PART_Underline">
       <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
@@ -163,16 +173,25 @@
     <Style Selector="^:disabled /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
+
     <!--
-      Set on the TextBox, not on PART_TextPresenter. TextPresenter has no Foreground
-      AvaloniaProperty of its own - it picks the inherited TextElement.Foreground up from its
-      parent - so a setter targeting the part fails to compile with AVLN3000.
+      Two ways to be invalid, and both paint the same.
+
+      `.error` is the class an app sets by hand - MudTextField's Error parameter. The attribute
+      selector is the one that fires on its own, when a BINDING fails validation and Avalonia
+      sets DataValidationErrors.HasErrors. Before this was here, a failing binding recoloured
+      nothing: the app looked fine and the value was rejected silently.
     -->
-    <Style Selector="^:disabled">
-      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_UnderlineActive">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
     </Style>
 
-    <!-- Error. TextBox has no :error pseudo-class, so this is a class the app sets. -->
     <Style Selector="^.error /template/ Border#PART_Underline">
       <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
     </Style>
@@ -184,26 +203,46 @@
     </Style>
   </ControlTheme>
 
-  <!--
-    Outlined. Same mechanics, boxed instead of filled.
+  <!-- Filled: the standard field on a tinted sheet, top corners only. -->
+  <ControlTheme x:Key="FiliFilledTextBox" TargetType="TextBox" BasedOn="{StaticResource FiliStandardTextBox}">
+    <Setter Property="Background" Value="{DynamicResource FiliInputFilledBrush}" />
+    <Setter Property="CornerRadius" Value="4,4,0,0" />
+    <Setter Property="MinHeight" Value="56" />
 
-    The floated label gets an opaque background so it masks the stretch of border it crosses.
-    Material cuts a real notch in the stroke; that needs a generated Geometry and is not worth it
-    here. The mask is only applied in the floated selectors, so a resting field does not paint a
-    surface-coloured patch over whatever it sits on.
+    <Style Selector="^ /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="12,20,12,8" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Margin" Value="12,0" />
+    </Style>
 
-    THE MASK ONLY BLENDS ON FiliSurface. It is painted with FiliSurfaceBrush, so on any other
-    background - the page ground, a tinted card, an app bar - the floated label sits on a visible
-    rectangle of the wrong shade. Rendering the gallery in dark mode shows this plainly. Use the
-    filled variant off-surface, or cut a real notch, if that ever matters more than it does now.
-  -->
-  <ControlTheme x:Key="FiliOutlinedTextBox" TargetType="TextBox" BasedOn="{StaticResource FiliFilledTextBox}">
-    <Setter Property="Background" Value="Transparent" />
+    <!-- Filled floats 20 -> 10, a 10px rise. Standard travels further because it starts lower. -->
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-10px)" />
+    </Style>
+    <Style Selector="^:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-10px)" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Outlined: boxed, no rules at all, and the floated label sits on the stroke. -->
+  <ControlTheme x:Key="FiliOutlinedTextBox" TargetType="TextBox" BasedOn="{StaticResource FiliStandardTextBox}">
     <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="MinHeight" Value="56" />
 
-    <!-- Boxed fields carry no rules at all. -->
+    <Style Selector="^ /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="14,16,14,12" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Margin" Value="14,0" />
+    </Style>
+
     <Style Selector="^ /template/ Border#PART_Underline">
       <Setter Property="IsVisible" Value="False" />
     </Style>
@@ -214,34 +253,35 @@
     <Style Selector="^:pointerover /template/ Border#PART_Root">
       <Setter Property="BorderBrush" Value="{DynamicResource FiliTextPrimaryBrush}" />
     </Style>
-
     <Style Selector="^:focus /template/ Border#PART_Root">
       <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
       <Setter Property="BorderThickness" Value="2" />
     </Style>
 
+    <!-- The mask, and its limit: painted with FiliSurfaceBrush, so on any other ground the
+         floated label sits on a visible rectangle of the wrong shade. -->
     <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
-      <Setter Property="Padding" Value="4,0" />
-      <Setter Property="Margin" Value="8,0,12,0" />
-      <Setter Property="RenderTransform" Value="translateY(-28px)" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="10,0" />
+      <Setter Property="RenderTransform" Value="translateY(-26px)" />
     </Style>
-
     <Style Selector="^:not(:empty) /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
-      <Setter Property="Padding" Value="4,0" />
-      <Setter Property="Margin" Value="8,0,12,0" />
-      <Setter Property="RenderTransform" Value="translateY(-28px)" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="10,0" />
+      <Setter Property="RenderTransform" Value="translateY(-26px)" />
     </Style>
 
     <Style Selector="^:disabled /template/ Border#PART_Root">
-      <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
     </Style>
-
     <Style Selector="^.error /template/ Border#PART_Root">
       <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
     </Style>
   </ControlTheme>
+
+  <!-- MudTextField.Variant defaults to Variant.Text, so a bare TextBox is the standard field. -->
+  <ControlTheme x:Key="{x:Type TextBox}" TargetType="TextBox" BasedOn="{StaticResource FiliStandardTextBox}" />
 
 </ResourceDictionary>

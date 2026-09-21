@@ -1,0 +1,57 @@
+<!--
+  The handful of icon glyphs the control themes cannot do without.
+
+  This package deliberately ships no icon set - that is stated in the README and still true. What
+  is here is the minimum needed for FIDELITY rather than for convenience: MudBlazor does not draw
+  a checkbox or a radio, it renders a Material icon.
+
+      MudCheckBox.razor   -> <MudIcon Icon="@GetIcon()" ... />
+      CheckedIcon         = Icons.Material.Filled.CheckBox
+      UncheckedIcon       = Icons.Material.Filled.CheckBoxOutlineBlank
+      IndeterminateIcon   = Icons.Material.Filled.IndeterminateCheckBox
+      MudRadio            = RadioButtonChecked / RadioButtonUnchecked
+
+  So a hand-drawn 18px Border with a stroked tick is not a close approximation of MudBlazor, it is
+  a different artefact - it cannot match the glyph's corner geometry or the indeterminate bar.
+
+  Path data transcribed verbatim from MudBlazor's Icons/Material/Filled.cs, which is Google's
+  Material Icons under Apache 2.0. The `M0 0h24v24H0z` viewbox spacer each glyph carries is
+  dropped: it is a transparent bounding rect in SVG, but in a filled StreamGeometry it would
+  paint the whole square. Bounds are preserved instead by drawing at Width/Height 24 with
+  Stretch="None", since the data is already in 0-24 coordinate space.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Icons.Material.Filled.CheckBox -->
+  <StreamGeometry x:Key="FiliCheckBoxCheckedGeometry">M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.CheckBoxOutlineBlank -->
+  <StreamGeometry x:Key="FiliCheckBoxUncheckedGeometry">M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.IndeterminateCheckBox -->
+  <StreamGeometry x:Key="FiliCheckBoxIndeterminateGeometry">M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M17,13H7v-2h10V13z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.RadioButtonChecked -->
+  <StreamGeometry x:Key="FiliRadioCheckedGeometry">M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.RadioButtonUnchecked -->
+  <StreamGeometry x:Key="FiliRadioUncheckedGeometry">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z</StreamGeometry>
+
+  <!--
+    The two disclosure glyphs, and they are NOT interchangeable. MudSelect's adornment is
+    ArrowDropDown, a solid triangle; MudExpansionPanel's is ExpandMore, a thin chevron. Drawing
+    one stroked path and using it for both was the first attempt here and it made a select look
+    like an expander.
+  -->
+
+  <!-- Icons.Material.Filled.ArrowDropDown -->
+  <StreamGeometry x:Key="FiliArrowDropDownGeometry">M7 10l5 5 5-5z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.ArrowDropUp -->
+  <StreamGeometry x:Key="FiliArrowDropUpGeometry">M7 14l5-5 5 5z</StreamGeometry>
+
+  <!-- Icons.Material.Filled.ExpandMore -->
+  <StreamGeometry x:Key="FiliExpandMoreGeometry">M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z</StreamGeometry>
+
+</ResourceDictionary>

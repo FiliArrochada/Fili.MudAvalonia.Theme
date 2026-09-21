@@ -20,7 +20,7 @@
     <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
-    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="Padding" Value="16,8" />
     <Setter Property="MinHeight" Value="36" />
     <Setter Property="Cursor" Value="Hand" />
 
@@ -230,5 +230,9 @@
       </ControlTemplate>
     </Setter>
   </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Menu}" TargetType="Menu" BasedOn="{StaticResource FiliMenu}" />
+
+  <ControlTheme x:Key="{x:Type ContextMenu}" TargetType="ContextMenu" BasedOn="{StaticResource FiliContextMenu}" />
 
 </ResourceDictionary>

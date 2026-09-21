@@ -1,0 +1,118 @@
+<!--
+  ListBox and ListBoxItem: MudList / MudListItem.
+
+  Transcribed from _list.scss:
+
+    .mud-list                 margin: 0; padding: 0
+    .mud-list-padding         padding-top / padding-bottom: 8px      (on by default)
+    .mud-list-item            padding-top / padding-bottom: 8px, align-items: center
+    .mud-list-item-dense      padding-top / padding-bottom: 4px
+    .mud-list-item-gutters    padding-left / padding-right: 16px     (on by default)
+    .mud-list-item-clickable  hover background: action-default-hover
+    .mud-list-item-disabled   colour: action-disabled
+
+  Selection is the one part that is not in this file. MudList marks the chosen row with
+  `mud-selected-item mud-primary-text mud-primary-hover`, which is primary TEXT over primary at
+  6% - a tint and a colour change, never a filled bar. That is what FiliPrimaryHoverBrush is for,
+  and it is why a selected row here stays as readable as an unselected one.
+
+  The same row shape feeds Controls/ComboBox.axaml, because a MudSelect's options ARE list items.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliListBoxItem" TargetType="ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Padding" Value="16,8" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer" Background="Transparent">
+            <Border.Transitions>
+              <Transitions>
+                <!-- transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) -->
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+              </Transitions>
+            </Border.Transitions>
+          </Border>
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- .mud-list-item-dense -->
+    <Style Selector="^.dense">
+      <Setter Property="Padding" Value="16,4" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
+    <Style Selector="^:selected">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:selected /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <!-- Hovering an already-selected row deepens the same tint rather than swapping to grey. -->
+    <Style Selector="^:selected:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliListBox" TargetType="ListBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <!-- .mud-list-padding: vertical only. The 16px gutters belong to the ROW, so that a hover
+         or a selection tint runs the full width of the list rather than stopping short. -->
+    <Setter Property="Padding" Value="0,8" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliListBoxItem}" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter"
+                            ItemsPanel="{TemplateBinding ItemsPanel}"
+                            Margin="{TemplateBinding Padding}" />
+          </ScrollViewer>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- A list inside a card or a drawer has no ground of its own; one that needs a surface says
+         so. This mirrors MudPaper wrapping a MudList rather than MudList painting itself. -->
+    <Style Selector="^.surface">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ListBox}" TargetType="ListBox" BasedOn="{StaticResource FiliListBox}" />
+  <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem" BasedOn="{StaticResource FiliListBoxItem}" />
+
+</ResourceDictionary>

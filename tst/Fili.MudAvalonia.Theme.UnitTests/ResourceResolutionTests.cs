@@ -32,8 +32,9 @@ public class ResourceResolutionTests
         "FiliDrawerBackgroundColor", "FiliDrawerTextColor", "FiliDrawerIconColor",
         "FiliLinesDefaultColor", "FiliLinesInputsColor", "FiliDividerColor",
         "FiliTableLinesColor", "FiliTableStripedColor", "FiliTableHoverColor",
-        "FiliSkeletonColor", "FiliOverlayHoverColor", "FiliOverlayPressedColor",
-        "FiliSwitchThumbOffColor", "FiliSwitchTrackOffColor", "FiliInputFilledColor",
+        "FiliSkeletonColor", "FiliPrimaryHoverColor",
+        "FiliOverlayHoverColor", "FiliOverlayPressedColor",
+        "FiliInputFilledColor",
     ];
 
     private static readonly string[] BrushTokens =
@@ -45,10 +46,10 @@ public class ResourceResolutionTests
         "FiliAppbarBackgroundBrush", "FiliAppbarTextBrush",
         "FiliDrawerBackgroundBrush", "FiliDrawerTextBrush", "FiliDrawerIconBrush",
         "FiliLinesDefaultBrush", "FiliLinesInputsBrush", "FiliDividerBrush",
-        "FiliOverlayHoverBrush", "FiliOverlayPressedBrush",
+        "FiliPrimaryHoverBrush", "FiliOverlayHoverBrush", "FiliOverlayPressedBrush",
         // These two exist because a Border.Background bound to a Color silently renders nothing:
         // DynamicResource is not type-checked, so the mistake compiles and ships.
-        "FiliSwitchThumbOffBrush", "FiliSwitchTrackOffBrush", "FiliInputFilledBrush",
+        "FiliInputFilledBrush",
     ];
 
     [Fact]

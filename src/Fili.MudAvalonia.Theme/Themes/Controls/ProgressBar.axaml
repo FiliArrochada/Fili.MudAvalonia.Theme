@@ -1,0 +1,282 @@
+<!--
+  ProgressBar: MudProgressLinear.
+
+  Transcribed from Styles/components/_progresslinear.scss and
+  Components/Progress/MudProgressLinear.razor.cs:
+
+    Size.Small / Medium / Large   height (horizontal) or width (vertical) 4px / 8px / 12px
+    Size                          defaults to Size.Small, so 4px is the DEFAULT here, not 8
+    Rounded                       defaults to false, so the bar is SQUARE unless asked
+    .mud-progress-linear-rounded  border-radius: the default border radius token
+    ::before (the track)          opacity: 0.2, whatever colour the bar is
+    Color.Default                 track action-disabled, bar action-default
+    Color.<named>                 track AND bar the palette colour, track still at 0.2
+
+  So Background is the track colour and Foreground the bar colour, and they differ only for the
+  default colour. Every colour class below sets both to the same brush, which is exactly what the
+  `@each $color` loop in the SCSS does.
+
+  The indeterminate animation is MudBlazor's two-bar sweep, keyframe for keyframe, rather than
+  Avalonia Simple's single offset slide - see the comment on those styles below.
+
+  PART_Indicator and PART_LayoutTransformControl are sized and positioned by ProgressBar itself,
+  so both names are required. PART_IndeterminateIndicator is driven only by the styles below.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="using:Avalonia.Controls.Converters"
+                    xmlns:fili="using:Fili.MudAvalonia.Theme.Converters">
+
+  <!-- Declared locally on purpose: the forked base has its own instance, but that dictionary is
+       merged under FiliBaseTheme and its keys are not in scope from here. -->
+  <converters:StringFormatConverter x:Key="FiliStringFormatConverter" />
+
+  <!-- The only piece of C# this package owns. See the indeterminate styles below for why. -->
+  <fili:FactorConverter x:Key="FiliRailFactor" />
+
+  <ControlTheme x:Key="FiliProgressBar" TargetType="ProgressBar">
+    <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliActionDefaultBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliCaptionFontSize}" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+
+    <Setter Property="Template">
+      <ControlTemplate TargetType="ProgressBar">
+        <Grid>
+          <Border x:Name="PART_Bars"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  ClipToBounds="True">
+            <Panel>
+              <!-- The track: the bar's colour at 20%, per ::before. -->
+              <Border x:Name="PART_Track"
+                      Background="{TemplateBinding Background}"
+                      Opacity="0.2" />
+
+              <Border x:Name="PART_Indicator"
+                      Background="{TemplateBinding Foreground}"
+                      IsVisible="{Binding !IsIndeterminate, RelativeSource={RelativeSource TemplatedParent}}" />
+
+              <Border x:Name="PART_IndeterminateIndicator"
+                      Background="{TemplateBinding Foreground}"
+                      IsVisible="{Binding IsIndeterminate, RelativeSource={RelativeSource TemplatedParent}}" />
+
+              <Border x:Name="PART_IndeterminateIndicator2"
+                      Background="{TemplateBinding Foreground}"
+                      IsVisible="{Binding IsIndeterminate, RelativeSource={RelativeSource TemplatedParent}}" />
+            </Panel>
+          </Border>
+
+          <!-- .mud-progress-linear-content: centred over the bar, not beside it. -->
+          <LayoutTransformControl x:Name="PART_LayoutTransformControl"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  IsVisible="{Binding ShowProgressText, RelativeSource={RelativeSource TemplatedParent}}">
+            <TextBlock Foreground="{DynamicResource FiliTextPrimaryBrush}"
+                       FontFamily="{TemplateBinding FontFamily}"
+                       FontSize="{TemplateBinding FontSize}"
+                       LineHeight="NaN">
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource FiliStringFormatConverter}">
+                  <TemplateBinding Property="ProgressTextFormat" />
+                  <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <TemplateBinding Property="Percentage" />
+                  <TemplateBinding Property="Minimum" />
+                  <TemplateBinding Property="Maximum" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+          </LayoutTransformControl>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Size.Small is the default, so the bare control is 4px. -->
+    <Style Selector="^:horizontal">
+      <Setter Property="Height" Value="4" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="^:vertical">
+      <Setter Property="Width" Value="4" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="^.medium:horizontal">
+      <Setter Property="Height" Value="8" />
+    </Style>
+    <Style Selector="^.medium:vertical">
+      <Setter Property="Width" Value="8" />
+    </Style>
+    <Style Selector="^.large:horizontal">
+      <Setter Property="Height" Value="12" />
+    </Style>
+    <Style Selector="^.large:vertical">
+      <Setter Property="Width" Value="12" />
+    </Style>
+
+    <!-- Rounded is opt-in in MudBlazor; it is opt-in here. -->
+    <Style Selector="^.rounded">
+      <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    </Style>
+
+    <Style Selector="^:horizontal /template/ Border#PART_Indicator">
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="^:vertical /template/ Border#PART_Indicator">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+
+    <!--
+      Indeterminate: MudBlazor's two bars, transcribed from the keyframes in _progresslinear.scss.
+
+        indeterminate1   0%  left -35%   right 100%      60%/100%  left 100%  right -90%
+        indeterminate2   0%  left -200%  right 100%      60%/100%  left 107%  right -8%
+
+      Both bars therefore change WIDTH as they travel: bar 1 stretches from 35% to 90% of the rail
+      on its way out, bar 2 starts at twice the rail's width and collapses to a sliver. A
+      constant-width sweep is a different animation, so the percentages are kept, converted with
+      width% = 100 - left% - right%.
+
+      They are expressed as Width and TranslateTransform.X key frames rather than as a transform
+      string, for two reasons. Avalonia's transform parser rejects a `%` unit outright
+      ("Invalid unit: %", thrown at RUNTIME - the XAML compiles either way, which is how this was
+      found). And setting Width directly sidesteps the question of what order a combined translate
+      and scale compose in: left edge and width are each stated outright.
+
+      The pixel values come from TemplateSettings.ContainerWidth, which the control keeps at 40% of
+      the rail, times a factor - so 2.5 is 100%, and every number below is 2.5x the percentage in
+      the SCSS. FiliRailFactor is that multiply, and it is the whole reason this package carries a
+      converter at all.
+
+      MudBlazor's timing is kept exactly: 2.1s, the two cubic-beziers, bar 2 delayed by 1.15s.
+    -->
+    <Style Selector="^:horizontal:indeterminate /template/ Border#PART_IndeterminateIndicator">
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:2.1">
+          <Animation.Easing>
+            <SplineEasing X1="0.65" Y1="0.815" X2="0.735" Y2="0.395" />
+          </Animation.Easing>
+          <KeyFrame Cue="0%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.875}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=-0.875}" />
+          </KeyFrame>
+          <KeyFrame Cue="60%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.25}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.5}" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.25}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.5}" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^:horizontal:indeterminate /template/ Border#PART_IndeterminateIndicator2">
+      <!-- Bar 2 enters 1.15s late. Until its animation takes over, a Border with no width
+           would stretch the whole rail and flash a solid bar on every start, so it rests at
+           zero - which is also where the web has it, off-screen at left -200%. -->
+      <Setter Property="Width" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:2.1" Delay="0:0:1.15">
+          <Animation.Easing>
+            <SplineEasing X1="0.165" Y1="0.84" X2="0.44" Y2="1" />
+          </Animation.Easing>
+          <KeyFrame Cue="0%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=5}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=-5}" />
+          </KeyFrame>
+          <KeyFrame Cue="60%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.025}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.675}" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Width" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.025}" />
+            <Setter Property="TranslateTransform.X" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.675}" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Vertical: the same two bars in the other axis. ContainerWidth is measured off whichever
+         dimension the orientation makes the long one, so the factors carry over unchanged. -->
+    <Style Selector="^:vertical:indeterminate /template/ Border#PART_IndeterminateIndicator">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:2.1">
+          <Animation.Easing>
+            <SplineEasing X1="0.65" Y1="0.815" X2="0.735" Y2="0.395" />
+          </Animation.Easing>
+          <KeyFrame Cue="0%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.875}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=-0.875}" />
+          </KeyFrame>
+          <KeyFrame Cue="60%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.25}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.5}" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.25}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.5}" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^:vertical:indeterminate /template/ Border#PART_IndeterminateIndicator2">
+      <Setter Property="Height" Value="0" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:2.1" Delay="0:0:1.15">
+          <Animation.Easing>
+            <SplineEasing X1="0.165" Y1="0.84" X2="0.44" Y2="1" />
+          </Animation.Easing>
+          <KeyFrame Cue="0%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=5}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=-5}" />
+          </KeyFrame>
+          <KeyFrame Cue="60%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.025}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.675}" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Height" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=0.025}" />
+            <Setter Property="TranslateTransform.Y" Value="{Binding $parent[ProgressBar].TemplateSettings.ContainerWidth, Converter={StaticResource FiliRailFactor}, ConverterParameter=2.675}" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- The @each $color loop: track and bar are the same colour, the track just sits at 0.2. -->
+    <Style Selector="^.primary">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^.secondary">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.info">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^.success">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^.warning">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^.error">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ProgressBar}" TargetType="ProgressBar" BasedOn="{StaticResource FiliProgressBar}" />
+
+</ResourceDictionary>

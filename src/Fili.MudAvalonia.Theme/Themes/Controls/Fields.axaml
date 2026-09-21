@@ -1,0 +1,111 @@
+<!--
+  Label and DataValidationErrors: the text around a field.
+
+  DataValidationErrors is the one that matters, and it was a real hole: a field with an invalid
+  value got the red rule from Controls/TextBox.axaml and then showed its MESSAGE as the
+  substrate's red circle-and-tooltip hanging off the right-hand side. MudBlazor puts the message
+  UNDER the field, as text, and never hides it behind a hover.
+
+  From _inputcontrol.scss:
+
+    .mud-input-control-helper-container   margin-top: 3px
+    .mud-input-helper-text                colour text-secondary; font-size: 0.75rem;
+                                          font-weight: 400; line-height: 1.66;
+                                          letter-spacing: 0.03333em
+    .mud-input-helper-text.mud-input-error   colour error
+    .mud-input-helper-text.mud-disabled      colour text-disabled
+
+  Converted the way every other ratio in this package is: 0.75rem is 12px, 1.66 of 12px is
+  LineHeight 20, and 0.03333em of 12px is LetterSpacing 0.4.
+
+  Label is MudBlazor's .mud-input-label-inputcontrol - subtitle1, text-secondary. It is a
+  standalone caption for a control, NOT the floating label inside a text field; that one is part
+  of the TextBox template and owes nothing to this.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:fili="using:Fili.MudAvalonia.Theme.Converters">
+
+  <fili:ErrorMessageConverter x:Key="FiliErrorMessage" />
+
+  <ControlTheme x:Key="FiliDataValidationErrors" TargetType="DataValidationErrors">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel LastChildFill="True">
+          <ContentControl x:DataType="DataValidationErrors"
+                          DockPanel.Dock="Bottom"
+                          Margin="0,3,0,0"
+                          Content="{Binding (DataValidationErrors.Errors)}"
+                          ContentTemplate="{TemplateBinding ErrorTemplate}"
+                          DataContext="{TemplateBinding Owner}"
+                          IsVisible="{Binding (DataValidationErrors.HasErrors)}" />
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <Setter Property="ErrorTemplate">
+      <DataTemplate>
+        <!-- Every error, stacked, not just the first: a field can fail two rules at once and
+             MudBlazor shows both. -->
+        <ItemsControl ItemsSource="{Binding}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Converter={StaticResource FiliErrorMessage}}"
+                         TextWrapping="Wrap"
+                         FontFamily="{DynamicResource FiliFontFamily}"
+                         FontSize="{DynamicResource FiliCaptionFontSize}"
+                         FontWeight="Normal"
+                         LineHeight="20"
+                         LetterSpacing="0.4"
+                         Foreground="{DynamicResource FiliErrorBrush}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </DataTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliLabel" TargetType="Label">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliSubtitle1FontSize}" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter x:Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Foreground="{TemplateBinding Foreground}"
+                          Padding="{TemplateBinding Padding}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^.error">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type DataValidationErrors}" TargetType="DataValidationErrors" BasedOn="{StaticResource FiliDataValidationErrors}" />
+  <ControlTheme x:Key="{x:Type Label}" TargetType="Label" BasedOn="{StaticResource FiliLabel}" />
+
+</ResourceDictionary>

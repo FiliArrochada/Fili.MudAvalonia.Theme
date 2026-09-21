@@ -17,7 +17,8 @@
   <ControlTheme x:Key="FiliSliderTrackPiece" TargetType="RepeatButton">
     <Setter Property="Template">
       <ControlTemplate>
-        <Border Background="{TemplateBinding Background}" CornerRadius="2" />
+        <Border Background="{TemplateBinding Background}"
+                CornerRadius="{DynamicResource FiliCornerRadius}" />
       </ControlTemplate>
     </Setter>
   </ControlTheme>
@@ -91,7 +92,8 @@
             <Track.IncreaseButton>
               <RepeatButton x:Name="PART_IncreaseButton"
                             Theme="{StaticResource FiliSliderTrackPiece}"
-                            Background="{TemplateBinding Background}"
+                            Background="{TemplateBinding Foreground}"
+                            Opacity="0.38"
                             Height="4"
                             VerticalAlignment="Center" />
             </Track.IncreaseButton>
@@ -125,7 +127,8 @@
               <Track.IncreaseButton>
                 <RepeatButton x:Name="PART_IncreaseButton"
                               Theme="{StaticResource FiliSliderTrackPiece}"
-                              Background="{TemplateBinding Background}"
+                              Background="{TemplateBinding Foreground}"
+                              Opacity="0.38"
                               Width="4"
                               HorizontalAlignment="Center" />
               </Track.IncreaseButton>
@@ -143,5 +146,7 @@
       <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
     </Style>
   </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Slider}" TargetType="Slider" BasedOn="{StaticResource FiliSlider}" />
 
 </ResourceDictionary>

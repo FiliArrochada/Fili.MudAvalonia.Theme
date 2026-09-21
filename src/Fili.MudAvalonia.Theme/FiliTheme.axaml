@@ -1,18 +1,29 @@
 <!--
   Fili.MudAvalonia.Theme entry point.
 
-  Include it AFTER FluentTheme, which supplies the control templates this theme retints:
+  Two includes, in this order, and nothing else:
 
       <Application.Styles>
-        <FluentTheme />
+        <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
         <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
       </Application.Styles>
 
-  This stage is tokens plus conventions only - no ControlThemes. Fluent still decides the
-  SHAPE of every control; what changes here is colour, type and elevation. Retinting Fluent
-  itself (its accent, its surface brushes) is done by the consuming app in
-  Application.Resources, because resources declared there reliably win over style
-  resources. See the gallery App.axaml for the working example.
+  No FluentTheme, and no Avalonia.Themes.* package reference anywhere in the library. The base
+  include carries 79 templates forked from Avalonia Simple, repaletted onto this theme's tokens;
+  this file carries the tokens, the type ramp, the surface classes and the hand-written control
+  themes. ORDER IS LOAD-BEARING: later styles win, which is the only reason a hand-written
+  ControlTheme beats its forked counterpart.
+
+  What lives here versus in a ControlTheme:
+
+    here            tokens, the TextBlock type ramp, Border.surface / .elevation* / .appbar,
+                    and the handful of classes that name a MudBlazor VARIANT
+    ControlTheme    everything about a control's template, keyed to its type
+
+  A class is only ever a variant now - Button.primary, TextBox.filled. It is NOT how a control
+  opts in to being themed; every themed control is keyed to {x:Type} and applies on its own. The
+  older `.fili` marker classes are gone, because a class that means "please theme me" was only
+  ever a workaround for layering over Fluent.
 -->
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -201,13 +212,12 @@
   </Style>
 
   <!-- ============================== Controls ==============================
-       Light-touch only: Fluent keeps the template, this adjusts type and radius.
+       VARIANTS ONLY. The templates live in Themes/Controls/, keyed by type.
   -->
 
   <!--
-    An unclassed Button keeps Fluent's theme, on purpose - see the header of
-    Themes/ControlThemes.axaml for why replacing the default retemplates parts of
-    NumericUpDown and the pickers too. These four classes opt in to the Material shapes.
+    MudButton.Variant defaults to Variant.Text, so an unclassed Button is already the flat one -
+    these classes opt UP from it rather than opting in to being themed at all.
 
     The class sets Theme; the ControlTheme's template picks the fill up through
     TemplateBinding. Styles outrank ControlTheme setters, so "secondary" overriding
@@ -242,68 +252,19 @@
   </Style>
 
   <!--
-    Fluent-templated inputs get type and radius only.
+    The pickers, which are still wearing forked Simple templates. Type and radius are all a
+    blanket style can safely give a control it does not template.
 
-    Note the :not() guards on TextBox. A Style ALWAYS outranks a ControlTheme setter, so a blanket
-    CornerRadius here would quietly flatten the filled field's 4,4,0,0 top-only rounding back to a
-    full 4 - the same trap as the TextBlock Foreground one above, in a different costume. Any
-    blanket style that sets a property a ControlTheme also sets needs this guard.
+    Every other input used to be in this selector and has been taken out as it was templated,
+    because A STYLE ALWAYS OUTRANKS A CONTROLTHEME SETTER. Left in, the CornerRadius below would
+    have quietly overridden the standard field's 0 and the filled field's top-only 4,4,0,0 - the
+    same trap as the TextBlock Foreground one above, in a different costume. The rule to carry
+    forward: when a control gets a ControlTheme, delete it from here.
   -->
-  <Style Selector="TextBox:not(.filled):not(.outlined), ComboBox, NumericUpDown, DatePicker, TimePicker, AutoCompleteBox">
+  <Style Selector="DatePicker, TimePicker, CalendarDatePicker">
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliBody1FontSize}" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
-  </Style>
-
-  <!--
-    Selection controls. These have ONE Material shape each, not a family of variants, so the class
-    is a library marker rather than a variant name: Classes="fili" means "use this theme's
-    template for this control".
-
-    Opt-in for consistency with Button and TextBox, though the risk is genuinely lower here -
-    only DataGridCheckBoxColumn embeds one of these, and restyling that would arguably be wanted.
-    Making them the default is therefore a defensible future change, but a deliberate one.
-  -->
-  <Style Selector="CheckBox.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliCheckBox}" />
-  </Style>
-
-  <Style Selector="RadioButton.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliRadioButton}" />
-  </Style>
-
-  <Style Selector="ToggleSwitch.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliToggleSwitch}" />
-  </Style>
-
-  <Style Selector="Slider.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliSlider}" />
-  </Style>
-
-  <Style Selector="Window.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliWindow}" />
-  </Style>
-
-  <Style Selector="ScrollViewer.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliScrollViewer}" />
-  </Style>
-
-  <Style Selector="Menu.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliMenu}" />
-  </Style>
-
-  <Style Selector="TabControl.fili">
-    <Setter Property="Theme" Value="{StaticResource FiliTabControl}" />
-  </Style>
-
-  <!-- Guarded, per the rule above: a Style outranks a ControlTheme setter. -->
-  <Style Selector="CheckBox:not(.fili), RadioButton:not(.fili), ToggleSwitch:not(.fili), Slider:not(.fili)">
-    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
-    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
-  </Style>
-
-  <Style Selector="Separator">
-    <Setter Property="Background" Value="{DynamicResource FiliDividerBrush}" />
   </Style>
 
 </Styles>
