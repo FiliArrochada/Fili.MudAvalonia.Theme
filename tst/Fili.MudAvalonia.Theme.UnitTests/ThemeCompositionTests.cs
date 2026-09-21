@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Shapes = Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Styling;
@@ -236,7 +237,7 @@ public class ThemeCompositionTests
     public Task CheckBoxSwapsGlyphs(bool isChecked, string shown, string hidden) =>
         UiThread.RunAsync(() =>
         {
-            var box = Templated(new CheckBox { Classes = { "fili" }, IsChecked = isChecked });
+            var box = Templated(new CheckBox { IsChecked = isChecked });
 
             var glyphs = box.GetVisualDescendants().OfType<Shapes.Path>().ToList();
 
@@ -247,7 +248,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task CheckedCheckBoxGlyphIsPrimary() => UiThread.RunAsync(() =>
     {
-        var box = Templated(new CheckBox { Classes = { "fili" }, IsChecked = true });
+        var box = Templated(new CheckBox { IsChecked = true });
 
         var glyph = box.GetVisualDescendants().OfType<Shapes.Path>().Single(p => p.Name == "PART_Checked");
 
@@ -263,7 +264,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task RadioButtonSwapsGlyphs() => UiThread.RunAsync(() =>
     {
-        var radio = Templated(new RadioButton { Classes = { "fili" }, IsChecked = true });
+        var radio = Templated(new RadioButton { IsChecked = true });
 
         var glyphs = radio.GetVisualDescendants().OfType<Shapes.Path>().ToList();
 
@@ -285,7 +286,7 @@ public class ThemeCompositionTests
     [InlineData("PART_MovingKnobs")]
     public Task ToggleSwitchKeepsItsDragParts(string part) => UiThread.RunAsync(() =>
     {
-        var toggle = Templated(new ToggleSwitch { Classes = { "fili" } });
+        var toggle = Templated(new ToggleSwitch());
 
         Assert.Contains(
             toggle.GetVisualDescendants().OfType<Panel>(),
@@ -308,8 +309,8 @@ public class ThemeCompositionTests
             .OfType<Border>()
             .First(b => b.Name == "PART_Track");
 
-        var off = Track(Templated(new ToggleSwitch { Classes = { "fili" } }));
-        var on = Track(Templated(new ToggleSwitch { Classes = { "fili" }, IsChecked = true }));
+        var off = Track(Templated(new ToggleSwitch()));
+        var on = Track(Templated(new ToggleSwitch { IsChecked = true }));
 
         // MudBlazor _switch.scss holds the track at opacity .48 in BOTH states and changes only
         // its colour — action-default when off, the accent when on. An earlier version stepped
@@ -344,7 +345,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task SliderKeepsTheTrackPartsAvaloniaRequires() => UiThread.RunAsync(() =>
     {
-        var slider = Templated(new Slider { Classes = { "fili" }, Width = 200, Value = 40 });
+        var slider = Templated(new Slider { Width = 200, Value = 40 });
 
         var track = slider.GetVisualDescendants().OfType<Track>().FirstOrDefault();
 
@@ -362,7 +363,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task ThemedTabControlThemesItsHeaders() => UiThread.RunAsync(() =>
     {
-        var tabs = new TabControl { Classes = { "fili" }, Width = 300, Height = 120 };
+        var tabs = new TabControl { Width = 300, Height = 120 };
         tabs.Items.Add(new TabItem { Header = "One" });
         tabs.Items.Add(new TabItem { Header = "Two" });
 
@@ -527,6 +528,142 @@ public class ThemeCompositionTests
         Assert.Equal(24d, spinners.Bounds.Width);
         Assert.Equal(2, spinners.Rows);
     });
+
+    /// <summary>
+    /// Keyboard focus lights the state layer, and a pointer click does not.
+    /// <para>
+    /// This is the test that matters most in this file, because <c>:focus-visible</c> compiles
+    /// whether or not it ever matches — a selector that silently never fires is the same class of
+    /// failure as a misspelt resource key, and it would leave the theme with no keyboard focus
+    /// indication at all while looking entirely fine.
+    /// </para>
+    /// <para>
+    /// The negative half is the point of using <c>:focus-visible</c> rather than <c>:focus</c>:
+    /// clicking a button should not leave it tinted after the pointer goes away.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task KeyboardFocusLightsTheStateLayerAndPointerFocusDoesNot() => UiThread.RunAsync(() =>
+    {
+        // TWO buttons, not one focused twice. Re-focusing an element that already has focus does
+        // not revisit the focus-visible flag, so a single button focused by pointer and then by
+        // Tab stays untinted and the test passes for the wrong reason.
+        var keyboard = new Button { Content = "Save" };
+        var pointer = new Button { Content = "Cancel" };
+
+        Templated(new StackPanel { Children = { keyboard, pointer } });
+
+        static Border Layer(Control c) => c.GetVisualDescendants()
+            .OfType<Border>()
+            .Single(b => b.Name == "PART_StateLayer");
+
+        static Color Of(IBrush? brush) => ((ISolidColorBrush)brush!).Color;
+
+        keyboard.Focus(NavigationMethod.Tab);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(OverlayHover(), Of(Layer(keyboard).Background));
+
+        pointer.Focus(NavigationMethod.Pointer);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(Colors.Transparent, Of(Layer(pointer).Background));
+    });
+
+    /// <summary>
+    /// The same affordance, on the controls whose state layer is a circular halo rather than a
+    /// rounded rectangle. Parameterised because each one wires its own part, and a theme that
+    /// forgot one would still pass the Button test.
+    /// </summary>
+    [Theory]
+    [InlineData(typeof(CheckBox), "PART_StateLayer")]
+    [InlineData(typeof(RadioButton), "PART_StateLayer")]
+    [InlineData(typeof(ToggleSwitch), "PART_ThumbStateLayer")]
+    public Task KeyboardFocusLightsTheHalo(Type controlType, string part) => UiThread.RunAsync(() =>
+    {
+        var control = Templated((Control)Activator.CreateInstance(controlType)!);
+
+        var halo = control.GetVisualDescendants()
+            .OfType<Shapes.Ellipse>()
+            .Single(e => e.Name == part);
+
+        ((InputElement)control).Focus(NavigationMethod.Tab);
+        Dispatcher.UIThread.RunJobs();
+
+        Assert.Equal(OverlayHover(), ((ISolidColorBrush)halo.Fill!).Color);
+    });
+
+    /// <summary>
+    /// Depth is 17px per level, and a leaf shows no arrow.
+    /// <para>
+    /// Both are runtime mechanisms that fail silently. The indent is a MultiBinding through
+    /// Avalonia's own <c>TreeViewItemIndentConverter</c> — if the resource key it multiplies is
+    /// wrong, every level sits at the same depth and the tree still renders. The arrow is hidden
+    /// by an attribute selector on <c>ItemCount</c>, which compiles whether or not it matches.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task TreeIndentsSeventeenPerLevelAndHidesLeafArrows() => UiThread.RunAsync(() =>
+    {
+        var leaf = new TreeViewItem { Header = "Installed" };
+        var branch = new TreeViewItem { Header = "Library", IsExpanded = true };
+        branch.Items.Add(leaf);
+
+        var tree = new TreeView { Width = 220, Height = 140 };
+        tree.Items.Add(branch);
+
+        Templated(tree);
+
+        static Grid Header(Control c) => c.GetVisualDescendants()
+            .OfType<Grid>()
+            .First(g => g.Name == "PART_Header");
+
+        // Level 0 gets no indent, level 1 gets one step of 17. _treeview.scss puts that 17px on
+        // .mud-treeview-group; Avalonia reaches the same place by multiplying Level instead.
+        Assert.Equal(0d, Header(branch).Margin.Left);
+        Assert.Equal(17d, Header(leaf).Margin.Left);
+
+        static ToggleButton Arrow(Control c) => c.GetVisualDescendants()
+            .OfType<ToggleButton>()
+            .First(t => t.Name == "PART_ExpandCollapseChevron");
+
+        Assert.True(Arrow(branch).IsVisible);
+        Assert.False(Arrow(leaf).IsVisible);
+    });
+
+    /// <summary>
+    /// The drawer is themed with STYLES rather than a ControlTheme, and this pins that it works.
+    /// <para>
+    /// A Style outranks a ControlTheme setter — normally the trap this repo warns about, relied
+    /// on deliberately here so the forked SplitView template keeps the pane sliding and the
+    /// display modes while painting MudDrawer's values. If Avalonia ever reversed that
+    /// precedence, every drawer would silently revert to Simple's 320px grey pane.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task DrawerTakesMudDrawerMetricsOverTheForkedTemplate() => UiThread.RunAsync(() =>
+    {
+        var drawer = Templated(new SplitView
+        {
+            IsPaneOpen = true,
+            Pane = new TextBlock { Text = "Library" },
+            Content = new TextBlock { Text = "Games" },
+        });
+
+        // LayoutProperties.cs: DrawerWidthLeft "240px", DrawerMiniWidthLeft "56px".
+        // Simple's forked theme sets 320 and 48.
+        Assert.Equal(240d, drawer.OpenPaneLength);
+        Assert.Equal(56d, drawer.CompactPaneLength);
+
+        Application.Current!.TryFindResource("FiliDrawerBackgroundColor", ThemeVariant.Light, out var drawerBackground);
+        Assert.Equal(
+            (Color)drawerBackground!,
+            Assert.IsAssignableFrom<ISolidColorBrush>(drawer.PaneBackground).Color);
+    });
+
+    private static Color OverlayHover()
+    {
+        Application.Current!.TryFindResource("FiliOverlayHoverColor", ThemeVariant.Light, out var value);
+        return (Color)value!;
+    }
 
     private static Color ActionDefault()
     {

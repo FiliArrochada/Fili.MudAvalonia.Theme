@@ -153,6 +153,7 @@
   <SolidColorBrush x:Key="FiliWarningBrush" Color="{DynamicResource FiliWarningColor}" />
   <SolidColorBrush x:Key="FiliErrorBrush"   Color="{DynamicResource FiliErrorColor}" />
   <SolidColorBrush x:Key="FiliDarkBrush"    Color="{DynamicResource FiliDarkColor}" />
+  <SolidColorBrush x:Key="FiliWhiteBrush"   Color="{DynamicResource FiliWhiteColor}" />
 
   <SolidColorBrush x:Key="FiliTextPrimaryBrush"   Color="{DynamicResource FiliTextPrimaryColor}" />
   <SolidColorBrush x:Key="FiliTextSecondaryBrush" Color="{DynamicResource FiliTextSecondaryColor}" />
@@ -181,6 +182,14 @@
   <SolidColorBrush x:Key="FiliSkeletonBrush"     Color="{DynamicResource FiliSkeletonColor}" />
 
   <SolidColorBrush x:Key="FiliPrimaryHoverBrush"   Color="{DynamicResource FiliPrimaryHoverColor}" />
+  <!--
+    Scrim colours for a modal surface. NON-VARYING, like elevation: Palette.cs specifies them as
+    literal colours - OverlayDark is #212121 at 50%, not black - and PaletteDark does not override
+    either one, so the same scrim is correct in both variants.
+  -->
+  <SolidColorBrush x:Key="FiliOverlayDarkBrush"  Color="#80212121" />
+  <SolidColorBrush x:Key="FiliOverlayLightBrush" Color="#80FFFFFF" />
+
   <SolidColorBrush x:Key="FiliOverlayHoverBrush"   Color="{DynamicResource FiliOverlayHoverColor}" />
   <SolidColorBrush x:Key="FiliOverlayPressedBrush" Color="{DynamicResource FiliOverlayPressedColor}" />
 

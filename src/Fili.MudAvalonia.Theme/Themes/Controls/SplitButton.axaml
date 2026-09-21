@@ -1,0 +1,244 @@
+<!--
+  SplitButton and DropDownButton: MudButtonGroup, and a MudMenu with a button activator.
+
+  Transcribed from _buttongroup.scss, whose whole job is joining buttons into one shape:
+
+    .mud-button-group-root                border-radius: the default radius; display: inline-flex
+    horizontal, not(:last-child)          border-top-right-radius / bottom-right-radius: 0
+    horizontal, not(:first-child)         border-top-left-radius / bottom-left-radius: 0;
+                                          margin-left: -1px
+    .mud-button-group-text not(:first)    border-left: 1px solid
+                                          rgba(text-primary, border-opacity)
+    .mud-button-group-text override       padding: 6px 8px
+
+  Two values worth stating because they look like mistakes:
+
+  BorderOpacity is 1.0 in Palette.cs, so that separator is text-primary at FULL strength, not a
+  faint hairline. MudBlazor's button groups really do show a hard divider between segments.
+
+  The -1px margin exists so two 1px borders overlap into one. Avalonia's SplitButton already puts
+  a dedicated separator element between its two halves, so there is nothing to collapse and no
+  negative margin here - the same result reached a different way.
+
+  Corner radii are written out as 4,0,0,4 and 0,4,4,0 rather than run through Avalonia's
+  CornerRadiusFilterConverter the way the forked template does. This theme has ONE radius, so
+  filtering a value that is always uniform buys nothing but indirection.
+
+  Avalonia requires PART_PrimaryButton and PART_SecondaryButton by name on SplitButton - the
+  second is what opens the flyout - and reads Tag for its flyout-open and checked states.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- One half of the pair. Bare, because the SplitButton above it owns the geometry. -->
+  <ControlTheme x:Key="FiliSplitButtonHalf" TargetType="Button">
+    <Setter Property="Cursor" Value="Hand" />
+    <!-- The resting state-layer colour, so the SplitButton can light this half from outside.
+         A selector may cross only ONE /template/ boundary, so the parent cannot reach in. -->
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_Root"
+                  Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}" />
+          <Border x:Name="PART_StateLayer"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Background="{TemplateBinding BorderBrush}" />
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliSplitButton" TargetType="SplitButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <!-- .mud-button-group-text override-styles: 6px 8px, the text button's own padding. -->
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Focusable" Value="True" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto,Auto">
+          <Button x:Name="PART_PrimaryButton"
+                  Grid.Column="0"
+                  Theme="{StaticResource FiliSplitButtonHalf}"
+                  Background="{TemplateBinding Background}"
+                  Foreground="{TemplateBinding Foreground}"
+                  Content="{TemplateBinding Content}"
+                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                  Command="{TemplateBinding Command}"
+                  CommandParameter="{TemplateBinding CommandParameter}"
+                  CornerRadius="4,0,0,4"
+                  FontFamily="{TemplateBinding FontFamily}"
+                  FontSize="{TemplateBinding FontSize}"
+                  FontWeight="{TemplateBinding FontWeight}"
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                  Focusable="False"
+                  KeyboardNavigation.IsTabStop="False" />
+
+          <!-- border-left: 1px solid text-primary. BorderOpacity is 1.0, so it is a hard line. -->
+          <Border x:Name="SeparatorBorder"
+                  Grid.Column="1"
+                  Width="1"
+                  Margin="0,4"
+                  Background="{TemplateBinding BorderBrush}" />
+
+          <Button x:Name="PART_SecondaryButton"
+                  Grid.Column="2"
+                  Theme="{StaticResource FiliSplitButtonHalf}"
+                  Background="{TemplateBinding Background}"
+                  Foreground="{TemplateBinding Foreground}"
+                  CornerRadius="0,4,4,0"
+                  Padding="4,6"
+                  MinWidth="32"
+                  HorizontalContentAlignment="Center"
+                  VerticalContentAlignment="Center"
+                  Focusable="False"
+                  KeyboardNavigation.IsTabStop="False">
+            <Path Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliExpandMoreGeometry}"
+                  Fill="{Binding $parent[SplitButton].Foreground}" />
+          </Button>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- The flyout being open reads as "this half is active", which is the pressed layer. It is
+         set through the half's BorderBrush because a selector cannot cross two /template/
+         boundaries - the same limit the Slider hits reaching its Thumb's halo. -->
+    <Style Selector="^[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^.primary">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled.primary">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!--
+    DropDownButton is a MudMenu whose activator is a MudButton: one button, one chevron, no split.
+    It is the text button plus an ExpandMore glyph, which is the same adornment the expansion
+    panel uses and deliberately NOT the select's solid ArrowDropDown triangle.
+  -->
+  <ControlTheme x:Key="FiliDropDownButton" TargetType="DropDownButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="MinWidth" Value="64" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="RootBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Panel>
+            <Border x:Name="PART_StateLayer"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Background="Transparent" />
+            <Grid x:Name="InnerGrid" ColumnDefinitions="*,Auto" Margin="{TemplateBinding Padding}">
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Grid.Column="0"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+              <Path x:Name="DropDownGlyph"
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliExpandMoreGeometry}"
+                    Fill="{TemplateBinding Foreground}"
+                    VerticalAlignment="Center" />
+            </Grid>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+    <Style Selector="^:flyout-open /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
+    </Style>
+
+    <Style Selector="^.outlined">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="7,5" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Path#DropDownGlyph">
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type SplitButton}" TargetType="SplitButton" BasedOn="{StaticResource FiliSplitButton}" />
+  <ControlTheme x:Key="{x:Type DropDownButton}" TargetType="DropDownButton" BasedOn="{StaticResource FiliDropDownButton}" />
+
+</ResourceDictionary>

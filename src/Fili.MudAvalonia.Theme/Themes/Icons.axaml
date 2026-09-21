@@ -54,4 +54,9 @@
   <!-- Icons.Material.Filled.ExpandMore -->
   <StreamGeometry x:Key="FiliExpandMoreGeometry">M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z</StreamGeometry>
 
+  <!-- Icons.Material.Filled.ChevronRight. MudTreeView's ExpandButtonIcon: it points RIGHT at rest
+       and rotates 90 degrees to open, where the expansion panel's chevron points down and rotates
+       180. Using one for the other is a visible tell. -->
+  <StreamGeometry x:Key="FiliChevronRightGeometry">M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z</StreamGeometry>
+
 </ResourceDictionary>

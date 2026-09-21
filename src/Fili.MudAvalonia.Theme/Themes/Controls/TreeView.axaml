@@ -1,0 +1,207 @@
+<!--
+  TreeView and TreeViewItem: MudTreeView.
+
+  Transcribed from _treeview.scss:
+
+    .mud-treeview              margin: 0; padding: 0; overflow: auto
+    .mud-treeview-group        margin-left: 17px          (the per-level indent)
+    .mud-treeview-item         min-height: 2rem           (32px)
+    .mud-treeview-item-content padding: 4px 8px;
+                               transition: background-color 150ms cubic-bezier(.4,0,.2,1)
+    :hover                     background: action-default-hover
+    selected                   colour <palette colour>, background <that colour>-hover
+    .mud-treeview-item-arrow   width: 2rem; margin: 0 4px; min-height: 32px
+    arrow .mud-icon-button     padding: 4px
+    arrow expanded             transform: rotate(90deg)
+    disabled                   colour action-disabled
+
+  Two details that are easy to get wrong:
+
+  The arrow ROTATES 90 DEGREES, not 180, because MudTreeView's ExpandButtonIcon is ChevronRight -
+  it points right when closed and down when open. An expansion panel's chevron points down already
+  and turns through 180. Reusing one glyph for both reads as a different component.
+
+  Selection is the MudList rule again: the label takes the colour and the ground takes that colour
+  at 6%. Not a filled bar, and not the grey hover tint either.
+
+  The INDENT is Avalonia's mechanism rather than MudBlazor's. A TreeViewItem does not nest its
+  children's margins; it multiplies its own Level by an indent resource through
+  TreeViewItemIndentConverter. So the 17px goes in a resource this file declares, and every level
+  gets Level x 17 of left margin from one binding.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="using:Avalonia.Controls.Converters">
+
+  <!-- .mud-treeview-group margin-left. Declared here rather than reused from the forked base,
+       whose own TreeViewItemIndent is 16 and is not in scope from this dictionary. -->
+  <x:Double x:Key="FiliTreeViewItemIndent">17</x:Double>
+
+  <!-- The disclosure arrow: a 32px column with a 24px glyph in it, per .mud-treeview-item-arrow. -->
+  <ControlTheme x:Key="FiliTreeViewChevron" TargetType="ToggleButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="Width" Value="32" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="Margin" Value="4,0" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer"
+                  Background="Transparent"
+                  CornerRadius="16" />
+          <Path x:Name="PART_Chevron"
+                Width="24" Height="24"
+                Stretch="None"
+                Data="{StaticResource FiliChevronRightGeometry}"
+                Fill="{DynamicResource FiliActionDefaultBrush}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                RenderTransformOrigin="50%,50%"
+                RenderTransform="rotate(0deg)">
+            <Path.Transitions>
+              <Transitions>
+                <!-- .3s cubic-bezier(.25,.8,.5,1), the same curve the expansion panel uses. -->
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3">
+                  <TransformOperationsTransition.Easing>
+                    <SplineEasing X1="0.25" Y1="0.8" X2="0.5" Y2="1" />
+                  </TransformOperationsTransition.Easing>
+                </TransformOperationsTransition>
+              </Transitions>
+            </Path.Transitions>
+          </Path>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:checked /template/ Path#PART_Chevron">
+      <Setter Property="RenderTransform" Value="rotate(90deg)" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliTreeViewItem" TargetType="TreeViewItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="MinHeight" Value="32" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel>
+          <Border x:Name="SelectionBorder"
+                  Background="{TemplateBinding Background}"
+                  MinHeight="{TemplateBinding MinHeight}"
+                  Focusable="True"
+                  TemplatedControl.IsTemplateFocusTarget="True">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+              </Transitions>
+            </Border.Transitions>
+
+            <!-- Level x 17px of left margin. Avalonia computes it; the converter is the framework's
+                 own, and without it every level would sit at the same indent. -->
+            <Grid x:Name="PART_Header" ColumnDefinitions="Auto,*">
+              <Grid.Margin>
+                <MultiBinding Converter="{x:Static converters:TreeViewItemIndentConverter.Instance}">
+                  <Binding Path="Level" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <DynamicResource ResourceKey="FiliTreeViewItemIndent" />
+                </MultiBinding>
+              </Grid.Margin>
+
+              <ToggleButton x:Name="PART_ExpandCollapseChevron"
+                            Grid.Column="0"
+                            Focusable="False"
+                            Theme="{StaticResource FiliTreeViewChevron}"
+                            IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" />
+
+              <ContentPresenter x:Name="PART_HeaderPresenter"
+                                Grid.Column="1"
+                                Background="Transparent"
+                                Padding="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                Foreground="{TemplateBinding Foreground}"
+                                VerticalAlignment="Center"
+                                Focusable="False" />
+            </Grid>
+          </Border>
+
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          IsVisible="{TemplateBinding IsExpanded}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- A leaf has nothing to disclose, so it keeps the 32px column for alignment and hides the
+         glyph. MudBlazor does the same; the forked template shows an arrow on every row. -->
+    <Style Selector="^[ItemCount=0] /template/ ToggleButton#PART_ExpandCollapseChevron">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#SelectionBorder">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ Border#SelectionBorder">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
+    <Style Selector="^:selected /template/ Border#SelectionBorder">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^:selected /template/ ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliTreeView" TargetType="TreeView">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliTreeViewItem}" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter"
+                            ItemsPanel="{TemplateBinding ItemsPanel}"
+                            Margin="{TemplateBinding Padding}" />
+          </ScrollViewer>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Same opt-in as the list: a tree inside a drawer already has a ground. -->
+    <Style Selector="^.surface">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type TreeView}" TargetType="TreeView" BasedOn="{StaticResource FiliTreeView}" />
+  <ControlTheme x:Key="{x:Type TreeViewItem}" TargetType="TreeViewItem" BasedOn="{StaticResource FiliTreeViewItem}" />
+
+</ResourceDictionary>

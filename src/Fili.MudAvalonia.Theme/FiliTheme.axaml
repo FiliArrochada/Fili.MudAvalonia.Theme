@@ -252,6 +252,46 @@
   </Style>
 
   <!--
+    ============================== Drawer ==============================
+
+    SplitView is MudDrawer, and it is the one control here treated with STYLES rather than with a
+    ControlTheme. That is deliberate, and the reasoning is the same one that deleted the
+    ScrollViewer and Window themes.
+
+    Everything MudDrawer contributes is a VALUE, not a shape. layout/_drawer.scss gives it
+    the drawer-background and drawer-text palette tokens;
+    LayoutProperties.cs gives `DrawerWidthLeft = "240px"` and `DrawerMiniWidthLeft = "56px"`,
+    which are already FiliDrawerWidth and FiliDrawerMiniWidth; MudDrawer.Elevation defaults to 1.
+    None of that needs a template.
+
+    What the template DOES carry is the pane sliding, the display modes and the light-dismiss
+    layer - structure, where a wrong part name produces a drawer that lays out perfectly and
+    never opens. So the fork keeps it, and these styles change what it paints from.
+
+    Note the mechanism: a Style outranks a ControlTheme setter, which is normally the trap this
+    file warns about and is exactly what makes this work. The forked theme's own
+    OpenPaneLength/CompactPaneLength/PaneBackground setters lose to these.
+
+    Not carried over: the pane's elevation-1 shadow, because the pane root is a Panel and only a
+    Border can carry a BoxShadow. Adding one means owning the template.
+  -->
+  <Style Selector="SplitView">
+    <Setter Property="OpenPaneLength" Value="{DynamicResource FiliDrawerWidth}" />
+    <Setter Property="CompactPaneLength" Value="{DynamicResource FiliDrawerMiniWidth}" />
+    <Setter Property="PaneBackground" Value="{DynamicResource FiliDrawerBackgroundBrush}" />
+  </Style>
+
+  <!-- drawer-text, on the pane only: the content beside it keeps the page's own foreground. -->
+  <Style Selector="SplitView /template/ ContentPresenter#PART_PanePresenter">
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliDrawerTextBrush}" />
+  </Style>
+
+  <!-- The scrim behind a temporary drawer. MudOverlay's dark variant is #212121 at 50%. -->
+  <Style Selector="SplitView /template/ Rectangle#LightDismissLayer">
+    <Setter Property="Fill" Value="{DynamicResource FiliOverlayDarkBrush}" />
+  </Style>
+
+  <!--
     The pickers, which are still wearing forked Simple templates. Type and radius are all a
     blanket style can safely give a control it does not template.
 

@@ -46,7 +46,9 @@ public class ResourceResolutionTests
         "FiliAppbarBackgroundBrush", "FiliAppbarTextBrush",
         "FiliDrawerBackgroundBrush", "FiliDrawerTextBrush", "FiliDrawerIconBrush",
         "FiliLinesDefaultBrush", "FiliLinesInputsBrush", "FiliDividerBrush",
+        "FiliWhiteBrush",
         "FiliPrimaryHoverBrush", "FiliOverlayHoverBrush", "FiliOverlayPressedBrush",
+        "FiliOverlayDarkBrush", "FiliOverlayLightBrush",
         // These two exist because a Border.Background bound to a Color silently renders nothing:
         // DynamicResource is not type-checked, so the mistake compiles and ships.
         "FiliInputFilledBrush",

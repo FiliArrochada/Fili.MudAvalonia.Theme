@@ -33,8 +33,10 @@
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Slider.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ToggleButton.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/HyperlinkButton.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/SplitButton.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ComboBox.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ListBox.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TreeView.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/NumericUpDown.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/AutoCompleteBox.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Expander.axaml" />
@@ -44,6 +46,7 @@
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TabControl.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ScrollBar.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Menu.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Notifications.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Overlays.axaml" />
   </ResourceDictionary.MergedDictionaries>
 

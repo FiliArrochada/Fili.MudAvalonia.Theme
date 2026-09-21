@@ -1,0 +1,201 @@
+<!--
+  NotificationCard and WindowNotificationManager: MudSnackbar.
+
+  Transcribed from _snackbar.scss:
+
+    .mud-snackbar          padding: 6px 16px; margin-top: 16px;
+                           min-width: 288px; max-width: 500px;
+                           border-radius: the default radius;
+                           font-weight: 400; line-height: 1.43;
+                           box-shadow: 0 3px 5px -1px rgba(0,0,0,.2),
+                                       0 6px 10px 0 rgba(0,0,0,.14),
+                                       0 1px 18px 0 rgba(0,0,0,.12)
+    .mud-snackbar-content-message   padding: 8px 0
+    .mud-snackbar-location-*        24px from the edges it is anchored to
+
+  That box-shadow is character-for-character FiliElevation6, which is how the level was chosen
+  rather than eyeballed - a snackbar is elevation 6, not the 8 a menu gets.
+
+  SEVERITY COLOURS come from _alert.scss, since a snackbar is a filled MudAlert:
+
+    .mud-alert-filled-<color>   color: the palette <color>-text token;
+                                font-weight: 500;
+                                background-color: the palette <color> token
+
+  Every one of those contrast-text tokens is Colors.Shades.White in MudBlazor's palette, which is why
+  the foreground below is the palette's white rather than four near-identical contrast tokens.
+  Note the weight: 500 on a filled alert, against the 400 the snackbar's own rule gives - the
+  more specific one wins there, so these cards are Medium.
+
+  THE ANIMATIONS ARE COPIED FROM THE FORKED TEMPLATE ON PURPOSE. The enter and exit ones are
+  Avalonia's, not MudBlazor's, and the exit one is LOAD-BEARING: the key frame that sets
+  IsClosed at 100% is what actually removes a card from the manager. A theme that drops it
+  renders beautifully and leaves notifications on screen forever.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliNotificationCard" TargetType="NotificationCard">
+    <Setter Property="UseLayoutRounding" Value="True" />
+    <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliWhiteBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="Padding" Value="16,6" />
+    <Setter Property="Margin" Value="0,16,0,0" />
+    <Setter Property="MinWidth" Value="288" />
+    <Setter Property="MaxWidth" Value="500" />
+    <Setter Property="RenderTransformOrigin" Value="50%,75%" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <LayoutTransformControl x:Name="PART_LayoutTransformControl" UseRenderTransform="True">
+          <Border Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BoxShadow="{DynamicResource FiliElevation6}">
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              Padding="{TemplateBinding Padding}"
+                              Content="{TemplateBinding Content}"
+                              Foreground="{TemplateBinding Foreground}"
+                              VerticalContentAlignment="Center" />
+          </Border>
+        </LayoutTransformControl>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Enter: Avalonia's, kept verbatim. -->
+    <Style Selector="^">
+      <Style.Animations>
+        <Animation Easing="QuadraticEaseIn" FillMode="Forward" Duration="0:0:0.45">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="TranslateTransform.Y" Value="20" />
+            <Setter Property="ScaleTransform.ScaleX" Value="0.85" />
+            <Setter Property="ScaleTransform.ScaleY" Value="0.85" />
+          </KeyFrame>
+          <KeyFrame Cue="30%">
+            <Setter Property="TranslateTransform.Y" Value="-20" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="TranslateTransform.Y" Value="0" />
+            <Setter Property="ScaleTransform.ScaleX" Value="1" />
+            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <Style Selector="^[IsClosing=true] /template/ LayoutTransformControl#PART_LayoutTransformControl">
+      <Setter Property="RenderTransformOrigin" Value="50%,0%" />
+      <Style.Animations>
+        <Animation Easing="QuadraticEaseOut" FillMode="Forward" Duration="0:0:0.75">
+          <KeyFrame Cue="0%">
+            <Setter Property="TranslateTransform.X" Value="0" />
+            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+          </KeyFrame>
+          <KeyFrame Cue="70%">
+            <Setter Property="TranslateTransform.X" Value="800" />
+            <Setter Property="ScaleTransform.ScaleY" Value="1" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="ScaleTransform.ScaleY" Value="0" />
+            <Setter Property="TranslateTransform.X" Value="800" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- LOAD-BEARING: this is what closes a card. Drop it and notifications never leave. -->
+    <Style Selector="^[IsClosing=true]">
+      <Style.Animations>
+        <Animation Easing="QuadraticEaseOut" FillMode="Forward" Duration="0:0:1.25">
+          <KeyFrame Cue="100%">
+            <Setter Property="IsClosed" Value="True" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <Style Selector="^:information">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^:success">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^:warning">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^:error">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliWindowNotificationManager" TargetType="WindowNotificationManager">
+    <!-- .mud-snackbar-location-* sits 24px from whichever edges it is anchored to. -->
+    <Setter Property="Margin" Value="24" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ReversibleStackPanel x:Name="PART_Items">
+          <ReversibleStackPanel.DataTemplates>
+            <DataTemplate DataType="INotification">
+              <!-- .mud-snackbar-content-message: 8px above and below, none at the sides, because
+                   the card's own 16px horizontal padding already provides those. -->
+              <StackPanel Margin="0,8" Spacing="4">
+                <TextBlock Text="{Binding Title}"
+                           FontWeight="Medium"
+                           LineHeight="20" />
+                <TextBlock Text="{Binding Message}"
+                           MaxHeight="80"
+                           TextWrapping="Wrap"
+                           FontWeight="Normal"
+                           LineHeight="20" />
+              </StackPanel>
+            </DataTemplate>
+            <DataTemplate DataType="x:String">
+              <TextBlock Text="{Binding}"
+                         Margin="0,8"
+                         TextWrapping="Wrap"
+                         LineHeight="20" />
+            </DataTemplate>
+          </ReversibleStackPanel.DataTemplates>
+        </ReversibleStackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:topleft /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+    <Style Selector="^:topright /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+    <Style Selector="^:topcenter /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="^:bottomleft /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="ReverseOrder" Value="True" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+    <Style Selector="^:bottomright /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="ReverseOrder" Value="True" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+    <Style Selector="^:bottomcenter /template/ ReversibleStackPanel#PART_Items">
+      <Setter Property="ReverseOrder" Value="True" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type NotificationCard}" TargetType="NotificationCard" BasedOn="{StaticResource FiliNotificationCard}" />
+  <ControlTheme x:Key="{x:Type WindowNotificationManager}" TargetType="WindowNotificationManager" BasedOn="{StaticResource FiliWindowNotificationManager}" />
+
+</ResourceDictionary>

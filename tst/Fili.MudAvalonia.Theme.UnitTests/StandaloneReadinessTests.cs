@@ -36,8 +36,10 @@ public class StandaloneReadinessTests
         "FiliStandardTextBox", "FiliFilledTextBox", "FiliOutlinedTextBox",
         "FiliCheckBox", "FiliRadioButton", "FiliToggleSwitch",
         "FiliToggleButton", "FiliRepeatButton", "FiliHyperlinkButton",
+        "FiliSplitButton", "FiliSplitButtonHalf", "FiliDropDownButton",
         "FiliComboBox", "FiliComboBoxItem",
         "FiliListBox", "FiliListBoxItem",
+        "FiliTreeView", "FiliTreeViewItem", "FiliTreeViewChevron",
         "FiliNumericUpDown", "FiliButtonSpinner", "FiliSpinnerButton",
         "FiliAutoCompleteBox",
         "FiliExpander", "FiliExpanderToggle",
@@ -46,6 +48,7 @@ public class StandaloneReadinessTests
         "FiliProgressBar", "FiliSeparator",
         "FiliScrollBar",
         "FiliMenu", "FiliMenuItem", "FiliTopLevelMenuItem", "FiliContextMenu",
+        "FiliNotificationCard", "FiliWindowNotificationManager",
         "FiliToolTip", "FiliFlyoutPresenter", "FiliMenuFlyoutPresenter",
     ];
 
@@ -85,21 +88,25 @@ public class StandaloneReadinessTests
         Assert.Equal(
             [
                 "AutoCompleteBox", "Button", "ButtonSpinner", "CheckBox", "ComboBox",
-                "ComboBoxItem", "ContextMenu", "DataValidationErrors", "Expander",
+                "ComboBoxItem", "ContextMenu", "DataValidationErrors", "DropDownButton",
+                "Expander",
                 "FlyoutPresenter", "HyperlinkButton", "Label", "ListBox", "ListBoxItem", "Menu",
-                "MenuFlyoutPresenter", "MenuItem", "NumericUpDown", "ProgressBar", "RadioButton",
-                "RepeatButton", "ScrollBar", "Separator", "Slider", "TabControl", "TabItem",
-                "TextBox", "ToggleButton", "ToggleSwitch", "ToolTip",
+                "MenuFlyoutPresenter", "MenuItem", "NotificationCard", "NumericUpDown",
+                "ProgressBar", "RadioButton",
+                "RepeatButton", "ScrollBar", "Separator", "Slider", "SplitButton", "TabControl",
+                "TabItem",
+                "TextBox", "ToggleButton", "ToggleSwitch", "ToolTip", "TreeView", "TreeViewItem",
+                "WindowNotificationManager",
             ],
             themed.Select(t => t.Name).ToArray());
 
-        // THE NUMBER THAT SAYS HOW MUCH OF THE FORK IS STILL DOING THE WORK. 30 of 89 templated
-        // control types are hand-written here; the other 59 are still wearing the forked Simple
+        // THE NUMBER THAT SAYS HOW MUCH OF THE FORK IS STILL DOING THE WORK. 36 of 89 templated
+        // control types are hand-written here; the other 53 are still wearing the forked Simple
         // templates from Themes/Base. Pinned rather than merely reported, so it cannot drift
         // unnoticed and so an Avalonia version that adds controls surfaces as a failure here.
         var templated = TemplatedControlTypes();
 
-        Assert.Equal(30, themed.Count);
+        Assert.Equal(36, themed.Count);
         Assert.Equal(89, templated.Count);
     });
 
