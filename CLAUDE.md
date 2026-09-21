@@ -118,6 +118,9 @@ Two conversions are already applied and should stay applied consistently:
   a `*Brush` compiles cleanly and renders nothing at runtime. Every colour token therefore has a
   paired brush, and `ResourceResolutionTests` asserts the brush list resolves to `IBrush` — which
   is what catches the paired brush being forgotten. This bit once, on the switch tokens.
+- **Re-focusing an already-focused control does not revisit `:focus-visible`.** A test that
+  focuses one control with `NavigationMethod.Pointer` and then with `Tab` sees no tint and passes
+  for the wrong reason. Use two controls, one per navigation method.
 - **Every test body runs inside `UiThread.RunAsync`, with no exceptions.** Constructing almost any
   Avalonia object — a `FluentTheme` included — touches the compositor, and doing that from the
   xunit thread throws *"The calling thread cannot access this object"* and then **poisons the
@@ -132,6 +135,14 @@ Two conversions are already applied and should stay applied consistently:
   with `StartsWith`, not `Equal`. And do not swap in the variable `Roboto[wdth,wght].ttf` —
   Avalonia picks a face per weight rather than setting an axis, so Light and Medium would render
   as Regular.
+- **A selector may cross only ONE `/template/` boundary.** Two hops throw
+  `InvalidOperationException: ControlTemplate styles cannot contain multiple template selectors`
+  when the theme is first instantiated — it compiles fine, and because the throw happens while the
+  merged dictionary is being built, it takes *other* themes down with it. That is worth knowing on
+  its own: a single bad selector in `Slider.axaml` made unrelated themes fail to resolve and a
+  Button style silently stop applying, which looked like three separate bugs. When a parent must
+  reach a grandchild part, set a property on the child and have the child's template bind to it —
+  `Slider` lights the `Thumb`'s halo through `BorderBrush` for exactly this reason.
 - **Avalonia's transform parser has no `%` unit.** `translateX(-35%)` throws
   `FormatException: Invalid unit: %` — **at runtime**, when the template is instantiated, because
   a transform string in a key frame is parsed lazily and compiles cleanly either way. MudBlazor
@@ -177,11 +188,23 @@ Two consequences to keep in mind when editing:
   the correct way.)
 
 **Coverage is pinned, not reported.** `StandaloneReadinessTests` asserts the exact set of
-hand-written themes — **30 of the 89 templated types** — plus the count of both. The other 59 wear
+hand-written themes — **36 of the 89 templated types** — plus the count of both. The other 53 wear
 forked templates, and `SimpleBridgeTests` asserts the ~96 contract keys those paint from still
 resolve in both variants. Adding a theme means adding its `Fili*` key AND its target type to the
 first test in the same change; that is what keeps the number honest and turns an Avalonia version
 that adds control types into a failing build rather than a silent gap.
+
+**There are THREE ways to change how a control looks, and reaching for the heaviest one by
+default is the mistake.** In order of increasing cost: a `Style` in `FiliTheme.axaml` when the
+shape is right and only values are wrong (`SplitView`/MudDrawer is the worked example — a Style
+outranks a ControlTheme setter, which is the trap above used deliberately); `Accents.axaml` when
+the control paints from one of Simple's shared keys; a hand-written `ControlTheme` when the shape
+itself is wrong.
+
+**`Accents.axaml` cannot override a key a forked control file declares for itself.** It is merged
+BEFORE the control dictionaries, and in a merged `ResourceDictionary` the later entry wins. So
+`SplitViewOpenPaneThemeLength`, declared inside `Base/Controls/SplitView.axaml`, is out of its
+reach — a Style setting the property directly is the way.
 
 **Do not add a hand-written theme for a control MudBlazor has no counterpart for.** `PopupRoot`,
 `AdornerLayer`, `TextSelectionHandle`, `ManagedFileChooser`, `CommandBar`, the `*Page` shell types

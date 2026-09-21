@@ -88,6 +88,23 @@ The raised variants step elevation 2 → 4 → 8 across rest, hover and press, a
 disabled. That step is the thing Fluent cannot express at all, because `Button` has no `BoxShadow`
 property — only the `Border` inside a template does.
 
+### Split and drop-down buttons
+
+`SplitButton` is a two-segment `MudButtonGroup`; `DropDownButton` is a `MudMenu` whose activator
+is a button.
+
+`_buttongroup.scss` is almost entirely about joining segments into one shape: a non-last child
+loses its right-hand corner radii, a non-first child loses its left-hand ones and pulls back by
+`-1px` so two borders collapse into one, and a text group draws `border-left: 1px solid
+rgba(text-primary, border-opacity)` between segments.
+
+**`BorderOpacity` is 1.0 in `Palette.cs`**, so that divider is text-primary at full strength, not
+a hairline. It looks like a mistake in a screenshot and is not one.
+
+The `-1px` does not appear here: Avalonia's `SplitButton` already puts a dedicated separator
+element between its halves, so there are no two borders to collapse. Same result, different
+route — which is the usual shape of transcribing CSS onto a templated control.
+
 ### Text fields
 
 ```xml
@@ -207,6 +224,86 @@ Four places where the MudBlazor default is not the one you would guess:
 - **A `HyperlinkButton` is not underlined at rest.** `MudLink.Underline` defaults to
   `Underline.Hover`. `Classes="underline"` is always-on, `no-underline` is never.
 
+### The drawer, and a third way to theme a control
+
+`SplitView` is MudDrawer, and it is the one control here treated with **styles rather than a
+`ControlTheme`** — so it is not in the 34 above, and that is the point rather than an oversight.
+
+Everything MudDrawer contributes is a *value*: `layout/_drawer.scss` (in `Styles/layout/`, not
+`components/`, which is why it takes some finding) paints from the `drawer-background` and
+`drawer-text` tokens, `LayoutProperties.cs` gives `DrawerWidthLeft = "240px"` and
+`DrawerMiniWidthLeft = "56px"` — already `FiliDrawerWidth` and `FiliDrawerMiniWidth` — and
+`MudDrawer.Elevation` defaults to 1. What the forked template carries is *structure*: pane
+sliding, the four display modes, the light-dismiss layer. Get a part name wrong there and the
+drawer lays out perfectly and never opens, which is the same reason `ScrollViewer` and `Window`
+are left alone.
+
+So there are three ways to change how a control looks here, and the third is new:
+
+| | when |
+|---|---|
+| Hand-written `ControlTheme` | the shape is wrong — a floating label, a raised button |
+| `Accents.axaml` | the control paints from one of Simple's ~96 shared keys |
+| A `Style` in `FiliTheme.axaml` | the shape is right and only values are wrong |
+
+The third works because **a `Style` outranks a `ControlTheme` setter** — normally the trap this
+file warns about twice, relied on deliberately here. `DrawerTakesMudDrawerMetricsOverTheForkedTemplate`
+pins it, because if that precedence ever reversed every drawer would quietly revert to Simple's
+320px grey pane.
+
+One caveat found while doing this: `Accents.axaml` **cannot** override a key a forked control
+file declares for itself, such as `SplitViewOpenPaneThemeLength`. Accents is merged *before* the
+control dictionaries, and in a merged `ResourceDictionary` the later entry wins.
+
+Not carried over: the pane's elevation-1 shadow. The pane root is a `Panel`, and only a `Border`
+can carry a `BoxShadow` — the same limitation that made `Button` need a template in the first
+place. Adding it means owning the template.
+
+### Snackbars
+
+`WindowNotificationManager` and the `NotificationCard`s it builds are MudSnackbar: 6px/16px
+padding, 288px minimum and 500px maximum width, 16px between stacked cards, and the manager 24px
+from whichever edges it is anchored to.
+
+Two things were read rather than chosen. The **elevation is 6** — `_snackbar.scss` spells out the
+same three shadow layers `FiliElevation6` carries, character for character, so the level is
+transcribed rather than picked. And the **severity colours come from `_alert.scss`**, because a
+snackbar is a filled `MudAlert`: the palette colour as ground, its contrast text (white, in every
+case, in MudBlazor's palette) as foreground, at **Medium** weight — the filled alert's 500
+overrides the snackbar's own 400.
+
+**The enter and exit animations are copied from the forked template deliberately**, and one of
+them is load-bearing: the key frame that sets `IsClosed` at 100% is what actually removes a card.
+A theme that drops it renders beautifully and leaves notifications on screen forever.
+
+### Keyboard focus
+
+Every interactive control lights its state layer on `:focus-visible` — the same tint hovering
+gives it. That is MudBlazor's own affordance rather than a choice made here: `_reset.scss` sets
+`outline: none` and `outline: 0`, deliberately removing the browser's focus ring, and each
+component maps `:focus-visible` to the hover colour:
+
+```
+_button.scss          &:focus-visible, &:active { background-color: action-default-hover }
+_expansionpanel.scss  &:focus-visible           { background-color: action-default-hover }
+_link.scss            &:focus-visible, &:active { text-decoration: underline }
+_list.scss            &:focus:not(.mud-selected-item) { background-color: action-default-hover }
+```
+
+Three details worth keeping:
+
+- **`:focus-visible`, not `:focus`.** Clicking a button should not leave it tinted once the
+  pointer has gone; only keyboard navigation should mark it.
+- **A selected list row is excluded**, per `_list.scss`. Arrow keys move focus and selection
+  together, so tinting both would just be the selection tint twice.
+- **Text fields keep `:focus`**, not `:focus-visible` — a field shows its accent rule however it
+  was focused, because that rule says "this is where typing goes" rather than "this is where the
+  keyboard is".
+
+The affordance is a 4% tint, which is what MudBlazor ships and is on the subtle side. An app with
+a stricter accessibility bar should add a ring of its own; the theme deliberately does not invent
+one.
+
 ### Two converters
 
 The package ships two `internal` classes and nothing else. Both exist because MudBlazor expresses
@@ -250,6 +347,12 @@ that the XAML route does not exist.
   be the same width of the spinners"*.
 - **AutoCompleteBox** — both halves were already themed (a `TextBox` and a `ListBox`), so its
   theme exists only for the popup surface.
+- **TreeView** — rows are 32px with 4px/8px padding, indented **17px per level**, and the arrow is
+  `ChevronRight` turning **90°** rather than the expansion panel's `ExpandMore` turning 180°. A
+  leaf keeps the 32px arrow column, for alignment, and hides the glyph. The indent is Avalonia's
+  mechanism rather than MudBlazor's: a `TreeViewItem` multiplies its own `Level` by an indent
+  resource through `TreeViewItemIndentConverter` instead of nesting margins, so the 17px is
+  declared once and every level derives from it.
 
 **The select's floating label needed two TextBlocks**, and the reason generalises. A select must
 float its label when it holds a *value*, not only when focused, or the resting label sits on top
@@ -320,23 +423,24 @@ Simple theme at 12.1.2**, rebased onto this package and repaletted by a single h
 `Themes/Base/Accents.axaml`, which redefines the ~96 resource keys those templates paint from in
 terms of Fili tokens. One file repalettes all 79.
 
-On top of that sit **hand-written Material control themes for 30 of the 89 templated control
+On top of that sit **hand-written Material control themes for 36 of the 89 templated control
 types**, which win over their forked counterparts because `FiliTheme.axaml` is included second:
 
 | | |
 |---|---|
-| Buttons | `Button`, `ToggleButton`, `RepeatButton`, `HyperlinkButton` |
+| Buttons | `Button`, `ToggleButton`, `RepeatButton`, `HyperlinkButton`, `SplitButton`, `DropDownButton` |
 | Fields | `TextBox`, `ComboBox`, `ComboBoxItem`, `NumericUpDown`, `ButtonSpinner`, `AutoCompleteBox`, `Label`, `DataValidationErrors` |
 | Selection | `CheckBox`, `RadioButton`, `ToggleSwitch` |
-| Collections | `ListBox`, `ListBoxItem`, `TabControl`, `TabItem`, `Expander` |
+| Collections | `ListBox`, `ListBoxItem`, `TreeView`, `TreeViewItem`, `TabControl`, `TabItem`, `Expander` |
 | Indicators | `Slider`, `ProgressBar`, `Separator`, `ScrollBar` |
 | Menus and overlays | `Menu`, `MenuItem`, `ContextMenu`, `ToolTip`, `FlyoutPresenter`, `MenuFlyoutPresenter` |
+| Notifications | `NotificationCard`, `WindowNotificationManager` |
 
 `StandaloneReadinessTests` pins that list — and the count — so neither can drift without a failing
 build, and so an Avalonia version that adds control types shows up as a failure rather than as a
 gap nobody noticed.
 
-The other 59 keep the forked templates. Most of them are Avalonia plumbing MudBlazor has no
+The other 53 keep the forked templates. Most of them are Avalonia plumbing MudBlazor has no
 counterpart for — `PopupRoot`, `AdornerLayer`, `TextSelectionHandle`, `ManagedFileChooser`,
 `CommandBar`, the `*Page` shell types — and keeping those byte-faithful is what makes an Avalonia
 upgrade a re-download and a diff.
@@ -567,7 +671,7 @@ Every token is asserted to resolve under **both** theme variants. Add a token, a
 | Elevation | `Themes/Elevation.axaml` | Levels 0–24, three stacked shadow layers each. |
 | Typography | `Themes/Typography.axaml` | Roboto, embedded; base size **14px**, not 16. |
 | Controls | `Themes/ControlThemes.axaml` | Aggregator; one file per control under `Themes/Controls/`. Keyed by type. |
-| Icons | `Themes/Icons.axaml` | The eight Material glyphs the templates cannot do without. Not an icon set. |
+| Icons | `Themes/Icons.axaml` | The nine Material glyphs the templates cannot do without. Not an icon set. |
 | Geometry | `Themes/Geometry.axaml` | 4px radius, 4px spacing scale, appbar and drawer sizes. |
 
 Three things worth knowing before changing any of them:
@@ -610,16 +714,15 @@ theme, and only a real layout exposes flat hierarchy and wrong spacing.
 
 ## Known gaps
 
-**30 of the 89 templated control types are hand-written**; the other 59 wear forked Simple
+**36 of the 89 templated control types are hand-written**; the other 53 wear forked Simple
 templates repaletted onto these tokens. Nothing is invisible and nothing external is required —
 the remaining gap is Material *shape*, not colour.
 
 Controls MudBlazor has a counterpart for and this theme does not, roughly by how often an app
 hits them:
 
-- **`TreeView`, `SplitButton`/`DropDownButton`, `NotificationCard` (MudSnackbar), `SplitView`
-  (MudDrawer), `Carousel`, `TabStrip`, `PipsPager` (MudPagination), `GroupBox`** — one SCSS file
-  and one template each.
+- **`Carousel`, `TabStrip`, `PipsPager` (MudPagination), `GroupBox`** — one SCSS file and one
+  template each.
 - **The date and time pickers** (`Calendar` and its four helpers, `DatePicker`, `TimePicker`) and
   **`TableView`**. These are not restyling jobs: `MudDatePicker` and `MudTable` are bespoke
   components, so matching them means a rewrite per template with no shortcut. A real data grid is
@@ -629,7 +732,7 @@ And the things that are not controls:
 
 - **No ripple.** Avalonia has no primitive for it; faking it means an animated, clipped ellipse
   driven from pointer position. Everything interactive carries the static half — a tinted state
-  layer on hover and press.
+  layer on hover, press and keyboard focus.
 - **No uppercase button text.** Avalonia has no text-transform; the tracking and weight are
   applied, the casing is not.
 - **No separate placeholder on a text field** — `PlaceholderText` is the floating label; see
@@ -637,6 +740,12 @@ And the things that are not controls:
 - **No counter under a field.** The error/helper line exists; `MudTextField`'s character counter
   would need an attached property.
 - **No `divider-light` token**, so `MudDivider`'s `light` variant is not implemented.
+- **No RTL.** Nothing here handles `FlowDirection`, and several templates hardcode a side — the
+  numeric field's spin column docks right, floating labels align left, the inset divider indents
+  from the left, the tree indents from the left. MudBlazor's own CSS is written with **logical**
+  properties for exactly this reason (`margin-inline-end`, `padding-inline-start`), so mirroring
+  is intended behaviour there rather than an afterthought. This is a known gap with a planned
+  pass, not a decision.
 - **No spacing utility classes.** The 4px scale exists as values; `pa-4`-style generated classes
   do not.
 - **The tab indicator does not slide** between tabs — see *Slider and tabs*.
