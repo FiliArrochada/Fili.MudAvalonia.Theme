@@ -22,7 +22,7 @@
           <Button Content="Secondary" Classes="secondary" />
           <Button Content="Outlined" Classes="outlined" />
           <Button Content="Text" Classes="text" />
-          <Button Content="Base default" />
+          <Button Content="No class" />
         </StackPanel>
 
         <TextBlock Classes="overline" Text="Button — disabled" Margin="0,8,0,0" />
@@ -31,39 +31,19 @@
           <Button Content="Secondary" Classes="secondary" IsEnabled="False" />
           <Button Content="Outlined" Classes="outlined" IsEnabled="False" />
           <Button Content="Text" Classes="text" IsEnabled="False" />
-          <Button Content="Base default" IsEnabled="False" />
+          <Button Content="No class" IsEnabled="False" />
         </StackPanel>
 
         <TextBlock Classes="caption"
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="Hover and press the raised ones: elevation steps 2 → 4 → 8, which no substrate template expresses because Button has no BoxShadow. The last button in each row is deliberately left on the forked base, so the difference is visible side by side. No ripple — the tinted state layer is the static half of it." />
+                   Text="Hover and press the raised ones: elevation steps 2 → 4 → 8, which no forked template can express because Button has no BoxShadow — only the Border inside a template has one. The last button carries no class and is identical to the text one, because MudButton.Variant defaults to Variant.Text: the classes opt UP from flat rather than opting in to being themed. No ripple — the tinted state layer is the static half of it." />
       </StackPanel>
 
       <!-- Selection -->
       <StackPanel Spacing="8">
-        <TextBlock Classes="overline" Text="Selection — themed" />
-        <StackPanel Orientation="Horizontal" Spacing="24">
-          <StackPanel Spacing="4">
-            <CheckBox Classes="fili" Content="Unchecked" />
-            <CheckBox Classes="fili" Content="Checked" IsChecked="True" />
-            <CheckBox Classes="fili" Content="Indeterminate" IsChecked="{x:Null}" IsThreeState="True" />
-            <CheckBox Classes="fili" Content="Disabled" IsEnabled="False" IsChecked="True" />
-          </StackPanel>
-          <StackPanel Spacing="4">
-            <RadioButton Classes="fili" Content="Option one" GroupName="themed" IsChecked="True" />
-            <RadioButton Classes="fili" Content="Option two" GroupName="themed" />
-            <RadioButton Classes="fili" Content="Disabled" GroupName="themed" IsEnabled="False" />
-          </StackPanel>
-          <StackPanel Spacing="4">
-            <ToggleSwitch Classes="fili" Content="On" IsChecked="True" />
-            <ToggleSwitch Classes="fili" Content="Off" />
-            <ToggleSwitch Classes="fili" Content="Disabled" IsEnabled="False" IsChecked="True" />
-          </StackPanel>
-        </StackPanel>
-
-        <TextBlock Classes="overline" Text="Selection — substrate default" Margin="0,8,0,0" />
+        <TextBlock Classes="overline" Text="Selection" />
         <StackPanel Orientation="Horizontal" Spacing="24">
           <StackPanel Spacing="4">
             <CheckBox Content="Unchecked" />
@@ -72,14 +52,14 @@
             <CheckBox Content="Disabled" IsEnabled="False" IsChecked="True" />
           </StackPanel>
           <StackPanel Spacing="4">
-            <RadioButton Content="Option one" GroupName="plain" IsChecked="True" />
-            <RadioButton Content="Option two" GroupName="plain" />
-            <RadioButton Content="Disabled" GroupName="plain" IsEnabled="False" />
+            <RadioButton Content="Option one" GroupName="themed" IsChecked="True" />
+            <RadioButton Content="Option two" GroupName="themed" />
+            <RadioButton Content="Disabled" GroupName="themed" IsEnabled="False" />
           </StackPanel>
           <StackPanel Spacing="4">
-            <ToggleSwitch OnContent="On" OffContent="Off" IsChecked="True" />
-            <ToggleSwitch OnContent="On" OffContent="Off" />
-            <ToggleSwitch OnContent="On" OffContent="Off" IsEnabled="False" />
+            <ToggleSwitch Content="On" IsChecked="True" />
+            <ToggleSwitch Content="Off" />
+            <ToggleSwitch Content="Disabled" IsEnabled="False" IsChecked="True" />
           </StackPanel>
         </StackPanel>
 
@@ -87,7 +67,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="The second row uses the forked base templates rather than a hand-written Material theme. The app bar can swap that base for FluentTheme, which is now only a comparison — the shipping configuration depends on neither. Note the radio: checked recolours the ring and grows an inner disc rather than filling the ring, which is what keeps it from reading as a round checkbox." />
+                   Text="None of these carries a class. Every control this theme templates is keyed to its type, so it arrives themed — a class now only ever names a MudBlazor variant, like Button.primary. MudBlazor does not draw these three, it renders Material icons, so the box and the ring here are the real CheckBox and RadioButtonChecked glyphs rather than approximations: look at the indeterminate bar and the radio's inner disc, which grows inside the ring instead of filling it." />
       </StackPanel>
 
       <!-- Inputs -->
@@ -114,20 +94,24 @@
                    HorizontalAlignment="Left"
                    Text="Click into an empty one: the label shrinks and rises, and the accent rule scales out from the centre. Type, then click away — the label stays up, because the float condition is focused OR not empty. PlaceholderText is the label, so these variants have no separate placeholder." />
 
-        <TextBlock Classes="overline" Text="Text input — base default" Margin="0,8,0,0" />
+        <TextBlock Classes="overline" Text="Text field — standard (the default, no class)" Margin="0,8,0,0" />
         <StackPanel Orientation="Horizontal" Spacing="12">
-          <TextBox Width="190" PlaceholderText="Placeholder" />
-          <TextBox Width="190" Text="With content" />
-          <TextBox Width="190" Text="Read only" IsReadOnly="True" />
-          <TextBox Width="190" Text="Disabled" IsEnabled="False" />
+          <TextBox Width="190" PlaceholderText="Label" />
+          <TextBox Width="190" PlaceholderText="Label" Text="With content" />
+          <TextBox Classes="error" Width="190" PlaceholderText="Label" Text="Invalid" />
+          <TextBox Width="190" PlaceholderText="Label" IsEnabled="False" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="12">
-          <ComboBox Width="190" SelectedIndex="0">
+          <ComboBox Width="190" PlaceholderText="Select">
             <ComboBoxItem>Combo box</ComboBoxItem>
             <ComboBoxItem>Second item</ComboBoxItem>
             <ComboBoxItem>Third item</ComboBoxItem>
           </ComboBox>
-          <ComboBox Width="190" IsEnabled="False" SelectedIndex="0">
+          <ComboBox Width="190" PlaceholderText="Select" SelectedIndex="0">
+            <ComboBoxItem>With a selection</ComboBoxItem>
+            <ComboBoxItem>Second item</ComboBoxItem>
+          </ComboBox>
+          <ComboBox Width="190" PlaceholderText="Select" IsEnabled="False" SelectedIndex="0">
             <ComboBoxItem>Disabled</ComboBoxItem>
           </ComboBox>
           <NumericUpDown Width="190" Value="42" />
@@ -139,11 +123,58 @@
       <StackPanel Spacing="8">
         <TextBlock Classes="overline" Text="Range and progress" />
         <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-          <Slider Classes="fili" Width="220" Value="40" />
-          <Slider Classes="fili" Width="220" Value="40" IsEnabled="False" />
           <Slider Width="220" Value="40" />
-          <ProgressBar Width="220" Value="65" />
+          <Slider Width="220" Value="40" IsEnabled="False" />
         </StackPanel>
+
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudProgressLinear defaults to Size.Small and to square ends, so a bare ProgressBar is a 4px hairline. medium and large are 8px and 12px, rounded opts into the 4px radius, and the track is always the bar's own colour at 20%." />
+
+        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+          <StackPanel Width="220" Spacing="12">
+            <ProgressBar Value="65" />
+            <ProgressBar Classes="medium" Value="65" />
+            <ProgressBar Classes="large rounded" Value="65" />
+          </StackPanel>
+          <StackPanel Width="220" Spacing="12">
+            <ProgressBar Classes="primary medium rounded" Value="65" />
+            <ProgressBar Classes="success medium rounded" Value="40" />
+            <ProgressBar Classes="error medium rounded" Value="20" />
+          </StackPanel>
+          <StackPanel Width="220" Spacing="12">
+            <TextBlock Classes="caption" Text="Indeterminate" />
+            <ProgressBar Classes="medium rounded" IsIndeterminate="True" />
+            <ProgressBar Classes="primary medium rounded" IsIndeterminate="True" />
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- Dividers -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Divider" />
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudDivider is a 1px rule in the divider colour with no margin of its own. inset indents it by 72px to clear an avatar column, middle by 16px on both sides, and vertical turns it into a hairline column." />
+        <Border Classes="surface elevation1" Width="420" Padding="0,8" HorizontalAlignment="Left">
+          <StackPanel>
+            <TextBlock Classes="body2" Margin="16,8" Text="Plain divider below" />
+            <Separator />
+            <TextBlock Classes="body2" Margin="16,8" Text="Inset divider below" />
+            <Separator Classes="inset" />
+            <TextBlock Classes="body2" Margin="16,8" Text="Middle divider below" />
+            <Separator Classes="middle" />
+            <StackPanel Orientation="Horizontal" Margin="16,8" Height="20" Spacing="12">
+              <TextBlock Classes="body2" Text="Vertical" VerticalAlignment="Center" />
+              <Separator Classes="vertical" />
+              <TextBlock Classes="body2" Text="divider" VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
       </StackPanel>
 
       <!-- Surfaces -->
@@ -181,20 +212,13 @@
             <ListBoxItem>Third item</ListBoxItem>
             <ListBoxItem IsEnabled="False">Disabled item</ListBoxItem>
           </ListBox>
-          <TabControl Classes="fili" Width="330" Height="140">
+          <TabControl Width="330" Height="140">
             <TabItem Header="One">
               <TextBlock Classes="body2" Margin="12" Text="First tab content" />
             </TabItem>
             <TabItem Header="Two">
               <TextBlock Classes="body2" Margin="12" Text="Second tab content" />
             </TabItem>
-            <TabItem Header="Disabled" IsEnabled="False" />
-          </TabControl>
-          <TabControl Width="330" Height="140">
-            <TabItem Header="One">
-              <TextBlock Classes="body2" Margin="12" Text="Substrate default" />
-            </TabItem>
-            <TabItem Header="Two" />
             <TabItem Header="Disabled" IsEnabled="False" />
           </TabControl>
           <TreeView Width="220" Height="140">
@@ -209,7 +233,7 @@
         <StackPanel Orientation="Horizontal" Spacing="16">
           <Border Classes="surface elevation1" Width="380" Height="140">
             <StackPanel>
-              <Menu Classes="fili">
+              <Menu>
                 <MenuItem Header="Library">
                   <MenuItem Header="Scan for games" InputGesture="Ctrl+R" />
                   <MenuItem Header="Add folder" />
@@ -227,8 +251,10 @@
             </StackPanel>
           </Border>
 
-          <!-- The scroll bar is themed through the ScrollViewer that hosts it. -->
-          <ScrollViewer Classes="fili" Width="330" Height="140"
+          <!-- ScrollViewer itself is NOT templated here - it keeps its forked Simple template,
+               which is deliberate: it is structural, and a broken one stops scrolling entirely.
+               What is themed is the ScrollBar inside it, keyed to its type. -->
+          <ScrollViewer Width="330" Height="140"
                         HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock Classes="subtitle2" Text="Themed scrolling" />
@@ -237,10 +263,72 @@
               <TextBlock Classes="body2" TextWrapping="Wrap"
                          Text="Scroll this panel to see the thumb. It darkens on hover and again on press." />
               <TextBlock Classes="body2" TextWrapping="Wrap"
-                         Text="ScrollViewer is a structural control rather than a decorative one: without its template there is no ScrollContentPresenter, and nothing scrolls at all." />
+                         Text="ScrollViewer keeps the forked template on purpose: it is structural rather than decorative, and without a ScrollContentPresenter nothing scrolls at all. Only the rail is ours." />
             </StackPanel>
           </ScrollViewer>
         </StackPanel>
+      </StackPanel>
+
+      <!-- Lists, toggles, links and panels -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="List, toggle, link" />
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="A selected list row is primary text over primary at 6%, not a filled bar — MudList marks it with mud-primary-text plus mud-primary-hover, which keeps it as readable as the rows around it. The toggles use the same rule, because MudToggleItem does." />
+        <StackPanel Orientation="Horizontal" Spacing="24">
+          <ListBox Classes="surface" Width="220" Height="176" SelectedIndex="1">
+            <ListBoxItem>First item</ListBoxItem>
+            <ListBoxItem>Selected item</ListBoxItem>
+            <ListBoxItem>Third item</ListBoxItem>
+            <ListBoxItem IsEnabled="False">Disabled item</ListBoxItem>
+          </ListBox>
+
+          <StackPanel Spacing="12" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <ToggleButton Content="Bold" IsChecked="True" />
+              <ToggleButton Content="Italic" />
+              <ToggleButton Content="Underline" IsEnabled="False" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="0">
+              <ToggleButton Classes="outlined" Content="Day" IsChecked="True" />
+              <ToggleButton Classes="outlined" Content="Week" />
+              <ToggleButton Classes="outlined" Content="Month" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <HyperlinkButton Content="Hover to underline" />
+              <HyperlinkButton Classes="underline" Content="Always underlined" />
+              <HyperlinkButton Content="Disabled link" IsEnabled="False" />
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Expansion panel" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="24">
+          <Expander Width="330" Header="Collapsed panel">
+            <TextBlock Classes="body2" TextWrapping="Wrap"
+                       Text="The header is 48px tall with 24px gutters, and the chevron turns -180 degrees over 0.3s." />
+          </Expander>
+          <Expander Width="330" Header="Expanded panel" IsExpanded="True">
+            <TextBlock Classes="body2" TextWrapping="Wrap"
+                       Text="The panel carries the surface and elevation 1 because MudExpansionPanels is a MudPaper. Add the flat class to drop both when it already sits on a card." />
+          </Expander>
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Numeric field, autocomplete, validation" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Top">
+          <NumericUpDown Width="190" Value="42" PlaceholderText="Quantity" />
+          <AutoCompleteBox Width="190" PlaceholderText="Search" Text="Av" />
+          <StackPanel Width="220">
+            <TextBox x:Name="InvalidField" Width="220" PlaceholderText="Email" Text="not-an-email" />
+          </StackPanel>
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="The third field has a failing validation, not the error class: the rule turns red on its own and the message sits under the field at 12px, where MudBlazor puts it. The forked template's version was a red circle with a tooltip, off to the right." />
       </StackPanel>
 
       <!-- Semantic colours in use -->

@@ -69,7 +69,10 @@ internal static class Capture
         {
             Content = view,
             Width = 1180,
-            Height = 2100,
+            // Tall enough for the whole of ControlStatesView without the outer ScrollViewer
+            // scrolling. It matters: a ListBox with a selection brings its container into view on
+            // load, which silently scrolled the capture past the first four sections.
+            Height = 3100,
         };
 
         // Match MainWindow. Without this the window falls back to the substrate's own background
