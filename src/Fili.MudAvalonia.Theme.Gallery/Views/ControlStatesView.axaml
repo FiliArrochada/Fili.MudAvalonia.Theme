@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:notifications="using:Avalonia.Controls.Notifications"
              x:Class="Fili.MudAvalonia.Theme.Gallery.Views.ControlStatesView">
 
   <ScrollViewer>
@@ -34,11 +35,55 @@
           <Button Content="No class" IsEnabled="False" />
         </StackPanel>
 
+        <TextBlock Classes="overline" Text="Button — keyboard focus" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button x:Name="FocusedSample" Content="Tabbed to" Classes="primary" />
+          <Button Content="Not focused" Classes="primary" />
+          <Button Content="Tabbed to" x:Name="FocusedText" />
+          <Button Content="Not focused" />
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="The first and third carry keyboard focus, set from code-behind so it survives into a screenshot. MudBlazor has no focus ring to borrow — _reset.scss sets outline: none and every component maps :focus-visible to the hover tint — so the state layer is the whole affordance. It is :focus-visible rather than :focus on purpose: clicking a button should not leave it tinted after the pointer has gone." />
+
         <TextBlock Classes="caption"
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
                    Text="Hover and press the raised ones: elevation steps 2 → 4 → 8, which no forked template can express because Button has no BoxShadow — only the Border inside a template has one. The last button carries no class and is identical to the text one, because MudButton.Variant defaults to Variant.Text: the classes opt UP from flat rather than opting in to being themed. No ripple — the tinted state layer is the static half of it." />
+      </StackPanel>
+
+      <!-- Split and drop-down buttons -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Split and drop-down button" />
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <SplitButton Content="Save">
+            <SplitButton.Flyout>
+              <MenuFlyout>
+                <MenuItem Header="Save as…" />
+                <MenuItem Header="Save a copy" />
+              </MenuFlyout>
+            </SplitButton.Flyout>
+          </SplitButton>
+          <SplitButton Classes="primary" Content="Deploy">
+            <SplitButton.Flyout>
+              <MenuFlyout>
+                <MenuItem Header="Deploy to staging" />
+              </MenuFlyout>
+            </SplitButton.Flyout>
+          </SplitButton>
+          <SplitButton Content="Disabled" IsEnabled="False" />
+          <DropDownButton Content="Sort by" />
+          <DropDownButton Classes="outlined" Content="Filter" />
+          <DropDownButton Content="Disabled" IsEnabled="False" />
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="A split button is MudButtonGroup: the joined halves square off their inner corners and a 1px divider sits between them. That divider is text-primary at FULL strength, not a hairline — Palette.cs sets BorderOpacity to 1.0, which looks like a mistake and is not one." />
       </StackPanel>
 
       <!-- Selection -->
@@ -221,9 +266,11 @@
             </TabItem>
             <TabItem Header="Disabled" IsEnabled="False" />
           </TabControl>
-          <TreeView Width="220" Height="140">
+          <TreeView x:Name="SampleTree" Classes="surface" Width="220" Height="140">
             <TreeViewItem Header="Library" IsExpanded="True">
-              <TreeViewItem Header="Installed" />
+              <TreeViewItem x:Name="SelectedNode" Header="Installed" IsExpanded="True">
+                <TreeViewItem Header="Recently played" />
+              </TreeViewItem>
               <TreeViewItem Header="Collections" />
             </TreeViewItem>
           </TreeView>
@@ -329,6 +376,54 @@
                    MaxWidth="760"
                    HorizontalAlignment="Left"
                    Text="The third field has a failing validation, not the error class: the rule turns red on its own and the message sits under the field at 12px, where MudBlazor puts it. The forked template's version was a red circle with a tooltip, off to the right." />
+      </StackPanel>
+
+      <!-- Drawer -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Drawer" />
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="SplitView is MudDrawer, and it is the one control here treated with styles rather than a ControlTheme: everything MudDrawer contributes is a value — 240px open, 56px mini, the drawer-background and drawer-text tokens — while the pane sliding and the display modes are structure the forked template already gets right. A Style outranks a ControlTheme setter, which is normally the trap this repo warns about and is exactly what makes it work." />
+        <Border Classes="surface elevation1" Width="520" Height="180" ClipToBounds="True">
+          <SplitView IsPaneOpen="True" DisplayMode="Inline">
+            <SplitView.Pane>
+              <StackPanel Margin="0,8">
+                <ListBox SelectedIndex="0" Background="Transparent">
+                  <ListBoxItem>Library</ListBoxItem>
+                  <ListBoxItem>Store</ListBoxItem>
+                  <ListBoxItem>Downloads</ListBoxItem>
+                </ListBox>
+              </StackPanel>
+            </SplitView.Pane>
+            <SplitView.Content>
+              <StackPanel Margin="16" Spacing="4">
+                <TextBlock Classes="subtitle2" Text="Content beside the pane" />
+                <TextBlock Classes="body2" TextWrapping="Wrap"
+                           Text="The pane is 240px because LayoutProperties.cs says DrawerWidthLeft is 240px; the forked template's own default is 320." />
+              </StackPanel>
+            </SplitView.Content>
+          </SplitView>
+        </Border>
+      </StackPanel>
+
+      <!-- Snackbars -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Snackbar" />
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudSnackbar is a filled MudAlert on an elevation-6 surface: 6px/16px padding, 288px minimum, 500px maximum, Medium weight in the colour's contrast text. The shadow is not a guess — _snackbar.scss spells out the same three layers FiliElevation6 carries. Normally the notification manager builds these; here they are placed by hand so they hold still." />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <notifications:NotificationCard NotificationType="Information" Content="Library scan finished" />
+          <notifications:NotificationCard NotificationType="Success" Content="12 games added" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <notifications:NotificationCard NotificationType="Warning" Content="Two folders were skipped" />
+          <notifications:NotificationCard NotificationType="Error" Content="Could not reach the store" />
+        </StackPanel>
       </StackPanel>
 
       <!-- Semantic colours in use -->

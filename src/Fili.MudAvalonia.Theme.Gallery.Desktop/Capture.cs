@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -65,14 +66,18 @@ internal static class Capture
 
     private static void Write(Control view, string path)
     {
+        // The window is sized to the CONTENT rather than to a constant.
+        //
+        // A fixed height quietly truncates: every time a view grew, the capture kept rendering
+        // and simply stopped showing the new rows, which is the least useful way for a screenshot
+        // harness to fail. Worse, the outer ScrollViewer scrolls on load — a ListBox with a
+        // selection brings its container into view — so a too-short window does not even start at
+        // the top. Measuring first means neither can happen again.
         var window = new Window
         {
             Content = view,
             Width = 1180,
-            // Tall enough for the whole of ControlStatesView without the outer ScrollViewer
-            // scrolling. It matters: a ListBox with a selection brings its container into view on
-            // load, which silently scrolled the capture past the first four sections.
-            Height = 3100,
+            Height = 800,
         };
 
         // Match MainWindow. Without this the window falls back to the substrate's own background
@@ -81,6 +86,13 @@ internal static class Capture
         window[!Window.BackgroundProperty] = new DynamicResourceExtension("FiliBackgroundGrayBrush");
 
         window.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        // Now that the templates exist, ask the content how tall it actually wants to be and
+        // grow the window to fit. The cap is a guard against a runaway measurement producing a
+        // gigabyte of PNG, not a layout decision.
+        view.Measure(new Size(window.Width, double.PositiveInfinity));
+        window.Height = Math.Clamp(Math.Ceiling(view.DesiredSize.Height), 800, 8000);
 
         // Two passes: the first builds templates, the second lets the styles that those templates
         // triggered settle before the frame is taken.
