@@ -7,8 +7,15 @@ applies too; this file wins where they differ.
 
 A **design-token theme for Avalonia 12**, not a component library. Resource dictionaries, a set of
 style classes, `ControlTheme`s for the controls a Material look genuinely cannot be faked without,
-and a gallery to look at it all in. No new control *types*, no services, no API surface. Read
-`README.md` first; it carries the usage, the token tables and the known gaps.
+and a gallery to look at it all in. No new control *types*, no services, **no PUBLIC API
+surface**. Read `README.md` first; it carries the usage, the token tables and the known gaps.
+
+`internal` helpers are allowed where XAML genuinely cannot express something — compiled XAML in
+the same assembly can construct an internal type, so nothing leaks to a consumer. There is one
+today: `Converters/FactorConverter`, which multiplies a bound pixel dimension by a constant,
+because MudBlazor sizes several things as a percentage of their container and Avalonia has no way
+to say that (its transform parser rejects `%` outright, at runtime). Reach for one only after
+establishing that the XAML route does not exist; a public type still needs a separate package.
 
 Scope discipline matters here, and the line is between **retemplating an Avalonia control** and
 **inventing a new one**. The first is in scope: `Button` needed it because `Button` has no
@@ -38,6 +45,18 @@ Values are MudBlazor's defaults, transcribed from `src/MudBlazor/Themes/Models/`
 (light), `PaletteDark.cs`, `Shadow.cs`, `Typography.cs`, `LayoutProperties.cs` — with the
 `Colors.*` references resolved through MudBlazor's `src/MudBlazor/Colors/Colors.cs`.
 
+**Control METRICS come from `src/MudBlazor/Styles/components/*.scss`**, and the component's
+`.razor.cs` for its parameter DEFAULTS — which are as load-bearing as the CSS and easier to get
+wrong. `MudProgressLinear.Size` defaults to `Size.Small` (4px, not 8) and `Rounded` to false;
+`MudButton.Variant` and `MudTextField.Variant` default to `Variant.Text`; `MudLink.Underline`
+defaults to `Underline.Hover`. Read both files, not just the SCSS.
+
+**Icon GLYPHS come from `src/MudBlazor/Icons/Material/Filled.cs`**, because MudBlazor renders
+Material icons rather than drawing shapes — a hand-drawn tick is a different artefact, not an
+approximation. Drop each glyph's `M0 0h24v24H0z` viewbox spacer: it is transparent in SVG and a
+painted square in a filled `StreamGeometry`. Keep bounds with `Width`/`Height` 24 and
+`Stretch="None"`.
+
 **Transcribe, never eyeball.** If a value needs checking, read it from that source again rather
 than sampling a screenshot. When adding one, say in a comment which file it came from.
 
@@ -57,20 +76,29 @@ Two conversions are already applied and should stay applied consistently:
 - **Base type is 14px, not 16.** First thing to check when a ported screen feels off.
 - **`Button` has no `BoxShadow`.** Only `Border` does, which is why the raised button is a
   `ControlTheme` with a `Border` in its template rather than a handful of setters.
-- **Control themes are opt-in by class, never by overriding the default.** Avalonia composes
-  `ButtonSpinner`, the `DatePicker` presenter and flyout affordances out of plain `Button`s, and
-  `AutoCompleteBox`/`NumericUpDown`/`DatePicker`/editable `ComboBox` all embed a `TextBox`, so
-  keying a theme to `{x:Type ...}` silently retemplates all of them. Keep new control themes keyed
-  and wired through a class. The class is a **variant name** where the control has variants
-  (`primary`, `outlined`, `filled`) and the literal marker **`fili`** where it has only one shape
-  (`CheckBox`, `RadioButton`, `ToggleSwitch`, `Slider`, `TabControl`, `ScrollViewer`, `Menu`,
-  `Window`).
+- **Control themes are keyed by TYPE. A class only ever names a variant.** Every theme is declared
+  under a `Fili*` name for the inventory, then aliased at the bottom of its file:
 
-  **The one exception, and it is principled:** key by TYPE when the framework instantiates the
-  control and there is no markup site to carry a class - `ToolTip`, `FlyoutPresenter`,
-  `MenuFlyoutPresenter`. The risk the rule guards against is absent there too, since nothing
-  composes a leaf presentation surface into its own template. Each is declared under a name for
-  the inventory, then aliased to its type key in Overlays.axaml.
+  ```xml
+  <ControlTheme x:Key="{x:Type TextBox}" TargetType="TextBox" BasedOn="{StaticResource FiliStandardTextBox}" />
+  ```
+
+  This was the opposite rule while the package layered over Fluent, because overriding a default
+  `ControlTheme` reaches into every control composed out of that type — a `TextBox` inside
+  `NumericUpDown`, a `Button` inside `ButtonSpinner`. Once the base became a fork this repo owns,
+  that stopped being a hazard and became the point: those embedded controls *should* look like
+  this theme. The `fili` marker classes were deleted with it. **Do not reintroduce a class that
+  means "please theme me".**
+
+  **Class names are MudBlazor's vocabulary** (`primary` = Color.Primary, `outlined`/`filled`/`text`
+  = Variant.*, `small`/`medium`/`large` = Size.*), deliberately NOT namespaced — API familiarity is
+  the point. So they collide with any app already using those words, and the app's own setters win
+  for the properties it declares while every property it does *not* declare leaks through from the
+  theme. Grep an adopter for `Classes="` first.
+
+- **When a control gets a ControlTheme, delete it from the blanket styles in `FiliTheme.axaml`.**
+  A `Style` outranks a `ControlTheme` setter, so a leftover blanket `CornerRadius` silently
+  overrides the template's. The remaining blanket selector is the pickers, which are still forked.
 - **A Style always outranks a ControlTheme setter.** This has bitten twice, in different
   costumes, and it is the single most likely way to break this package:
   - A blanket `Selector="TextBlock"` setting `Foreground` also matched the `TextBlock` a
@@ -104,8 +132,26 @@ Two conversions are already applied and should stay applied consistently:
   with `StartsWith`, not `Equal`. And do not swap in the variable `Roboto[wdth,wght].ttf` —
   Avalonia picks a face per weight rather than setting an axis, so Light and Medium would render
   as Regular.
-- **Fluent's internal brush keys move between Avalonia versions.** Read them from Avalonia's
-  `Themes/Fluent/Accents/*.axaml` for the version in use; do not guess, and record what is found.
+- **Avalonia's transform parser has no `%` unit.** `translateX(-35%)` throws
+  `FormatException: Invalid unit: %` — **at runtime**, when the template is instantiated, because
+  a transform string in a key frame is parsed lazily and compiles cleanly either way. MudBlazor
+  sizes several things as a percentage of their container, so the conversion is a binding to a
+  pixel dimension the control publishes, times a constant, through `FactorConverter`.
+- **`:empty` on an `ItemsControl` means NO ITEMS, not "no selection".** `ComboBox:not(:empty)`
+  reads like "has a selection" and is true for every populated select, which floated every label
+  permanently. There is no pseudo-class for a selection; use `ObjectConverters.IsNull` on
+  `SelectionBoxItem` and swap two elements.
+- **A `DataValidationErrors.Errors` entry is usually an `Exception`**, so binding straight to it
+  renders `"System.InvalidOperationException: the message"`. `ErrorMessageConverter` exists for
+  exactly that.
+- **A Style setter DOES override a value set inline on a template child.** This is the flip side
+  of the trap above and it is relied on throughout — the floating labels set a resting
+  `RenderTransform` inline and the `:focus` styles override it. Both facts are true at once:
+  styles outrank ControlTheme *setters* and inline *template* values alike.
+- **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
+  comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
+  is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
+  use rather than guessing.
 - **Elevation is deliberately not theme-varying**, matching MudBlazor.
 
 ## The base is forked, not depended on
@@ -123,25 +169,30 @@ which wins by include order. `FORK.md` has the procedure.
 Two consequences to keep in mind when editing:
 
 - **Order is load-bearing.** `FiliBaseTheme` first, then `FiliTheme`; later styles win. That is
-  the only reason the 17 hand-written control themes beat their forked counterparts.
+  the only reason the hand-written control themes beat their forked counterparts.
 - **The accent is now just a token.** Standalone, `FiliPrimaryColor` flows into the forked
   templates through `ThemeAccentBrush`/`ThemeAccentColor` in `Accents.axaml` — no theme-specific
   API. (Historically it had to go through `FluentTheme.Palettes`, and setting a `SystemAccentColor`
   resource instead failed silently; the gallery keeps a Fluent comparison mode that still does it
   the correct way.)
 
-**Fluent is the chosen substrate, decided by rendering both** (`--capture`). It stays until
-**Standalone since the Simple fork.** `StandaloneReadinessTests` pins the 17 HAND-WRITTEN control
-themes; the other 72 types are covered by the forked templates, which `SimpleBridgeTests` checks
-are reachable. Adding a hand-written theme means adding its key to the first test. Simple looked
-plausible in theory — plainness reads as neutral — and looked like Win32 circa 2003 in practice,
-with tighter metrics that make the themed/unthemed seam worse rather than better.
+**Coverage is pinned, not reported.** `StandaloneReadinessTests` asserts the exact set of
+hand-written themes — **30 of the 89 templated types** — plus the count of both. The other 59 wear
+forked templates, and `SimpleBridgeTests` asserts the ~96 contract keys those paint from still
+resolve in both variants. Adding a theme means adding its `Fili*` key AND its target type to the
+first test in the same change; that is what keeps the number honest and turns an Avalonia version
+that adds control types into a failing build rather than a silent gap.
 
-Each `ControlTheme` added here shrinks the substrate's role. Note where that leads: **no mature
-Avalonia theme layers over a substrate.** Semi.Avalonia, Material.Avalonia and Classic.Avalonia
-all ship complete `ControlTheme` sets and replace Fluent outright. Layering is scaffolding, and
-going standalone is a scope decision rather than a technical one — Semi is several hundred axaml
-files.
+**Do not add a hand-written theme for a control MudBlazor has no counterpart for.** `PopupRoot`,
+`AdornerLayer`, `TextSelectionHandle`, `ManagedFileChooser`, `CommandBar`, the `*Page` shell types
+and roughly 25 others exist because Avalonia needs them, not because a design system has an
+opinion about them. They stay forked permanently, and that is the fork earning its keep rather
+than a gap to close.
+
+The two deliberate deletions worth not re-adding: **`ScrollViewer`** (structural — get a part name
+wrong and it lays out perfectly and does not scroll) and **`Window`** (`VisualLayerManager` and
+`PART_TransparencyFallback` are load-bearing and invisible until missing). Both were written while
+layering and both went when the fork made them redundant.
 
 ## Layout and conventions
 
