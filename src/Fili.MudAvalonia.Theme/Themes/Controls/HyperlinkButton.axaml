@@ -47,8 +47,13 @@
       </ControlTemplate>
     </Setter>
 
-    <!-- Underline.Hover, the MudLink default. -->
+    <!-- Underline.Hover, the MudLink default. _link.scss puts :focus-visible and :active in the
+         same rule as :hover, so a tabbed-to link underlines exactly like a hovered one - which is
+         the only focus affordance a link gets, since _reset.scss drops the browser ring. -->
     <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ ContentPresenter#PART_ContentPresenter TextBlock">
       <Setter Property="TextDecorations" Value="Underline" />
     </Style>
     <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter TextBlock">
@@ -62,6 +67,9 @@
 
     <!-- Underline.None: still no underline when hovered. -->
     <Style Selector="^.no-underline:pointerover /template/ ContentPresenter#PART_ContentPresenter TextBlock">
+      <Setter Property="TextDecorations" Value="{x:Null}" />
+    </Style>
+    <Style Selector="^.no-underline:focus-visible /template/ ContentPresenter#PART_ContentPresenter TextBlock">
       <Setter Property="TextDecorations" Value="{x:Null}" />
     </Style>
     <Style Selector="^.no-underline:pressed /template/ ContentPresenter#PART_ContentPresenter TextBlock">

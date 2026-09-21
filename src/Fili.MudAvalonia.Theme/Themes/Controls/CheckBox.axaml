@@ -93,6 +93,11 @@
     <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
       <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
+    <!-- Keyboard focus lights the same 40px halo as hover. MudBlazor has no ring to borrow:
+         _reset.scss sets `outline: none` and the state layer is the whole affordance. -->
+    <Style Selector="^:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
     <Style Selector="^:pressed /template/ Ellipse#PART_StateLayer">
       <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
     </Style>

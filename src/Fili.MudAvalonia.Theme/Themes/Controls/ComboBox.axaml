@@ -48,6 +48,12 @@
     <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
+    <!-- MudBlazor excludes the selected row from the focus tint - _list.scss is
+         `&:focus:not(.mud-selected-item)` - because arrow keys move focus and selection
+         together, so tinting both would just be the selection tint twice. -->
+    <Style Selector="^:focus-visible:not(:selected) /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
     <!-- Selection is a tint plus a colour change, never a filled bar: MudList marks the chosen
          row with `mud-selected-item mud-primary-text mud-primary-hover`. Same rule as
          Controls/ListBox.axaml, because a select's options ARE list items. -->

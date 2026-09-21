@@ -84,6 +84,11 @@
     <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
+    <!-- Keyboard focus paints the hover layer. That IS the affordance in MudBlazor: _reset.scss
+         drops the browser ring, and every component sets `:focus-visible` to the hover tint. -->
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
 
     <!-- rotate(-180deg), not 180: the two land in the same place but spin opposite ways. -->
     <Style Selector="^:checked /template/ Path#PART_Chevron">

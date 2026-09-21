@@ -103,6 +103,11 @@
     <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
+    <!-- Keyboard focus paints the hover layer. That IS the affordance in MudBlazor: _reset.scss
+         drops the browser ring, and every component sets `:focus-visible` to the hover tint. -->
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
     <Style Selector="^:open /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
     </Style>
@@ -183,6 +188,11 @@
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
     <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <!-- Keyboard focus paints the hover layer. That IS the affordance in MudBlazor: _reset.scss
+         drops the browser ring, and every component sets `:focus-visible` to the hover tint. -->
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
     <Style Selector="^:open /template/ Border#PART_StateLayer">

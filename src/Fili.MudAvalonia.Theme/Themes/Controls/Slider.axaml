@@ -25,14 +25,20 @@
 
   <ControlTheme x:Key="FiliSliderThumb" TargetType="Thumb">
     <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+    <!-- The halo colour, set from the Slider when it has keyboard focus. See the note there. -->
+    <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="Width" Value="40" />
     <Setter Property="Height" Value="40" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
-          <!-- 40px state layer, same circular halo as the selection controls. -->
-          <Ellipse x:Name="PART_StateLayer" Width="40" Height="40" Fill="Transparent" />
+          <!-- 40px state layer, same circular halo as the selection controls. Its resting Fill
+               comes from BorderBrush so the Slider can light it on focus; the hover and press
+               styles below set Fill directly and win over that binding. -->
+          <Ellipse x:Name="PART_StateLayer"
+                   Width="40" Height="40"
+                   Fill="{TemplateBinding BorderBrush}" />
           <Ellipse x:Name="PART_Knob"
                    Width="12" Height="12"
                    Fill="{TemplateBinding Background}"
@@ -139,6 +145,21 @@
           </Grid>
         </ControlTemplate>
       </Setter>
+    </Style>
+
+    <!--
+      Keyboard focus lights the thumb's halo. Without it, a keyboard user moving a slider with the
+      arrow keys gets no indication of WHICH slider on the screen is moving.
+
+      The indirection is forced by Avalonia: the SLIDER takes focus but the halo lives inside the
+      THUMB's template, and a selector may only cross one /template/ boundary - two hops throw
+      "ControlTemplate styles cannot contain multiple template selectors" at runtime, when the
+      theme is first instantiated, having compiled perfectly. So the slider sets a property on the
+      thumb and the thumb's template binds the halo to it. BorderBrush is the carrier because the
+      thumb draws no border and nothing else is using it.
+    -->
+    <Style Selector="^:focus-visible /template/ Thumb#PART_Thumb">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
 
     <Style Selector="^:disabled">

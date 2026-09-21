@@ -60,6 +60,13 @@
       <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
     </Style>
 
+    <!-- MudBlazor excludes the selected row from the focus tint - _list.scss is
+         `&:focus:not(.mud-selected-item)` - because arrow keys move focus and selection
+         together, so tinting both would just be the selection tint twice. -->
+    <Style Selector="^:focus-visible:not(:selected) /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
     <Style Selector="^:selected">
       <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
     </Style>
