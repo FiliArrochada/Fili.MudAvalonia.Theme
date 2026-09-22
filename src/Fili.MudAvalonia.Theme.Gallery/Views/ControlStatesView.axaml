@@ -426,6 +426,26 @@
         </StackPanel>
       </StackPanel>
 
+      <!-- Tab strip and pips -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Tab strip and pips" />
+        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+          <TabStrip Width="330" SelectedIndex="0">
+            <TabStripItem>Library</TabStripItem>
+            <TabStripItem>Store</TabStripItem>
+            <TabStripItem IsEnabled="False">Disabled</TabStripItem>
+          </TabStrip>
+          <PipsPager NumberOfPages="5" SelectedPageIndex="2"
+                     IsPreviousButtonVisible="True" IsNextButtonVisible="True"
+                     VerticalAlignment="Center" />
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="A TabStrip is a TabControl's header row without the content area — Avalonia splits them, MudBlazor does not, so both carry the same 48px/12px/6px metrics and the same 2px indicator. The pips are MudCarousel's bullets, and they are the RadioButtonChecked and RadioButtonUnchecked glyphs the radio button already uses rather than drawn dots: selecting one swaps the glyph, so a ring gains a disc. The 0.75 opacity on the whole row is transcribed from MudCarousel's own inline style." />
+      </StackPanel>
+
       <!-- Right to left -->
       <StackPanel Spacing="8">
         <TextBlock Classes="overline" Text="Right to left" />
