@@ -1,0 +1,149 @@
+<!--
+  PipsPager: MudCarousel's bullets.
+
+  Avalonia has no numbered pager, so the counterpart is not MudPagination - it is the row of dots
+  under a carousel, and MudCarousel.razor.cs names exactly what they are:
+
+    CheckedIcon    = Icons.Material.Filled.RadioButtonChecked
+    UncheckedIcon  = Icons.Material.Filled.RadioButtonUnchecked
+    PreviousIcon   = Icons.Material.Filled.NavigateBefore
+    NextIcon       = Icons.Material.Filled.NavigateNext
+    both, in the razor   Style="z-index:3;opacity:0.75"
+
+  So the pips are the SAME TWO GLYPHS the radio button uses, not drawn ellipses - which is why
+  this file needs no new geometry for them, and why a pip has the ring-and-disc look rather than
+  the solid dot the forked template draws. The 0.75 opacity is transcribed from that inline style
+  and is the reason the row reads as secondary to the content above it.
+
+  NavigateNext is byte-identical to ChevronRight in Material's set, so FiliChevronRightGeometry
+  serves both - see Themes/Icons.axaml.
+
+  Avalonia requires PART_RootPanel, PART_PreviousButton, PART_NextButton and PART_PipsPagerList
+  by name; the list is a real ListBox bound to TemplateSettings.Pips, so its item styles live
+  inside the template rather than in a ControlTheme of their own.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliPipsPager" TargetType="PipsPager">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliActionDefaultBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="Opacity" Value="0.75" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel x:Name="PART_RootPanel"
+                    Orientation="{TemplateBinding Orientation}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    ClipToBounds="False">
+
+          <Button x:Name="PART_PreviousButton"
+                  Width="32" Height="32"
+                  Padding="0"
+                  Margin="4"
+                  HorizontalContentAlignment="Center"
+                  VerticalContentAlignment="Center"
+                  IsVisible="{TemplateBinding IsPreviousButtonVisible}">
+            <Path Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliNavigateBeforeGeometry}"
+                  Fill="{Binding $parent[PipsPager].Foreground}" />
+          </Button>
+
+          <ListBox x:Name="PART_PipsPagerList"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   Padding="0"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                   ItemsSource="{Binding TemplateSettings.Pips, RelativeSource={RelativeSource TemplatedParent}}"
+                   SelectedIndex="{Binding SelectedPageIndex, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                   AutoScrollToSelectedItem="False"
+                   ClipToBounds="False">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="{Binding Orientation, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=PipsPager}}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="4" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.Styles>
+              <Style Selector="ScrollViewer">
+                <Setter Property="ClipToBounds" Value="False" />
+              </Style>
+
+              <!-- A pip is a 24px glyph, so the row is 24 tall rather than the forked 12. -->
+              <Style Selector="ListBoxItem">
+                <Setter Property="Width" Value="24" />
+                <Setter Property="Height" Value="24" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="ClipToBounds" Value="False" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Template">
+                  <ControlTemplate>
+                    <Panel Background="Transparent">
+                      <Path x:Name="Pip"
+                            Width="24" Height="24"
+                            Stretch="None"
+                            Data="{StaticResource FiliRadioUncheckedGeometry}"
+                            Fill="{DynamicResource FiliActionDefaultBrush}">
+                        <Path.Transitions>
+                          <Transitions>
+                            <BrushTransition Property="Fill" Duration="0:0:0.1" />
+                          </Transitions>
+                        </Path.Transitions>
+                      </Path>
+                    </Panel>
+                  </ControlTemplate>
+                </Setter>
+              </Style>
+
+              <Style Selector="ListBoxItem:pointerover /template/ Path#Pip">
+                <Setter Property="Fill" Value="{DynamicResource FiliTextPrimaryBrush}" />
+              </Style>
+
+              <!-- Selected swaps the GLYPH, not just the colour: MudCarousel switches between
+                   RadioButtonUnchecked and RadioButtonChecked, which is a ring becoming a ring
+                   with a disc in it rather than a dot changing colour. -->
+              <Style Selector="ListBoxItem:selected /template/ Path#Pip">
+                <Setter Property="Data" Value="{StaticResource FiliRadioCheckedGeometry}" />
+                <Setter Property="Fill" Value="{DynamicResource FiliPrimaryBrush}" />
+              </Style>
+            </ListBox.Styles>
+          </ListBox>
+
+          <Button x:Name="PART_NextButton"
+                  Width="32" Height="32"
+                  Padding="0"
+                  Margin="4"
+                  HorizontalContentAlignment="Center"
+                  VerticalContentAlignment="Center"
+                  IsVisible="{TemplateBinding IsNextButtonVisible}">
+            <Path Width="24" Height="24"
+                  Stretch="None"
+                  Data="{StaticResource FiliChevronRightGeometry}"
+                  Fill="{Binding $parent[PipsPager].Foreground}" />
+          </Button>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type PipsPager}" TargetType="PipsPager" BasedOn="{StaticResource FiliPipsPager}" />
+
+</ResourceDictionary>

@@ -1,0 +1,93 @@
+<!--
+  TabStrip and TabStripItem: MudTabs, again.
+
+  A TabStrip is a TabControl's header row with no content area - Avalonia splits them into two
+  control types, MudBlazor does not. So the metrics here are the same ones Controls/TabControl
+  .axaml already transcribed from _tabs.scss, and they are deliberately written out rather than
+  shared: a ControlTheme cannot be BasedOn another whose TargetType differs, and inventing a
+  shared resource for four values would be more indirection than repetition.
+
+    48px minimum height, 12px/6px padding, button type at Medium
+    label text-secondary, going to primary when selected
+    a 2px indicator in primary under the selected item, and a hairline under the strip
+
+  If either file changes, change both. The gallery shows them side by side for that reason.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <ControlTheme x:Key="FiliTabStripItem" TargetType="TabStripItem">
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="MinHeight" Value="48" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border x:Name="PART_StateLayer" Background="Transparent" />
+
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+          <Border x:Name="PART_Indicator"
+                  Height="2"
+                  VerticalAlignment="Bottom"
+                  Background="Transparent" />
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+    </Style>
+
+    <Style Selector="^:selected">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:selected /template/ Border#PART_Indicator">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="FiliTabStrip" TargetType="TabStrip">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
+    <Setter Property="ItemContainerTheme" Value="{StaticResource FiliTabStripItem}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <!-- The hairline the strip sits on, which is what separates it from the content an app
+             puts below it. A TabControl draws the same rule inside its own template. -->
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{DynamicResource FiliDividerBrush}"
+                BorderThickness="0,0,0,1">
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type TabStrip}" TargetType="TabStrip" BasedOn="{StaticResource FiliTabStrip}" />
+  <ControlTheme x:Key="{x:Type TabStripItem}" TargetType="TabStripItem" BasedOn="{StaticResource FiliTabStripItem}" />
+
+</ResourceDictionary>

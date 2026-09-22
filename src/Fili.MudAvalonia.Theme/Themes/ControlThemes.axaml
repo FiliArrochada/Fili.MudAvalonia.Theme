@@ -44,6 +44,8 @@
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ProgressBar.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Separator.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TabControl.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TabStrip.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/PipsPager.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ScrollBar.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Menu.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Notifications.axaml" />

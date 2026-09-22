@@ -30,7 +30,7 @@ public class StandaloneReadinessTests
     /// Every ControlTheme this package ships. Adding one means adding it here, which keeps the
     /// coverage number honest and makes the list double as an inventory.
     /// </summary>
-    private static readonly string[] ThemeKeys =
+    internal static readonly string[] ThemeKeys =
     [
         "FiliContainedButton", "FiliTextButton", "FiliOutlinedButton",
         "FiliStandardTextBox", "FiliFilledTextBox", "FiliOutlinedTextBox",
@@ -45,6 +45,7 @@ public class StandaloneReadinessTests
         "FiliExpander", "FiliExpanderToggle",
         "FiliLabel", "FiliDataValidationErrors",
         "FiliSlider", "FiliTabControl", "FiliTabItem",
+        "FiliTabStrip", "FiliTabStripItem", "FiliPipsPager",
         "FiliProgressBar", "FiliSeparator",
         "FiliScrollBar",
         "FiliMenu", "FiliMenuItem", "FiliTopLevelMenuItem", "FiliContextMenu",
@@ -88,25 +89,24 @@ public class StandaloneReadinessTests
         Assert.Equal(
             [
                 "AutoCompleteBox", "Button", "ButtonSpinner", "CheckBox", "ComboBox",
-                "ComboBoxItem", "ContextMenu", "DataValidationErrors", "DropDownButton",
-                "Expander",
+                "ComboBoxItem", "ContextMenu", "DataValidationErrors", "DropDownButton", "Expander",
                 "FlyoutPresenter", "HyperlinkButton", "Label", "ListBox", "ListBoxItem", "Menu",
                 "MenuFlyoutPresenter", "MenuItem", "NotificationCard", "NumericUpDown",
-                "ProgressBar", "RadioButton",
-                "RepeatButton", "ScrollBar", "Separator", "Slider", "SplitButton", "TabControl",
-                "TabItem",
+                "PipsPager", "ProgressBar", "RadioButton", "RepeatButton", "ScrollBar",
+                "Separator", "Slider", "SplitButton", "TabControl", "TabItem", "TabStrip",
+                "TabStripItem",
                 "TextBox", "ToggleButton", "ToggleSwitch", "ToolTip", "TreeView", "TreeViewItem",
                 "WindowNotificationManager",
             ],
             themed.Select(t => t.Name).ToArray());
 
-        // THE NUMBER THAT SAYS HOW MUCH OF THE FORK IS STILL DOING THE WORK. 36 of 89 templated
-        // control types are hand-written here; the other 53 are still wearing the forked Simple
+        // THE NUMBER THAT SAYS HOW MUCH OF THE FORK IS STILL DOING THE WORK. 39 of 89 templated
+        // control types are hand-written here; the other 50 are still wearing the forked Simple
         // templates from Themes/Base. Pinned rather than merely reported, so it cannot drift
         // unnoticed and so an Avalonia version that adds controls surfaces as a failure here.
         var templated = TemplatedControlTypes();
 
-        Assert.Equal(36, themed.Count);
+        Assert.Equal(39, themed.Count);
         Assert.Equal(89, templated.Count);
     });
 
