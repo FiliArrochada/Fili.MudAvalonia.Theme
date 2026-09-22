@@ -135,6 +135,13 @@ Two conversions are already applied and should stay applied consistently:
   with `StartsWith`, not `Equal`. And do not swap in the variable `Roboto[wdth,wght].ttf` —
   Avalonia picks a face per weight rather than setting an axis, so Light and Medium would render
   as Regular.
+- **RTL needs nothing from a template, and one thing from a glyph.** Avalonia mirrors a whole
+  subtree with a single transform where the flow direction CHANGES, so hardcoded `Left`/`Right`
+  alignment, dock sides and grid columns flip on their own — do not "fix" them. What does need
+  saying is the opposite: a glyph that must NOT mirror (a checkmark) opts out with
+  `FlowDirection="LeftToRight"`, while a directional one (a disclosure arrow) is left alone.
+  Note also that `HasMirrorTransform` is false *inside* the subtree, and that measuring the flip
+  requires translating a point across the boundary, not to the mirrored panel.
 - **A selector may cross only ONE `/template/` boundary.** Two hops throw
   `InvalidOperationException: ControlTemplate styles cannot contain multiple template selectors`
   when the theme is first instantiated — it compiles fine, and because the throw happens while the

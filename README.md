@@ -276,6 +276,37 @@ overrides the snackbar's own 400.
 them is load-bearing: the key frame that sets `IsClosed` at 100% is what actually removes a card.
 A theme that drops it renders beautifully and leaves notifications on screen forever.
 
+### Right to left
+
+Set `FlowDirection="RightToLeft"` and everything mirrors. No template in this package does
+anything to make that happen, and that is the finding rather than an omission:
+
+> **Avalonia mirrors an entire subtree with a single transform, applied where the flow direction
+> CHANGES** — not per control.
+
+So grid columns, dock sides and `Left`/`Right` alignment all flip on their own. The numeric
+field's spin column moves to the left, the tree indents from the right, the split button's
+rounded corners swap ends, and the inset divider indents from the right, none of which is coded
+for anywhere. MudBlazor reaches the same place with logical CSS properties (`margin-inline-end`,
+`padding-inline-start`), which is exactly why those have no counterpart here.
+
+**The exception is a glyph that must not mirror.** A checkmark is not a directional symbol, so
+Material's bidirectionality guidance leaves it alone — a reversed tick just looks broken. The
+three checkbox glyphs therefore opt out with `FlowDirection="LeftToRight"`, which is the same
+thing Avalonia's own Simple theme does to its check path and is how the case was spotted at all.
+
+Arrows are deliberately **not** opted out. A tree's disclosure arrow *should* point left in RTL,
+and the mirror gives that for free; pinning it left-to-right would leave it pointing away from
+the content it opens. `RightToLeftTests` asserts both halves of that split.
+
+Two things to know if you go looking:
+
+- Measuring the mirror requires **crossing the boundary**. Translate a point to the mirrored
+  panel and the coordinates are still left-to-right; translate it to the window and the flip
+  appears. The first version of that test failed for exactly this reason.
+- `HasMirrorTransform` is false on the controls *inside* an RTL subtree. It is true only on the
+  element where the direction changed.
+
 ### Keyboard focus
 
 Every interactive control lights its state layer on `:focus-visible` — the same tint hovering
@@ -740,12 +771,10 @@ And the things that are not controls:
 - **No counter under a field.** The error/helper line exists; `MudTextField`'s character counter
   would need an attached property.
 - **No `divider-light` token**, so `MudDivider`'s `light` variant is not implemented.
-- **No RTL.** Nothing here handles `FlowDirection`, and several templates hardcode a side — the
-  numeric field's spin column docks right, floating labels align left, the inset divider indents
-  from the left, the tree indents from the left. MudBlazor's own CSS is written with **logical**
-  properties for exactly this reason (`margin-inline-end`, `padding-inline-start`), so mirroring
-  is intended behaviour there rather than an afterthought. This is a known gap with a planned
-  pass, not a decision.
+- **RTL works, with one deliberate exception** — see *Right to left* above. The remaining gap is
+  narrow: no control here has a *bidi-aware* behaviour beyond mirroring, so if one ever needs to
+  keep a numeral or a code fragment left-to-right inside otherwise-RTL content, that is the app's
+  `FlowDirection` to set, not the theme's.
 - **No spacing utility classes.** The 4px scale exists as values; `pa-4`-style generated classes
   do not.
 - **The tab indicator does not slide** between tabs — see *Slider and tabs*.
