@@ -426,6 +426,40 @@
         </StackPanel>
       </StackPanel>
 
+      <!-- Right to left -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Right to left" />
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="The same controls under FlowDirection=RightToLeft. Avalonia mirrors the whole subtree with one transform at the point the direction changes, so grid columns, docks and Left/Right alignment all flip without the templates knowing — which is why MudBlazor's logical properties (margin-inline-end and friends) need no counterpart here. What does NOT take care of itself is a glyph that must not mirror." />
+        <StackPanel FlowDirection="RightToLeft" Spacing="12" HorizontalAlignment="Left" Width="760">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <CheckBox Content="مفعل" IsChecked="True" />
+            <CheckBox Content="غير محدد" IsChecked="{x:Null}" IsThreeState="True" />
+            <RadioButton Content="خيار" GroupName="rtl" IsChecked="True" />
+            <ToggleSwitch Content="تشغيل" IsChecked="True" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBox Width="190" PlaceholderText="البريد" Text="محتوى" />
+            <ComboBox Width="190" PlaceholderText="اختر" SelectedIndex="0">
+              <ComboBoxItem>عنصر</ComboBoxItem>
+            </ComboBox>
+            <NumericUpDown Width="150" Value="42" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="primary" Content="حفظ" />
+            <Separator Classes="vertical" />
+            <TreeView Classes="surface" Width="200" Height="96">
+              <TreeViewItem Header="المكتبة" IsExpanded="True">
+                <TreeViewItem Header="مثبت" />
+              </TreeViewItem>
+            </TreeView>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+
       <!-- Semantic colours in use -->
       <StackPanel Spacing="8">
         <TextBlock Classes="overline" Text="Semantic colours" />
