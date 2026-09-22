@@ -36,12 +36,24 @@
                      Width="40" Height="40"
                      Fill="Transparent" />
 
-            <!-- Unchecked and checked are separate glyphs, not one box that fills. -->
+            <!--
+              Unchecked and checked are separate glyphs, not one box that fills.
+
+              FlowDirection="LeftToRight" on each is the RIGHT-TO-LEFT opt-out. Avalonia mirrors
+              a whole subtree with one transform wherever the flow direction changes, so under RTL
+              the tick would come out reversed - and a checkmark is not a directional symbol, so
+              Material's bidirectionality guidance says it must not mirror. Avalonia's own Simple
+              theme pins its check path the same way, which is how this was found.
+
+              Arrows and chevrons are deliberately NOT opted out: a tree's disclosure arrow SHOULD
+              point left in RTL, and the mirror gives that for free.
+            -->
             <Path x:Name="PART_Unchecked"
                   Width="24" Height="24"
                   Stretch="None"
                   Data="{StaticResource FiliCheckBoxUncheckedGeometry}"
                   Fill="{DynamicResource FiliActionDefaultBrush}"
+                  FlowDirection="LeftToRight"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center" />
 
@@ -50,6 +62,7 @@
                   Stretch="None"
                   Data="{StaticResource FiliCheckBoxCheckedGeometry}"
                   Fill="{DynamicResource FiliPrimaryBrush}"
+                  FlowDirection="LeftToRight"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   IsVisible="False" />
@@ -59,6 +72,7 @@
                   Stretch="None"
                   Data="{StaticResource FiliCheckBoxIndeterminateGeometry}"
                   Fill="{DynamicResource FiliPrimaryBrush}"
+                  FlowDirection="LeftToRight"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   IsVisible="False" />
