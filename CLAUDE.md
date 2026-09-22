@@ -195,7 +195,7 @@ Two consequences to keep in mind when editing:
   the correct way.)
 
 **Coverage is pinned, not reported.** `StandaloneReadinessTests` asserts the exact set of
-hand-written themes — **36 of the 89 templated types** — plus the count of both. The other 53 wear
+hand-written themes — **39 of the 89 templated types** — plus the count of both. The other 50 wear
 forked templates, and `SimpleBridgeTests` asserts the ~96 contract keys those paint from still
 resolve in both variants. Adding a theme means adding its `Fili*` key AND its target type to the
 first test in the same change; that is what keeps the number honest and turns an Avalonia version

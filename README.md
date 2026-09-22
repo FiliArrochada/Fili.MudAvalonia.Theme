@@ -74,6 +74,26 @@ Four variant classes, each backed by a `ControlTheme`:
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
+**All 44 of them, which is the list to grep an app against before adopting:**
+
+| | |
+|---|---|
+| Type ramp (`TextBlock`) | `h1`–`h6`, `subtitle1`, `subtitle2`, `body1`, `body2`, `caption`, `overline` |
+| Surfaces (`Border`) | `surface`, `appbar`, `elevation0/1/2/4/6/8/12/16/24` |
+| Colour (`Color`) | `primary`, `secondary`, `info`, `success`, `warning`, `error`, `inherit` |
+| Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
+| Size (`Size`) | `small`, `medium`, `large`, `dense` |
+| Placement | `inset`, `middle`, `vertical`, `underline`, `no-underline` |
+
+`ClassVocabularyTests` asserts that list is exactly what the theme uses, in both directions — an
+undeclared class is a collision nobody signed off on, and a declared one no selector uses is a
+lie to adopters. It walks the styles *and* the control themes, because the variant names live in
+a resource dictionary rather than in the styles collection: walking only `Application.Styles`
+finds 28 of the 44.
+
+Note how ordinary those words are — `small`, `flat`, `middle`, `vertical`, `error`. That is the
+hazard, and it is why the list is a published interface rather than an implementation detail.
+
 The cost is real and adopters should expect it: **an app that already uses those words gets its
 controls retemplated the moment it includes this theme.** Fili.PlaySphere collided on `primary`
 in 20 places on its first day. Nothing broke visibly — its `/template/` selectors still matched
@@ -195,6 +215,19 @@ the data is already in 0–24 space.
 The indicator does not slide between tabs — that needs to measure both headers and animate
 between them, which means code-behind and a custom panel. A per-item indicator that fades is the
 declarative 90%.
+
+**`TabStrip` is the same thing without a content area.** Avalonia splits the header row and the
+tab control into two types; MudBlazor does not, so both carry the same metrics. They are written
+out twice rather than shared, because a `ControlTheme` cannot be `BasedOn` one whose `TargetType`
+differs — if you change one, change the other, which is why the gallery shows them together.
+
+**`PipsPager` is MudCarousel's bullets, not `MudPagination`.** Avalonia has no numbered pager, and
+`MudCarousel.razor.cs` names the parts exactly: `CheckedIcon` is `RadioButtonChecked`,
+`UncheckedIcon` is `RadioButtonUnchecked`, and the arrows are `NavigateBefore`/`NavigateNext`. So
+the pips are **the same two glyphs the radio button uses** — selecting one swaps the glyph, a ring
+gaining a disc, rather than a dot changing colour. The 0.75 opacity on the row is transcribed from
+the inline style in that razor file. (`NavigateNext` turns out to be byte-identical to
+`ChevronRight`, so `Icons.axaml` carries one path under the name it was first needed for.)
 
 ### Progress, dividers, panels and links
 
@@ -454,7 +487,7 @@ Simple theme at 12.1.2**, rebased onto this package and repaletted by a single h
 `Themes/Base/Accents.axaml`, which redefines the ~96 resource keys those templates paint from in
 terms of Fili tokens. One file repalettes all 79.
 
-On top of that sit **hand-written Material control themes for 36 of the 89 templated control
+On top of that sit **hand-written Material control themes for 39 of the 89 templated control
 types**, which win over their forked counterparts because `FiliTheme.axaml` is included second:
 
 | | |
@@ -462,8 +495,8 @@ types**, which win over their forked counterparts because `FiliTheme.axaml` is i
 | Buttons | `Button`, `ToggleButton`, `RepeatButton`, `HyperlinkButton`, `SplitButton`, `DropDownButton` |
 | Fields | `TextBox`, `ComboBox`, `ComboBoxItem`, `NumericUpDown`, `ButtonSpinner`, `AutoCompleteBox`, `Label`, `DataValidationErrors` |
 | Selection | `CheckBox`, `RadioButton`, `ToggleSwitch` |
-| Collections | `ListBox`, `ListBoxItem`, `TreeView`, `TreeViewItem`, `TabControl`, `TabItem`, `Expander` |
-| Indicators | `Slider`, `ProgressBar`, `Separator`, `ScrollBar` |
+| Collections | `ListBox`, `ListBoxItem`, `TreeView`, `TreeViewItem`, `TabControl`, `TabItem`, `TabStrip`, `TabStripItem`, `Expander` |
+| Indicators | `Slider`, `ProgressBar`, `PipsPager`, `Separator`, `ScrollBar` |
 | Menus and overlays | `Menu`, `MenuItem`, `ContextMenu`, `ToolTip`, `FlyoutPresenter`, `MenuFlyoutPresenter` |
 | Notifications | `NotificationCard`, `WindowNotificationManager` |
 
@@ -471,7 +504,7 @@ types**, which win over their forked counterparts because `FiliTheme.axaml` is i
 build, and so an Avalonia version that adds control types shows up as a failure rather than as a
 gap nobody noticed.
 
-The other 53 keep the forked templates. Most of them are Avalonia plumbing MudBlazor has no
+The other 50 keep the forked templates. Most of them are Avalonia plumbing MudBlazor has no
 counterpart for — `PopupRoot`, `AdornerLayer`, `TextSelectionHandle`, `ManagedFileChooser`,
 `CommandBar`, the `*Page` shell types — and keeping those byte-faithful is what makes an Avalonia
 upgrade a re-download and a diff.
@@ -702,7 +735,7 @@ Every token is asserted to resolve under **both** theme variants. Add a token, a
 | Elevation | `Themes/Elevation.axaml` | Levels 0–24, three stacked shadow layers each. |
 | Typography | `Themes/Typography.axaml` | Roboto, embedded; base size **14px**, not 16. |
 | Controls | `Themes/ControlThemes.axaml` | Aggregator; one file per control under `Themes/Controls/`. Keyed by type. |
-| Icons | `Themes/Icons.axaml` | The nine Material glyphs the templates cannot do without. Not an icon set. |
+| Icons | `Themes/Icons.axaml` | The ten Material glyphs the templates cannot do without. Not an icon set. |
 | Geometry | `Themes/Geometry.axaml` | 4px radius, 4px spacing scale, appbar and drawer sizes. |
 
 Three things worth knowing before changing any of them:
@@ -745,15 +778,21 @@ theme, and only a real layout exposes flat hierarchy and wrong spacing.
 
 ## Known gaps
 
-**36 of the 89 templated control types are hand-written**; the other 53 wear forked Simple
+**39 of the 89 templated control types are hand-written**; the other 50 wear forked Simple
 templates repaletted onto these tokens. Nothing is invisible and nothing external is required —
 the remaining gap is Material *shape*, not colour.
 
 Controls MudBlazor has a counterpart for and this theme does not, roughly by how often an app
 hits them:
 
-- **`Carousel`, `TabStrip`, `PipsPager` (MudPagination), `GroupBox`** — one SCSS file and one
-  template each.
+- **`Carousel`, `CarouselPage` and `GroupBox` are deliberately left forked**, which closes the
+  list rather than leaving it open. `.mud-carousel` is `display: flex; position: relative;
+  overflow: hidden` plus transition keyframes — its visible chrome is icon buttons and bullets,
+  which are themed elsewhere, and the forked template is already a clipped `ScrollViewer` with no
+  decoration. `CarouselPage` is one of Avalonia's shell page types, like `NavigationPage` and
+  `TabbedPage`, and was never in scope. `GroupBox` has no MudBlazor counterpart at all: the
+  nearest things are `MudCard` and `MudPaper`, which are different shapes, so theming it would be
+  invention rather than transcription.
 - **The date and time pickers** (`Calendar` and its four helpers, `DatePicker`, `TimePicker`) and
   **`TableView`**. These are not restyling jobs: `MudDatePicker` and `MudTable` are bespoke
   components, so matching them means a rewrite per template with no shortcut. A real data grid is
