@@ -39,6 +39,7 @@
 
   <!-- Standard / Variant.Text: no fill, no box, just the rule. MudTextField's default. -->
   <ControlTheme x:Key="FiliStandardTextBox" TargetType="TextBox">
+    <Setter Property="MinWidth" Value="{DynamicResource FiliInputMinWidth}" />
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="Transparent" />

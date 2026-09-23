@@ -22,6 +22,20 @@
   <sys:Double x:Key="FiliDrawerWidth">240</sys:Double>
   <sys:Double x:Key="FiliDrawerMiniWidth">56</sys:Double>
 
+  <!--
+    THE MEASUREMENT FLOOR FOR INPUTS, and the one number in this file MudBlazor cannot supply.
+    Every MudBlazor field is width: 100%, so CSS never has to answer "how wide is this control
+    when nothing stretches it?" - Avalonia asks that of anything not stretched, and a field
+    template's answer is its CONTENT, which for an empty field is zero. The result is a control
+    that renders nothing at all: no error, no missing key, just a label with blank space where
+    the input should be. Fili.Plex's debrid API-token box shipped exactly that, and its
+    interface-scale slider shipped as a lone dot.
+
+    This is a floor and not a size. A stretched field ignores it completely, which is the
+    behaviour that actually matches width: 100%.
+  -->
+  <sys:Double x:Key="FiliInputMinWidth">120</sys:Double>
+
   <!-- 4px spacing scale -->
   <sys:Double x:Key="FiliSpacing1">4</sys:Double>
   <sys:Double x:Key="FiliSpacing2">8</sys:Double>

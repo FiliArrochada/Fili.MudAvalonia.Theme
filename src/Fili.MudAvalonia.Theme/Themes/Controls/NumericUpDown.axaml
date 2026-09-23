@@ -126,6 +126,7 @@
   </ControlTheme>
 
   <ControlTheme x:Key="FiliNumericUpDown" TargetType="NumericUpDown">
+    <Setter Property="MinWidth" Value="{DynamicResource FiliInputMinWidth}" />
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="0" />

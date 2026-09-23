@@ -79,6 +79,18 @@
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="MinHeight" Value="40" />
 
+    <!--
+      A MEASUREMENT FLOOR, and the one number here MudBlazor cannot supply. `.mud-slider` is
+      width: 100%, so in CSS the question never arises; the Avalonia equivalent is the default
+      HorizontalAlignment="Stretch", and a slider that keeps it needs nothing from this setter.
+      A slider that opts OUT of stretch - HorizontalAlignment="Left", or an Auto grid column -
+      measures to its desired width instead, and a Track's desired width is zero. What renders
+      then is the thumb and nothing else: a single dot where a control should be, with no error
+      and no missing resource to find. Fili.Plex's interface-scale slider shipped exactly that.
+      FiliInputMinWidth is a floor, not a size, and does not constrain a stretched slider.
+    -->
+    <Setter Property="MinWidth" Value="{DynamicResource FiliInputMinWidth}" />
+
     <Setter Property="Template">
       <ControlTemplate>
         <Grid x:Name="PART_Container" Margin="{TemplateBinding Padding}">
