@@ -62,13 +62,20 @@
   </Style>
 
   <!--
-    Only the NON-inheritable metrics belong on TextBlock. LineHeight and LetterSpacing do not
-    inherit, so there is no way to set them from the container.
+    LineHeight and LetterSpacing do NOT go on a blanket TextBlock selector, and this is the
+    third costume of the same trap.
+
+    They were there once, set to body2's metrics on every TextBlock in the app. That silently
+    CLIPS any text bigger than 20px: a 28px heading gets a 20px line box and loses its
+    descenders. It cost Fili.PlaySphere every page title - "Game library" and "Settings" rendered
+    with their tails cut off - and it was invisible in this package's own gallery, because the
+    gallery labels everything with a ramp class that sets its own LineHeight.
+
+    That is the giveaway: a blanket style is only safe when every control it reaches also gets
+    the matching value. An adopter's own type scale never will, because it does not know this
+    rule exists. So the metrics live on the ramp classes below, and unclassed text keeps the
+    font's natural line height, which cannot clip.
   -->
-  <Style Selector="TextBlock">
-    <Setter Property="LineHeight" Value="{DynamicResource FiliBody2LineHeight}" />
-    <Setter Property="LetterSpacing" Value="{DynamicResource FiliBody2LetterSpacing}" />
-  </Style>
 
   <Style Selector="TextBlock.h1">
     <Setter Property="FontSize" Value="{DynamicResource FiliH1FontSize}" />
@@ -279,6 +286,35 @@
     <Setter Property="OpenPaneLength" Value="{DynamicResource FiliDrawerWidth}" />
     <Setter Property="CompactPaneLength" Value="{DynamicResource FiliDrawerMiniWidth}" />
     <Setter Property="PaneBackground" Value="{DynamicResource FiliDrawerBackgroundBrush}" />
+  </Style>
+
+  <!--
+    The pane's edge. Avalonia's Simple SplitView already carries a 1px Rectangle for it, named
+    HCPaneBorder and left Transparent, so no fork edit and no ControlTheme are needed - only a
+    Fill. It stays invisible in light and dark, where the drawer is separated by its own
+    background, and appears in High Contrast, where both grounds are black and the rail would
+    otherwise dissolve into the page.
+
+    THE FOUR SELECTORS ARE NOT PADDING, and this is the sharpest priority rule in Avalonia:
+
+      Animation < LocalValue < StyleTrigger < Template < Style
+
+    Lower binds harder. A value written INSIDE a ControlTemplate - like this rectangle's
+    Fill="Transparent" - binds at Template, which OUTRANKS an ordinary Style. So the obvious
+    `SplitView /template/ Rectangle#HCPaneBorder` setter does nothing at all, silently, and looks
+    for all the world like a selector that failed to match. Add an activator - any pseudo-class -
+    and the same setter binds at StyleTrigger instead, which does win. That is also why the
+    floating-label transforms elsewhere in this package work: every one of them is on a `:focus`.
+
+    Those are the four values DisplayMode can take, so between them they are always true. Naming
+    them is the honest way to buy the activator; a `:not(.some-class-nobody-applies)` would buy
+    the same thing while pretending to mean something.
+  -->
+  <Style Selector="SplitView:inline /template/ Rectangle#HCPaneBorder,
+                   SplitView:compactinline /template/ Rectangle#HCPaneBorder,
+                   SplitView:overlay /template/ Rectangle#HCPaneBorder,
+                   SplitView:compactoverlay /template/ Rectangle#HCPaneBorder">
+    <Setter Property="Fill" Value="{DynamicResource FiliDrawerBorderBrush}" />
   </Style>
 
   <!-- drawer-text, on the pane only: the content beside it keeps the page's own foreground. -->

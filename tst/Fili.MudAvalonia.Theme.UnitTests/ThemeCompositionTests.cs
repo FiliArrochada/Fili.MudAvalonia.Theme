@@ -659,6 +659,35 @@ public class ThemeCompositionTests
             Assert.IsAssignableFrom<ISolidColorBrush>(drawer.PaneBackground).Color);
     });
 
+    /// <summary>
+    /// An unclassed TextBlock must keep the font's natural line height.
+    /// <para>
+    /// This package used to set body2's LineHeight on a blanket <c>TextBlock</c> selector, which
+    /// silently CLIPPED any text larger than 20px — a 28px heading got a 20px line box and lost
+    /// its descenders. It was invisible here, because this package's own gallery labels
+    /// everything with a ramp class that sets its own LineHeight, and it cost Fili.PlaySphere
+    /// every page title before anyone rendered it.
+    /// </para>
+    /// <para>
+    /// So: the ramp classes carry the metrics, and bare text is left alone. An adopter's type
+    /// scale will never know to opt out of a rule it does not know exists.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task UnclassedTextKeepsItsNaturalLineHeight() => UiThread.RunAsync(() =>
+    {
+        var bare = Templated(new TextBlock { Text = "A heading an app styled itself", FontSize = 28 });
+
+        Assert.True(
+            double.IsNaN(bare.LineHeight),
+            $"A bare TextBlock got LineHeight {bare.LineHeight}, which clips any font taller than it.");
+
+        // The ramp still carries its own metrics, which is where they belong.
+        var body = Templated(new TextBlock { Classes = { "body2" }, Text = "Body" });
+
+        Assert.False(double.IsNaN(body.LineHeight));
+    });
+
     private static Color OverlayHover()
     {
         Application.Current!.TryFindResource("FiliOverlayHoverColor", ThemeVariant.Light, out var value);
