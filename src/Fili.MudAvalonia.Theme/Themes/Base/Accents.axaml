@@ -20,6 +20,7 @@
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:theme="using:Fili.MudAvalonia.Theme"
                     xmlns:sys="using:System">
 
   <!--
@@ -74,6 +75,35 @@
       <Color x:Key="ThemeAccentColor2">#99776BE7</Color>
       <Color x:Key="ThemeAccentColor3">#66776BE7</Color>
       <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
+    </ResourceDictionary>
+
+    <!--
+      High contrast. Only these sixteen raw Colors need restating: everything below the theme
+      dictionaries is a brush bound with DynamicResource to a Fili token, so it follows this
+      variant on its own. Without this block the eighty-one forked templates would paint
+      themselves from the DARK values here - #1FFFFFFF borders over a black ground, which is to
+      say no borders at all - because that is the variant High Contrast inherits from, and the
+      fallback is silent.
+    -->
+    <ResourceDictionary x:Key="{x:Static theme:FiliThemeVariants.HighContrast}">
+      <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
+      <Color x:Key="ThemeForegroundLowColor">#E8E8EE</Color>
+      <Color x:Key="ThemeForegroundMidColor">#E8E8EE</Color>
+      <Color x:Key="ThemeDisabledColor">#CFCFDA</Color>
+      <Color x:Key="ThemeBorderLowColor">#E8E8EE</Color>
+      <Color x:Key="ThemeBorderMidColor">#E8E8EE</Color>
+      <Color x:Key="ThemeBorderHighColor">#FFFFFF</Color>
+      <Color x:Key="ThemeControlLowColor">#000000</Color>
+      <Color x:Key="ThemeControlMidColor">#000000</Color>
+      <Color x:Key="ThemeControlMidHighColor">#E8E8EE</Color>
+      <Color x:Key="ThemeControlHighColor">#E8E8EE</Color>
+      <Color x:Key="ThemeControlHighlightMidColor">#59FFFFFF</Color>
+      <Color x:Key="ThemeAccentColor">#D3C4FF</Color>
+      <Color x:Key="ThemeAccentColor2">#99D3C4FF</Color>
+      <Color x:Key="ThemeAccentColor3">#66D3C4FF</Color>
+      <!-- Black, not white: the high-contrast accent is a LIGHT lavender, so the label sitting
+           on a selected row has to invert with it. -->
+      <Color x:Key="HighlightForegroundColor">#000000</Color>
     </ResourceDictionary>
 
   </ResourceDictionary.ThemeDictionaries>

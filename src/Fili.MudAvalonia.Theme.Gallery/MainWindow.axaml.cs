@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Fili.MudAvalonia.Theme;
 
 namespace Fili.MudAvalonia.Theme.Gallery;
 
@@ -11,19 +11,29 @@ public partial class MainWindow : Window
     public MainWindow() => AvaloniaXamlLoader.Load(this);
 
     /// <summary>
-    /// Flips the application theme variant at runtime. This is the single most useful thing
+    /// Switches the application theme variant at runtime. This is the single most useful thing
     /// the gallery does: every token that was wired with StaticResource instead of
     /// DynamicResource stops following the theme here, visibly, in one click.
     /// </summary>
-    private void OnThemeToggled(object? sender, RoutedEventArgs e)
+    /// <remarks>
+    /// The variant goes on the APPLICATION and not on this window, and that is not a shortcut.
+    /// Every brush in the theme is one shared application-level object whose Color is a
+    /// DynamicResource, so a window asking for a different variant gets the same brush instance
+    /// and therefore the same colour.
+    /// </remarks>
+    private void OnVariantChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (Application.Current is null || sender is not ToggleSwitch toggle)
+        if (Application.Current is null || sender is not ComboBox selector)
         {
             return;
         }
 
-        Application.Current.RequestedThemeVariant =
-            toggle.IsChecked == true ? ThemeVariant.Dark : ThemeVariant.Light;
+        Application.Current.RequestedThemeVariant = selector.SelectedIndex switch
+        {
+            1 => ThemeVariant.Dark,
+            2 => FiliThemeVariants.HighContrast,
+            _ => ThemeVariant.Light,
+        };
     }
 
     /// <summary>

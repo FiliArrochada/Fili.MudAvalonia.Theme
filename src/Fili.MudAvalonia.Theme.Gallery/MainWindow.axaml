@@ -36,12 +36,24 @@
               <ComboBoxItem>Fluent</ComboBoxItem>
             </ComboBox>
           </StackPanel>
-          <ToggleSwitch x:Name="ThemeToggle"
-                        VerticalAlignment="Center"
-                        OnContent="Dark"
-                        OffContent="Light"
-                        Foreground="{DynamicResource FiliAppbarTextBrush}"
-                        IsCheckedChanged="OnThemeToggled" />
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Classes="caption"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource FiliAppbarTextBrush}"
+                       Text="Variant" />
+            <!-- A selector rather than the light/dark switch it replaces, because there are three
+                 variants now and high contrast is the one worth being able to reach in one click:
+                 it is the only variant whose tokens are derived rather than transcribed. -->
+            <ComboBox x:Name="VariantSelector"
+                      Width="140"
+                      SelectedIndex="0"
+                      VerticalAlignment="Center"
+                      SelectionChanged="OnVariantChanged">
+              <ComboBoxItem>Light</ComboBoxItem>
+              <ComboBoxItem>Dark</ComboBoxItem>
+              <ComboBoxItem>High contrast</ComboBoxItem>
+            </ComboBox>
+          </StackPanel>
         </StackPanel>
       </Grid>
     </Border>

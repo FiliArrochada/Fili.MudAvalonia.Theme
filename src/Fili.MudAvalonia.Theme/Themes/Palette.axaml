@@ -10,7 +10,8 @@
     0.30 -> 4D   0.38 -> 61   0.50 -> 80   0.54 -> 8A   0.70 -> B3
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:theme="using:Fili.MudAvalonia.Theme">
 
   <ResourceDictionary.ThemeDictionaries>
 
@@ -49,6 +50,11 @@
       <Color x:Key="FiliDrawerBackgroundColor">#FFFFFF</Color>
       <Color x:Key="FiliDrawerTextColor">#424242</Color>
       <Color x:Key="FiliDrawerIconColor">#616161</Color>
+      <!-- The drawer's edge. Transparent here and in dark, where the pane is separated by its
+           own background colour; High Contrast is where it has to exist, because there both
+           grounds are black. Avalonia's Simple SplitView already carries the rectangle for it
+           (HCPaneBorder), so lighting it up costs a Style and no template. -->
+      <Color x:Key="FiliDrawerBorderColor">#00000000</Color>
 
       <Color x:Key="FiliLinesDefaultColor">#1F000000</Color>
       <Color x:Key="FiliLinesInputsColor">#BDBDBD</Color>
@@ -78,6 +84,18 @@
         both, not Material spec 6%.
       -->
       <Color x:Key="FiliInputFilledColor">#17000000</Color>
+
+      <!--
+        Non-varying between LIGHT and DARK, and that is still MudBlazor's behaviour - but they
+        live in the variant dictionaries rather than below them, because HIGH CONTRAST has to
+        override them and a token declared outside the theme dictionaries CANNOT be overridden
+        by one: a dictionary's own entries are found before its ThemeDictionaries, so the outer
+        value wins in every variant. Scrim: Palette.cs OverlayDark is #212121 at 50%, not black.
+        Tooltip: _tooltip.scss paints `mud-palette-gray-darker` = Colors.Gray.Darken2, solid.
+      -->
+      <Color x:Key="FiliOverlayDarkColor">#80212121</Color>
+      <Color x:Key="FiliOverlayLightColor">#80FFFFFF</Color>
+      <Color x:Key="FiliTooltipBackgroundColor">#616161</Color>
 
     </ResourceDictionary>
 
@@ -116,6 +134,7 @@
       <Color x:Key="FiliDrawerBackgroundColor">#27272F</Color>
       <Color x:Key="FiliDrawerTextColor">#80FFFFFF</Color>
       <Color x:Key="FiliDrawerIconColor">#80FFFFFF</Color>
+      <Color x:Key="FiliDrawerBorderColor">#00000000</Color>
 
       <Color x:Key="FiliLinesDefaultColor">#1FFFFFFF</Color>
       <Color x:Key="FiliLinesInputsColor">#4DFFFFFF</Color>
@@ -131,6 +150,115 @@
       <Color x:Key="FiliOverlayPressedColor">#29FFFFFF</Color>
 
       <Color x:Key="FiliInputFilledColor">#17FFFFFF</Color>
+
+      <!-- Same three as Light, same values: varying only in High Contrast. -->
+      <Color x:Key="FiliOverlayDarkColor">#80212121</Color>
+      <Color x:Key="FiliOverlayLightColor">#80FFFFFF</Color>
+      <Color x:Key="FiliTooltipBackgroundColor">#616161</Color>
+
+    </ResourceDictionary>
+
+    <!-- ========================= HIGH CONTRAST ========================== -->
+    <!--
+      NOT a MudBlazor palette. MudBlazor ships light and dark and nothing else, so there was
+      nothing to transcribe here; this variant is derived, and the reference for how an app
+      wants it to behave is Fili.PlaySphere's Palette.HighContrast.axaml.
+
+      Three rules produced every value below.
+
+      1. SEPARATION COMES FROM LINES, NOT FROM FILLS. Surface sits one step off the page ground
+         and is not doing the work - #0D0D0D against #000000 is a difference nobody can see. What
+         divides a card, a menu or a dialog from the page is its outline, which Elevation.axaml
+         supplies in this variant as a hard ring in place of a shadow. That is the standard
+         high-contrast substitution, and it is why this palette needed no control template edits.
+
+      2. NOTHING IS CONVEYED BY ALPHA. Every line and text token here is opaque. The light and
+         dark palettes lean on translucent blacks and whites (#1FFFFFFF for a divider), which
+         composite against whatever is behind them; on a black ground a 12% white line is
+         invisible. Alpha survives in exactly three places, all of them deliberate overlays
+         rather than content: the two state layers, the input fill and the scrims.
+
+      3. DISABLED STILL HAS TO BE LEGIBLE. #CFCFDA against black is about 12:1 - far too strong
+         to read as disabled in a normal palette, which is the point. A user who needs this
+         variant is not served by a control they cannot read at all, so disabled is signalled by
+         being dimmer than enabled rather than by being nearly gone.
+
+      The hues are the MudBlazor ones raised until they clear roughly 10:1 on black, so an app
+      that has not overridden anything still looks like this theme rather than like a generic
+      black-and-white sheet.
+    -->
+    <ResourceDictionary x:Key="{x:Static theme:FiliThemeVariants.HighContrast}">
+
+      <Color x:Key="FiliPrimaryColor">#D3C4FF</Color>
+      <Color x:Key="FiliPrimaryContrastTextColor">#000000</Color>
+      <Color x:Key="FiliSecondaryColor">#FF9DC4</Color>
+      <Color x:Key="FiliSecondaryContrastTextColor">#000000</Color>
+      <Color x:Key="FiliTertiaryColor">#7BF0D6</Color>
+      <Color x:Key="FiliTertiaryContrastTextColor">#000000</Color>
+
+      <Color x:Key="FiliInfoColor">#9CD4FF</Color>
+      <Color x:Key="FiliSuccessColor">#8CFFC0</Color>
+      <Color x:Key="FiliWarningColor">#FFD166</Color>
+      <Color x:Key="FiliErrorColor">#FF9AA8</Color>
+      <Color x:Key="FiliDarkColor">#000000</Color>
+      <Color x:Key="FiliBlackColor">#000000</Color>
+      <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
+
+      <Color x:Key="FiliTextPrimaryColor">#FFFFFF</Color>
+      <Color x:Key="FiliTextSecondaryColor">#E8E8EE</Color>
+      <Color x:Key="FiliTextDisabledColor">#CFCFDA</Color>
+
+      <Color x:Key="FiliActionDefaultColor">#E8E8EE</Color>
+      <Color x:Key="FiliActionDisabledColor">#CFCFDA</Color>
+      <!-- Dark, not the line colour. A disabled field filled at #5A5A66 is the BRIGHTEST thing
+           on the page, which reads as emphasis - the exact opposite of what it means. Disabled is
+           carried by the label staying legible at #CFCFDA, not by the fill shouting. -->
+      <Color x:Key="FiliActionDisabledBackgroundColor">#2B2B33</Color>
+
+      <Color x:Key="FiliBackgroundColor">#000000</Color>
+      <Color x:Key="FiliBackgroundGrayColor">#000000</Color>
+      <Color x:Key="FiliSurfaceColor">#0D0D0D</Color>
+
+      <Color x:Key="FiliAppbarBackgroundColor">#000000</Color>
+      <Color x:Key="FiliAppbarTextColor">#FFFFFF</Color>
+      <Color x:Key="FiliDrawerBackgroundColor">#000000</Color>
+      <Color x:Key="FiliDrawerTextColor">#E8E8EE</Color>
+      <Color x:Key="FiliDrawerIconColor">#E8E8EE</Color>
+      <Color x:Key="FiliDrawerBorderColor">#9C9CA8</Color>
+
+      <!--
+        Inputs get the SAME line as a default border, unlike light and dark where an input
+        outline is stronger than a divider. At this contrast there is no headroom left to make
+        one stronger than the other, so the distinction is dropped rather than faked.
+      -->
+      <Color x:Key="FiliLinesDefaultColor">#E8E8EE</Color>
+      <Color x:Key="FiliLinesInputsColor">#E8E8EE</Color>
+      <Color x:Key="FiliDividerColor">#9C9CA8</Color>
+      <Color x:Key="FiliTableLinesColor">#9C9CA8</Color>
+      <Color x:Key="FiliTableStripedColor">#1F1F1F</Color>
+      <Color x:Key="FiliTableHoverColor">#333333</Color>
+      <Color x:Key="FiliSkeletonColor">#2A2A2A</Color>
+
+      <!--
+        Selection tint at 35%, where light and dark use 6%. Six percent of anything over black
+        is black, so the tint that marks a selected row would simply not exist.
+      -->
+      <Color x:Key="FiliPrimaryHoverColor">#59D3C4FF</Color>
+
+      <Color x:Key="FiliOverlayHoverColor">#33FFFFFF</Color>
+      <Color x:Key="FiliOverlayPressedColor">#59FFFFFF</Color>
+
+      <Color x:Key="FiliInputFilledColor">#26FFFFFF</Color>
+
+      <!--
+        Scrims at 90%, not 50%. A half-strength scrim leaves the page legible behind the dialog,
+        which is the exact failure this variant exists to prevent: two competing readable layers
+        and no way to tell which one has focus. The tooltip loses its grey chip for the same
+        reason - at 90% white on #616161 it is the lowest-contrast text in the theme.
+      -->
+      <Color x:Key="FiliOverlayDarkColor">#E6000000</Color>
+      <Color x:Key="FiliOverlayLightColor">#E6FFFFFF</Color>
+      <Color x:Key="FiliTooltipBackgroundColor">#000000</Color>
 
     </ResourceDictionary>
 
@@ -172,6 +300,7 @@
   <SolidColorBrush x:Key="FiliDrawerBackgroundBrush" Color="{DynamicResource FiliDrawerBackgroundColor}" />
   <SolidColorBrush x:Key="FiliDrawerTextBrush"       Color="{DynamicResource FiliDrawerTextColor}" />
   <SolidColorBrush x:Key="FiliDrawerIconBrush"       Color="{DynamicResource FiliDrawerIconColor}" />
+  <SolidColorBrush x:Key="FiliDrawerBorderBrush"     Color="{DynamicResource FiliDrawerBorderColor}" />
 
   <SolidColorBrush x:Key="FiliLinesDefaultBrush" Color="{DynamicResource FiliLinesDefaultColor}" />
   <SolidColorBrush x:Key="FiliLinesInputsBrush"  Color="{DynamicResource FiliLinesInputsColor}" />
@@ -187,8 +316,8 @@
     literal colours - OverlayDark is #212121 at 50%, not black - and PaletteDark does not override
     either one, so the same scrim is correct in both variants.
   -->
-  <SolidColorBrush x:Key="FiliOverlayDarkBrush"  Color="#80212121" />
-  <SolidColorBrush x:Key="FiliOverlayLightBrush" Color="#80FFFFFF" />
+  <SolidColorBrush x:Key="FiliOverlayDarkBrush"  Color="{DynamicResource FiliOverlayDarkColor}" />
+  <SolidColorBrush x:Key="FiliOverlayLightBrush" Color="{DynamicResource FiliOverlayLightColor}" />
 
   <SolidColorBrush x:Key="FiliOverlayHoverBrush"   Color="{DynamicResource FiliOverlayHoverColor}" />
   <SolidColorBrush x:Key="FiliOverlayPressedBrush" Color="{DynamicResource FiliOverlayPressedColor}" />
@@ -200,7 +329,7 @@
     Colors.Gray.Darken2 = #616161, SOLID. An earlier version used 90% alpha, which was Material
     spec rather than what MudBlazor renders.
   -->
-  <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="#616161" />
+  <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="{DynamicResource FiliTooltipBackgroundColor}" />
 
   <SolidColorBrush x:Key="FiliInputFilledBrush"    Color="{DynamicResource FiliInputFilledColor}" />
 

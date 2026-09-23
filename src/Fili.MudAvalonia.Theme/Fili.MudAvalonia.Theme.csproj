@@ -4,7 +4,7 @@
     <RootNamespace>Fili.MudAvalonia.Theme</RootNamespace>
     <AssemblyName>Fili.MudAvalonia.Theme</AssemblyName>
     <PackageId>Fili.MudAvalonia.Theme</PackageId>
-    <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light and dark.</Description>
+    <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light, dark and high contrast.</Description>
     <PackageTags>avalonia;theme;material;design-tokens</PackageTags>
   </PropertyGroup>
 

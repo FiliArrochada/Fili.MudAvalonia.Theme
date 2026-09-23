@@ -5,6 +5,7 @@ using Avalonia.Headless;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Fili.MudAvalonia.Theme;
 using Fili.MudAvalonia.Theme.Gallery.Views;
 
 namespace Fili.MudAvalonia.Theme.Gallery.Desktop;
@@ -47,7 +48,14 @@ internal static class Capture
         {
             app.UseSubstrate(substrate);
 
-            foreach (var variant in new[] { ThemeVariant.Light, ThemeVariant.Dark })
+            // High contrast only on the standalone substrate: it is this package's variant, and
+            // asking Fluent for it would render its dark theme under a filename that claims
+            // otherwise.
+            var variants = substrate == Substrate.Standalone
+                ? new[] { ThemeVariant.Light, ThemeVariant.Dark, FiliThemeVariants.HighContrast }
+                : [ThemeVariant.Light, ThemeVariant.Dark];
+
+            foreach (var variant in variants)
             {
                 app.RequestedThemeVariant = variant;
 
