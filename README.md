@@ -340,6 +340,89 @@ Two things to know if you go looking:
 - `HasMirrorTransform` is false on the controls *inside* an RTL subtree. It is true only on the
   element where the direction changed.
 
+### High contrast
+
+A third variant, and **not a MudBlazor one** — MudBlazor ships light and dark and nothing else, so
+this one is derived rather than transcribed. Select it like any other variant:
+
+```csharp
+Application.Current.RequestedThemeVariant = FiliThemeVariants.HighContrast;
+```
+
+```xml
+<Application xmlns:theme="using:Fili.MudAvalonia.Theme"
+             RequestedThemeVariant="{x:Static theme:FiliThemeVariants.HighContrast}">
+```
+
+**`x:Key="HighContrast"` does not work**, and it does not fail quietly: Avalonia's `ThemeVariant`
+type converter accepts the built-in variants only and throws `NotSupportedException` while the
+merged dictionary is being built, which takes the rest of the theme down with it. A custom variant
+is reachable from XAML only through `x:Static`, so `FiliThemeVariants.HighContrast` is the one
+object every dictionary here — and every adopting app — has to name.
+
+Three rules produced every value in it:
+
+1. **Separation comes from lines, not fills.** `FiliSurfaceColor` sits one step off the page
+   ground and is not doing the work; `#0D0D0D` against `#000000` is a difference nobody can see.
+   What divides a card, a menu or a dialog from the page is its outline.
+2. **Nothing is conveyed by alpha.** Light and dark lean on translucent blacks and whites — a
+   divider is `#1FFFFFFF` — which composite against whatever is behind them. On a black ground a
+   12% white line is not a faint line, it is no line. Alpha survives in six tokens, all of them
+   overlays rather than content: the two state layers, the selection tint, the input fill and the
+   two scrims.
+3. **Disabled still has to be legible.** `#CFCFDA` on black is about 12:1, far too strong to read
+   as disabled in a normal palette, which is the point. Disabled is signalled by being dimmer than
+   enabled, not by being nearly gone.
+
+**The shadow ladder becomes a hard 1px ring.** That is the whole reason this variant needed no
+control template edits: every surface that already asked for a `FiliElevation*` gets its outline
+for free. Two things follow — a surface painted with `FiliElevation0` has no outline here either,
+and **the ring colour is fixed at `#E8E8EE`**, because a `BoxShadows` string cannot carry a
+`DynamicResource`. An app that repaints `FiliLinesDefaultColor` for high contrast will find the
+rings did not follow it.
+
+#### What an adopting app has to do
+
+**Declare the variant, not just the tokens.** `FiliThemeVariants.HighContrast` inherits from
+`ThemeVariant.Dark`, which is load-bearing — it is what lets the eighty-one forked control themes,
+which declare Light and Dark only, work here untouched. It is also the trap: an app that overrides
+palette tokens in its `Light` and `Dark` dictionaries and stops there does **not** get a
+high-contrast version of its own colours. It gets its *dark* ones, silently, because that is what
+the variant falls back to.
+
+```xml
+<ResourceDictionary.ThemeDictionaries>
+  <ResourceDictionary x:Key="Light">   <!-- … --> </ResourceDictionary>
+  <ResourceDictionary x:Key="Dark">    <!-- … --> </ResourceDictionary>
+  <ResourceDictionary x:Key="{x:Static theme:FiliThemeVariants.HighContrast}">
+    <!-- the same Fili* keys again, in this variant's colours -->
+  </ResourceDictionary>
+</ResourceDictionary.ThemeDictionaries>
+```
+
+An app that swaps whole palette dictionaries at runtime rather than using `RequestedThemeVariant`
+— Fili.PlaySphere does — needs nothing new: its high-contrast palette just has to carry the same
+`Fili*` overrides as its other palettes.
+
+### One rule for adopters: no blanket metric styles
+
+The type ramp sets `LineHeight` and `LetterSpacing` on its own classes — `body2`, `h4`, `caption`
+— and **not** on a blanket `TextBlock` selector. That is a scar, not a style preference.
+
+It used to set body2's `LineHeight` on every `TextBlock`. Inside this package that is harmless,
+because the gallery labels everything with a ramp class that supplies its own. In an adopting app
+it is not: Fili.PlaySphere's headings set `FontSize` and nothing else, so a 28px title rendered in
+a 20px line box with its descenders sliced off — on every page, silently, until somebody looked at
+a screenshot.
+
+The rule that falls out, and the reason this section exists at all:
+
+> A blanket style is only safe when **everything it reaches also gets the matching value.**
+
+Inside this package that can be arranged. An adopter's own type scale never will, because it does
+not know the rule exists. So unclassed text keeps the font's natural line height, which cannot
+clip, and `UnclassedTextKeepsItsNaturalLineHeight` keeps it that way.
+
 ### Keyboard focus
 
 Every interactive control lights its state layer on `:focus-visible` — the same tint hovering
@@ -731,12 +814,12 @@ Every token is asserted to resolve under **both** theme variants. Add a token, a
 
 | Group | File | Notes |
 |---|---|---|
-| Palette | `Themes/Palette.axaml` | Light and dark, as `ThemeDictionaries`. Colours and brushes. |
-| Elevation | `Themes/Elevation.axaml` | Levels 0–24, three stacked shadow layers each. |
+| Palette | `Themes/Palette.axaml` | Light, dark and high contrast, as `ThemeDictionaries`. Colours and brushes. |
+| Elevation | `Themes/Elevation.axaml` | Levels 0–24, three stacked shadow layers each — one hard ring each in high contrast. |
 | Typography | `Themes/Typography.axaml` | Roboto, embedded; base size **14px**, not 16. |
 | Controls | `Themes/ControlThemes.axaml` | Aggregator; one file per control under `Themes/Controls/`. Keyed by type. |
 | Icons | `Themes/Icons.axaml` | The ten Material glyphs the templates cannot do without. Not an icon set. |
-| Geometry | `Themes/Geometry.axaml` | 4px radius, 4px spacing scale, appbar and drawer sizes. |
+| Geometry | `Themes/Geometry.axaml` | 4px radius, 4px spacing scale, appbar and drawer sizes, and `FiliInputMinWidth` — the floor that keeps an unstretched empty field from measuring to nothing. |
 
 Three things worth knowing before changing any of them:
 
@@ -745,7 +828,13 @@ Three things worth knowing before changing any of them:
   everywhere. `PrimaryDiffersBetweenVariants` pins this.
 - **Base type is 14px.** That smaller baseline is much of why the look reads dense and tidy, and
   it is the first thing to check when a ported screen feels wrong.
-- **Elevation is not theme-varying**, matching MudBlazor, which uses one shadow array for both.
+- **Elevation does not vary between light and dark**, matching MudBlazor, which uses one shadow
+  array for both — the two dictionaries hold the same ladder character for character, and
+  `LightAndDarkShareTheSameLadder` keeps them that way. High contrast is the exception: there
+  every raised level is a hard 1px ring instead. The ladder lives *inside* the theme dictionaries
+  for that reason alone, and the reason is worth knowing on its own: **a dictionary's own entries
+  are found before its `ThemeDictionaries`**, so a token declared outside them cannot be
+  overridden by a variant. The outer value wins everywhere, silently.
 
 ## Fonts
 
@@ -770,8 +859,13 @@ dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
 ```
 
 Five tabs: palette swatches with computed WCAG contrast ratios, the elevation ladder, the type
-ramp, a control-state matrix, and a realistic sample screen. The theme toggle in the app bar flips
-the variant at runtime — which is the fastest way to find a token that was wired statically.
+ramp, a control-state matrix, and a realistic sample screen. The variant selector in the app bar
+switches between light, dark and high contrast at runtime — which is the fastest way to find a
+token that was wired statically, or one that high contrast never got its own value for.
+
+`--capture <dir>` renders every view in every substrate and variant to PNG without a display, for
+reviewing without running the app. High contrast is captured for the standalone substrate only:
+asking Fluent for it would render Fluent's dark theme under a filename that claims otherwise.
 
 The sample screen matters more than the control matrix: a wall of buttons looks fine under any
 theme, and only a real layout exposes flat hierarchy and wrong spacing.
@@ -817,6 +911,10 @@ And the things that are not controls:
 - **No spacing utility classes.** The 4px scale exists as values; `pa-4`-style generated classes
   do not.
 - **The tab indicator does not slide** between tabs — see *Slider and tabs*.
+- **High contrast does not reach the ring colour.** Every raised surface is outlined there rather
+  than shadowed, but the outline is a `BoxShadows` string and those cannot carry a
+  `DynamicResource`, so `#E8E8EE` is fixed. An app whose high-contrast palette uses a different
+  line colour gets that colour on its borders and this one on its rings.
 - **Elevation reads faintly in dark mode.** Material's shadows are black at low alpha, which is
   nearly invisible on a dark ground; MudBlazor has the same problem and this theme reproduces it
   rather than inventing a lighter shadow. Use `FiliSurfaceBrush` against `FiliBackgroundGrayBrush`

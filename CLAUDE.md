@@ -7,8 +7,14 @@ applies too; this file wins where they differ.
 
 A **design-token theme for Avalonia 12**, not a component library. Resource dictionaries, a set of
 style classes, `ControlTheme`s for the controls a Material look genuinely cannot be faked without,
-and a gallery to look at it all in. No new control *types*, no services, **no PUBLIC API
-surface**. Read `README.md` first; it carries the usage, the token tables and the known gaps.
+and a gallery to look at it all in. No new control *types* and no services. Read `README.md`
+first; it carries the usage, the token tables and the known gaps.
+
+**The public API is ONE TYPE and is meant to stay that way:** `FiliThemeVariants`, whose single
+member is the high-contrast `ThemeVariant`. It cannot be internal, and not for convenience — a
+custom variant is unreachable from XAML except through `x:Static`, so this package's own
+dictionaries and every adopting app both have to be able to name that object. Anything else that
+wants to be public is a design change, not an addition.
 
 `internal` helpers are allowed where XAML genuinely cannot express something — compiled XAML in
 the same assembly can construct an internal type, so nothing leaks to a consumer. There is one
@@ -36,7 +42,8 @@ Consequently:
 
 - Every reference to a token uses `{DynamicResource}`. No exceptions in this repo.
 - **Every new token gets an entry in `ResourceResolutionTests`**, in the same change. That suite
-  asserts every key resolves under *both* theme variants, and it is the only thing standing
+  asserts every key resolves under light and dark, `HighContrastTests` does the same for the third
+  variant AND asserts each token differs from dark, and together they are the only thing standing
   between a typo and a silent no-op.
 
 ## Token provenance
@@ -162,15 +169,41 @@ Two conversions are already applied and should stay applied consistently:
 - **A `DataValidationErrors.Errors` entry is usually an `Exception`**, so binding straight to it
   renders `"System.InvalidOperationException: the message"`. `ErrorMessageConverter` exists for
   exactly that.
-- **A Style setter DOES override a value set inline on a template child.** This is the flip side
-  of the trap above and it is relied on throughout — the floating labels set a resting
-  `RenderTransform` inline and the `:focus` styles override it. Both facts are true at once:
-  styles outrank ControlTheme *setters* and inline *template* values alike.
+- **A Style overrides a value set inline in a template ONLY IF the selector has an activator.**
+  The priority order is `Animation < LocalValue < StyleTrigger < Template < Style`, lower binding
+  harder. A value written inside a `ControlTemplate` binds at **Template**, which OUTRANKS a
+  plain `Style` — so `SplitView /template/ Rectangle#HCPaneBorder { Fill: ... }` does nothing at
+  all, silently, and reads exactly like a selector that failed to match. Add any pseudo-class and
+  the same setter binds at **StyleTrigger**, which wins. This is why the floating labels work:
+  they set a resting `RenderTransform` inline in the template and every style that moves it is on
+  a `:focus`. It is also why the high-contrast drawer edge is selected through the four
+  `DisplayMode` pseudo-classes rather than on the bare type. Pinned by
+  `TheDrawerGainsAnEdgeInHighContrastOnly`.
+- **A dictionary's own entries are found BEFORE its `ThemeDictionaries`.** So a token declared
+  once outside the variant dictionaries cannot be given a per-variant value by adding one - the
+  outer value wins in every variant, silently. This is why the elevation ladder had to move
+  *into* Light and Dark as two identical copies rather than gaining a third dictionary beside it.
+  Pinned by `OwnEntriesWinOverThemeDictionaries`.
+- **`x:Key="HighContrast"` is not a theme variant.** Avalonia's `ThemeVariant` type converter
+  accepts the built-in variants only and throws `NotSupportedException` while the merged
+  dictionary is being built - which takes unrelated themes down with it, like the two-hop selector
+  above. A custom variant is reachable from XAML only through
+  `x:Key="{x:Static theme:FiliThemeVariants.HighContrast}"`.
+- **High contrast inherits from Dark, and the fallback is silent.** A token the high-contrast
+  dictionary does not declare resolves to the dark one, so it neither fails nor goes missing - it
+  comes back subtly wrong, usually as a translucent line over a black ground, which is to say no
+  line. Resolution tests therefore prove nothing here: `EveryPaletteTokenHasItsOwnValue` asserts
+  each token DIFFERS from dark, which is the only evidence the key was actually written.
+- **Every brush in this package is one shared application-level object** whose `Color` is a
+  `DynamicResource`. A per-WINDOW `RequestedThemeVariant` therefore does not work: the window gets
+  the same brush instance and so the same colour. Set the variant on the `Application`.
 - **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
   comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
   is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
   use rather than guessing.
-- **Elevation is deliberately not theme-varying**, matching MudBlazor.
+- **Elevation does not vary between light and dark**, matching MudBlazor - but it DOES vary
+  in high contrast, where every raised level becomes a hard 1px ring instead of a shadow. That is
+  what gives the variant its separation without a single control template knowing it exists.
 
 ## The base is forked, not depended on
 
