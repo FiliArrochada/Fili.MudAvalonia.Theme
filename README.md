@@ -870,6 +870,78 @@ asking Fluent for it would render Fluent's dark theme under a filename that clai
 The sample screen matters more than the control matrix: a wall of buttons looks fine under any
 theme, and only a real layout exposes flat hierarchy and wrong spacing.
 
+## Pixel baselines
+
+Nine frames — three views, standalone, in all three variants — are rendered on every test run and
+compared with PNGs committed under `tst/Fili.MudAvalonia.Theme.PixelTests/Baselines`.
+
+```powershell
+dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+
+# after an intended change, and only after looking at the diff:
+$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+```
+
+**This is the only suite that can notice a control theme restyling a screen nobody was looking
+at.** Everything else asserts that a key resolves, a setter exists, a size is not zero — all of
+which stay true while a frame changes completely. Control themes here are keyed by *type*, so one
+edit reaches everything, and the two worst defects this package has shipped — headings clipped by
+a blanket line height, a field measuring to nothing — were invisible to every assertion in the
+suite and obvious in a picture.
+
+A failure prints the rendered frame, the baseline, and a **diff image**: the layout ghosted in
+grey with changed pixels in red. That picture is the point. Accepting a baseline without opening
+it throws away the only thing the suite produces.
+
+Three things to know before changing any of it:
+
+- **The rendering is shared with the screenshot mode**, in `GalleryFrames`. Two copies of "make a
+  window, measure it, take the frame" drift, and the day they drift the baselines stop describing
+  what `--capture` produces.
+- **The indeterminate `ProgressBar` is masked, by rectangle, located from the live tree.** Its
+  band follows a wall-clock animation, so two runs of the same build differ by about eighty
+  pixels there and nowhere else. A tolerance budget wide enough to absorb that would also absorb
+  a redrawn glyph or a new one-pixel border, everywhere in the frame; masking hides it only where
+  the animation is, keeps the rest strict, and still catches a change that *moves* the bar.
+- **Baselines are platform-specific.** They were rendered on Windows with Skia, and text
+  rasterisation differs across platforms — a Linux runner would fail every frame on glyph edges
+  alone. A second committed set per platform is the answer if that day comes; a tolerance wide
+  enough to cover it would be wide enough to hide real changes.
+
+Fluent frames are captured but **not** baselined. What Fluent renders belongs to Avalonia, and
+pinning it would turn every Avalonia upgrade into a failing test about someone else's theme.
+
+## Continuous integration
+
+`.github/workflows/build.yml`, on push and pull request to `main`, and on demand.
+
+| Runner | Builds | Runs |
+|---|---|---|
+| `ubuntu-latest` | the whole solution | the 86 unit tests |
+| `windows-latest` | the whole solution | the 86 unit tests **and** the 9 pixel baselines |
+
+**Linux is not there for symmetry.** This is a library other people will build on whatever they
+have, and a Linux job is the only thing that catches a Windows-only assumption drifting into the
+theme or the gallery. What it must not do is run the pixel suite — see *Pixel baselines* above for
+why those PNGs are platform-specific.
+
+A failing pixel frame uploads **`pixel-diffs`**: the rendered frame and the diff image, so the
+change can be judged from the pull request instead of reproduced locally first. That artifact is
+the reason the suite is worth running in CI at all; a red X with no picture would just be a
+prompt to re-run it. The tests set `FILI_PIXEL_DIFF_DIR` to a path inside the workspace for
+exactly this — the default is the system temp directory, which no artifact upload can reach.
+
+Nothing here packs and nothing here publishes. This package has no licence and no repository
+metadata yet, and pushing a NuGet package should be a deliberate step rather than a side effect
+of a green build.
+
+> **This workflow has never been executed on a runner.** The commands in it were verified
+> locally, exactly as written, but three things can only be found out by running it: whether
+> Skia renders identically enough on a hosted Windows image to match baselines rendered here,
+> whether the embedded fonts are enough on a runner with no system fonts installed, and whether
+> `global-json-file` finds the pinned SDK. If the pixel frames fail on the first run, compare the
+> uploaded artifact against the committed baseline before assuming the theme changed.
+
 ## Known gaps
 
 **39 of the 89 templated control types are hand-written**; the other 50 wear forked Simple

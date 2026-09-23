@@ -197,6 +197,15 @@ Two conversions are already applied and should stay applied consistently:
 - **Every brush in this package is one shared application-level object** whose `Color` is a
   `DynamicResource`. A per-WINDOW `RequestedThemeVariant` therefore does not work: the window gets
   the same brush instance and so the same colour. Set the variant on the `Application`.
+- **`UseHeadlessDrawing` defaults to TRUE, and it is a no-op renderer.** Every capture comes back
+  blank, nothing throws, and a pixel suite built on it compares two blank images and passes
+  forever. Skia plus `UseHeadlessDrawing = false` is the only configuration that produces a
+  frame; `GalleryFrames.Configure` is the single place that says so.
+- **An indeterminate `ProgressBar` is not reproducible.** Its band follows a wall-clock animation
+  clock, so two runs of the SAME BUILD differ by about eighty pixels. The pixel suite masks that
+  rectangle, located from the live tree rather than remembered, and compares everything else
+  strictly. Do not answer a flaky frame with a wider tolerance: a budget big enough to absorb an
+  animation is big enough to hide a redrawn glyph, everywhere in the frame.
 - **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
   comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
   is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
@@ -272,7 +281,29 @@ needs on SDK 10.
 dotnet build Fili.MudAvalonia.Theme.sln
 dotnet test  Fili.MudAvalonia.Theme.sln
 dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
+
+# Accept new pixel baselines, after looking at the diff image the failure printed:
+$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
 ```
+
+**There are two test projects.** `tst/{Name}.UnitTests` is the fast one and renders nothing;
+`tst/{Name}.PixelTests` renders nine gallery frames with Skia and diffs them against committed
+PNGs. The split is deliberate - the pixel suite needs headless drawing turned OFF, which changes
+text measurement, and the unit suite should not silently start measuring differently because the
+pixel suite needed a different platform.
+
+**CI runs both, on two runners, and the pixel suite on only one of them.** Linux builds
+everything and runs the unit tests; Windows also runs the baselines, because those PNGs were
+rendered on Windows with Skia. A failing frame uploads the rendered image and the diff as the
+`pixel-diffs` artifact - which is why the diff directory is overridable through
+`FILI_PIXEL_DIFF_DIR`, the default being a system temp path no artifact upload can reach.
+
+**The workflow has never been executed on a runner.** Its commands were verified locally exactly
+as written, but whether a hosted Windows image rasterises text closely enough to match baselines
+rendered on a developer machine is genuinely unknown until it runs. If the first run fails on
+pixel frames, compare the uploaded artifact with the committed baseline before believing the
+theme changed - and if the answer is that the runner simply rasterises differently, the fix is a
+second committed set of baselines per environment, never a wider tolerance.
 
 The gallery is the development loop, not a deliverable added at the end. A theme has no surface of
 its own, so tune against the gallery rather than against an app.
