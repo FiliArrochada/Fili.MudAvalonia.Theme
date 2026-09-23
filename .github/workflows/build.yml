@@ -1,0 +1,115 @@
+name: build
+
+# Builds the theme, the gallery and both test suites. Nothing here packs and nothing here
+# publishes: this package has no licence and no repository metadata yet, and pushing a NuGet
+# package is a deliberate human step, not a side effect of a green build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege for GITHUB_TOKEN. Without this block a workflow inherits the repository
+# default, which is often read/write across contents and packages - so a pipeline whose whole
+# purpose is to build and test would hold a token that can push commits. Nothing here needs more
+# than reading the checkout; upload-artifact uses the Actions runtime token, not this one.
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ---------------------------------------------------------------------------------------
+  # Both runners build everything; only one of them runs the pixel suite.
+  #
+  # Linux is not here for symmetry. This is a library other people will build on whatever they
+  # have, and a Linux job is the only thing that would catch a Windows-only assumption creeping
+  # into the theme or the gallery. What it must NOT do is run the pixel baselines: those PNGs
+  # were rendered on Windows with Skia, text rasterisation differs across platforms, and a Linux
+  # runner would fail all nine frames on glyph edges while nothing was actually wrong. The fix
+  # for that day is a second committed set of baselines per platform, not a wider tolerance -
+  # one wide enough to cover a different rasteriser would be wide enough to hide a real change.
+  # ---------------------------------------------------------------------------------------
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    env:
+      # Somewhere the artifact upload below can actually reach. The default is the system temp
+      # directory, which is fine on a developer's machine and useless on a runner.
+      FILI_PIXEL_DIFF_DIR: ${{ github.workspace }}/artifacts/pixel-diff
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # global.json pins the SDK and opts `dotnet test` into Microsoft.Testing.Platform, which
+      # xunit v3 needs on SDK 10. Reading the pin rather than restating it here is what keeps
+      # the runner on the same SDK as the repository.
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Fili.MudAvalonia.Theme.sln
+
+      - name: Build
+        run: dotnet build Fili.MudAvalonia.Theme.sln --configuration Release --no-restore
+
+      # The fast suite: 86 tests, no rendering, identical everywhere.
+      - name: Test (unit)
+        run: >
+          dotnet test tst/Fili.MudAvalonia.Theme.UnitTests
+          --configuration Release
+          --no-build
+          --
+          --report-xunit-trx
+          --results-directory ${{ github.workspace }}/artifacts/test-results
+
+      # The pixel suite: nine gallery frames, Skia, diffed against committed PNGs. Windows only,
+      # for the reason in the job comment above.
+      - name: Test (pixel baselines)
+        if: runner.os == 'Windows'
+        run: >
+          dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+          --configuration Release
+          --no-build
+          --
+          --report-xunit-trx
+          --results-directory ${{ github.workspace }}/artifacts/test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: artifacts/test-results/*.trx
+          if-no-files-found: ignore
+
+      # The whole point of the pixel suite is the picture, and a picture left on the runner is
+      # no better than no picture. A failure here uploads the rendered frame and the diff image -
+      # layout in grey, changed pixels in red - so the change can be judged from the pull request
+      # rather than reproduced locally first.
+      - name: Upload pixel diffs
+        if: failure() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-diffs
+          path: artifacts/pixel-diff/
+          if-no-files-found: ignore
+          retention-days: 14
