@@ -701,7 +701,8 @@ dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop -- --capture scr
 
 `Material.Avalonia` would be a visually closer substrate, but consuming it means binding to *its*
 slot names (`PrimaryHueMidBrush`, `MaterialCardBackgroundBrush`) — exactly the coupling
-`Fili.MangaReader` has, and what keeps it on Avalonia 11.
+`Fili.MangaReader` has, which ties its Avalonia upgrades to Material.Avalonia shipping a matching
+build.
 
 </details>
 
@@ -797,8 +798,8 @@ them and change only what they paint from.
 
 `Material.Avalonia` remains the closest *visual* match, but consuming it would mean binding to
 *its* slot names (`PrimaryHueMidBrush`, `MaterialCardBackgroundBrush`) — exactly the coupling
-`Fili.MangaReader` has, and what keeps it on Avalonia 11. Forking Simple avoids taking on anyone
-else's vocabulary.
+`Fili.MangaReader` has, which ties its Avalonia upgrades to Material.Avalonia shipping a matching
+build. Forking Simple avoids taking on anyone else's vocabulary.
 
 ## The one rule
 
@@ -948,6 +949,26 @@ of a green build.
 templates repaletted onto these tokens. Nothing is invisible and nothing external is required —
 the remaining gap is Material *shape*, not colour.
 
+**The control list is closed, and "fifty still forked" is not a backlog.** Every one of those
+fifty is classified with a reason in `StandaloneReadinessTests.Unthemed`, and the test asserts
+that inventory is exhaustive and says each type once — so a future Avalonia that adds a control
+fails by name asking to be classified, rather than quietly making the coverage number mean less.
+What is left is framework plumbing with no design opinion to express, a bespoke MudBlazor
+component that would be a rewrite rather than a restyle, or a control MudBlazor does not have.
+
+Two of those reasons were surprises worth recording:
+
+- **`MaskedTextBox` and `ToggleSplitButton` already get the themed templates.** Their
+  `StyleKeyOverride` points the theme lookup at `TextBox` and `SplitButton`, so they render
+  identically — same desired size, same descendant count. A theme of their own would be a second
+  copy of one that already applies.
+- **`GridSplitter` is left alone on purpose.** MudBlazor's counterpart exists, and transcribing
+  it faithfully would make the control *invisible*: `_splitpanel.scss` gives the divider a
+  cursor, a 12px invisible hit area and a focus outline, and nothing else — the separation comes
+  from the two panels having different backgrounds, which Avalonia does not guarantee. Simple's
+  visible hairline is kept deliberately. This is the same failure this package has already
+  shipped twice in other costumes, caught before rather than after.
+
 Controls MudBlazor has a counterpart for and this theme does not, roughly by how often an app
 hits them:
 
@@ -995,7 +1016,7 @@ And the things that are not controls:
 ## Prior art in this workspace
 
 `Fili.MangaReader/src/Fili.MangaReader.Views/Themes/MudBlazorPalette.axaml` already applies this
-palette, over **Material.Avalonia** rather than Fluent, on Avalonia 11, **dark only**. It is worth
+palette, over **Material.Avalonia** rather than Fluent, on Avalonia 12, **dark only**. It is worth
 reading before changing anything here: it documents the light/dark primary trap and the silent-key
 problem from experience, and its `TestAppFidelityTests` is the same idea as the tests here.
 

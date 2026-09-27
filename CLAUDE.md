@@ -311,6 +311,6 @@ its own, so tune against the gallery rather than against an app.
 ## Related work in this workspace
 
 `Fili.MangaReader/src/Fili.MangaReader.Views/Themes/MudBlazorPalette.axaml` applies the same
-palette over Material.Avalonia, on Avalonia 11, dark only. Read it before changing anything here —
+palette over Material.Avalonia, on Avalonia 12, dark only. Read it before changing anything here —
 its header documents both traps above from experience. The two are not yet reconciled; doing so is
 a deliberate decision, not a drive-by refactor.
