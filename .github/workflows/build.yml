@@ -6,9 +6,9 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 # Least privilege for GITHUB_TOKEN. Without this block a workflow inherits the repository
