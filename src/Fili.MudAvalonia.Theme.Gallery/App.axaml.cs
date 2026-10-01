@@ -65,10 +65,10 @@ public partial class App : Application
     /// Swaps the substrate theme in place, keeping FiliTheme on top of it.
     /// <para>
     /// Avalonia ships no implicit default theme: a control with no ControlTheme in scope has no
-    /// template and renders nothing at all. So something must sit underneath, and this package
-    /// only themes five controls. Being able to flip the substrate here is the point of the
-    /// control — it makes visible exactly which parts of the window are borrowed, and what
-    /// dropping Fluent would actually cost.
+    /// template and renders nothing at all. The shipping base is this package's own fork of
+    /// Simple, so nothing external is needed; Fluent is here only as a comparison. Flipping to it
+    /// shows which parts of the look are this package's hand-written themes and which are the
+    /// repaletted fork underneath them.
     /// </para>
     /// <para>
     /// Index 0 only. Order is load-bearing: the substrate must stay below FiliTheme, because

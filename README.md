@@ -1,15 +1,17 @@
 # Fili.MudAvalonia.Theme
 
-A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light and
-dark, with a gallery app to look at it in.
+A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light, dark
+and high contrast, with a gallery app to look at it in.
 
 **[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
 compiled to WebAssembly and served by GitHub Pages.
 
 The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
-aim is the *look* — this is not a component library: no new control types, no services, and no
-public API surface. (Two `internal` converters exist where XAML cannot express a MudBlazor rule;
-see *Two converters* below. Nothing in the assembly is public.)
+aim is the *look* — this is not a component library: no new control types, no services, and one
+public type. That type is `FiliThemeVariants`, whose only member is the high-contrast
+`ThemeVariant`; it has to be public, because XAML can reach a custom variant only through
+`x:Static`. Two `internal` converters exist where XAML cannot express a MudBlazor rule; see
+*Two converters* below.
 
 ```
 src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
@@ -462,8 +464,8 @@ one.
 
 ### Two converters
 
-The package ships two `internal` classes and nothing else. Both exist because MudBlazor expresses
-something as a percentage of a container and Avalonia has no way to say that:
+Besides `FiliThemeVariants`, the package's only code is two `internal` converters, each for
+something XAML cannot express on its own:
 
 - **`FactorConverter`** multiplies a bound pixel dimension by a constant. The indeterminate
   progress bar needs it: MudBlazor's keyframes animate `left`/`right` percentages, so each bar
@@ -475,7 +477,7 @@ something as a percentage of a container and Avalonia has no way to say that:
   `"System.InvalidOperationException: Must be a valid email address"`.
 
 Compiled XAML in the same assembly can construct an `internal` type, so being internal costs
-nothing and keeps the no-public-API claim literally true. Reach for one only after establishing
+nothing and keeps the public surface at that one type. Reach for one only after establishing
 that the XAML route does not exist.
 
 ### Lists, selects and the things built out of them

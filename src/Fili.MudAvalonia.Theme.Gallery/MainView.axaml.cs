@@ -43,9 +43,9 @@ public partial class MainView : UserControl
     /// <summary>
     /// Swaps the substrate theme underneath this one, live.
     /// <para>
-    /// Worth watching while it flips: the five themed controls do not change at all, because they
-    /// carry full templates. Everything else on the page does. That difference is the honest
-    /// measure of how much of the look is still borrowed.
+    /// Worth watching while it flips: the 39 control types with hand-written themes do not change
+    /// at all, because they carry full templates. The rest wear the forked Simple templates in
+    /// Standalone and Fluent's in Fluent, so they are the part of the page that moves.
     /// </para>
     /// </summary>
     private void OnSubstrateChanged(object? sender, SelectionChangedEventArgs e)
