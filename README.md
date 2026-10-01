@@ -934,9 +934,9 @@ the reason the suite is worth running in CI at all; a red X with no picture woul
 prompt to re-run it. The tests set `FILI_PIXEL_DIFF_DIR` to a path inside the workspace for
 exactly this — the default is the system temp directory, which no artifact upload can reach.
 
-Nothing here packs and nothing here publishes. This package has no licence and no repository
-metadata yet, and pushing a NuGet package should be a deliberate step rather than a side effect
-of a green build.
+Nothing here packs and nothing here publishes. The licence and repository metadata are in place
+now, but pushing a NuGet package should be a deliberate step rather than a side effect of a
+green build.
 
 > **This workflow has never been executed on a runner.** The commands in it were verified
 > locally, exactly as written, but three things can only be found out by running it: whether
@@ -1028,6 +1028,9 @@ that were not read back" — is closed here. Those constants are `Colors.cs` in 
 `Orange.Default` = `#FF9800`, `Red.Default` = `#F44336`, `Gray.Darken3` = `#424242`.
 
 ## Licence and attribution
+
+This package is MIT licensed — see [`LICENSE`](LICENSE). The licence covers the code, the XAML
+and the gallery; the third-party material below keeps its own terms.
 
 The token *values* come from [MudBlazor](https://github.com/MudBlazor/MudBlazor) (MIT). Colours,
 sizes and shadow definitions are data, not code, and no MudBlazor code is used or derived here.

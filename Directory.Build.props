@@ -40,4 +40,11 @@
     <Version>0.1.0</Version>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/FiliArrochada/Fili.MudAvalonia.Theme</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/FiliArrochada/Fili.MudAvalonia.Theme.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
 </Project>

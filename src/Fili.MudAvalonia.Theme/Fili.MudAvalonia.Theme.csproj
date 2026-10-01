@@ -6,6 +6,7 @@
     <PackageId>Fili.MudAvalonia.Theme</PackageId>
     <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light, dark and high contrast.</Description>
     <PackageTags>avalonia;theme;material;design-tokens</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,10 @@
     -->
     <AvaloniaResource Include="Assets\Fonts\*.ttf" />
     <None Include="Assets\Fonts\OFL.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>

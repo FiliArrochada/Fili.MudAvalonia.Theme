@@ -1,8 +1,8 @@
 name: build
 
 # Builds the theme, the gallery and both test suites. Nothing here packs and nothing here
-# publishes: this package has no licence and no repository metadata yet, and pushing a NuGet
-# package is a deliberate human step, not a side effect of a green build.
+# publishes: pushing a NuGet package is a deliberate human step, not a side effect of a green
+# build.
 
 on:
   push:
