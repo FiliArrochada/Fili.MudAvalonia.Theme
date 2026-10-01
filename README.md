@@ -3,6 +3,9 @@
 A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light and
 dark, with a gallery app to look at it in.
 
+**[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
+compiled to WebAssembly and served by GitHub Pages.
+
 The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
 aim is the *look* — this is not a component library: no new control types, no services, and no
 public API surface. (Two `internal` converters exist where XAML cannot express a MudBlazor rule;
@@ -12,7 +15,9 @@ see *Two converters* below. Nothing in the assembly is public.)
 src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
 src/Fili.MudAvalonia.Theme.Gallery          gallery UI, shared across heads
 src/Fili.MudAvalonia.Theme.Gallery.Desktop  desktop head
+src/Fili.MudAvalonia.Theme.Gallery.Browser  browser head (WebAssembly), deployed to GitHub Pages
 tst/Fili.MudAvalonia.Theme.UnitTests        headless resource-resolution tests
+tst/Fili.MudAvalonia.Theme.PixelTests       gallery frames diffed against committed PNGs
 ```
 
 ## Using it
@@ -873,6 +878,30 @@ asking Fluent for it would render Fluent's dark theme under a filename that clai
 The sample screen matters more than the control matrix: a wall of buttons looks fine under any
 theme, and only a real layout exposes flat hierarchy and wrong spacing.
 
+### In the browser
+
+The same gallery runs in a browser, from `src/Fili.MudAvalonia.Theme.Gallery.Browser`, and
+`.github/workflows/pages.yml` publishes it to
+[GitHub Pages](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/) on every push to `master`.
+Both heads share one `MainView`; the desktop's `MainWindow` only hosts it.
+
+```powershell
+dotnet workload install wasm-tools     # once: Avalonia.Browser links Skia and HarfBuzz natively
+dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser
+```
+
+Building the solution needs the workload too, because the browser head is part of it.
+
+Every URL the page loads is relative, so the published output works unchanged under the Pages
+sub-path and at the root of a local server. The first time, Pages has to be switched to
+**Settings → Pages → Source: GitHub Actions**; until then the deploy job fails.
+
+One thing the browser build forced: `App` keeps the base theme App.axaml declared and puts that
+same instance back when the substrate flips from Fluent, rather than constructing a new
+`StyleInclude` in code. A StyleInclude built at runtime loads its source by reflection, which
+trimming can strip, so the gallery would lose its whole base the first time someone flipped back.
+`SubstrateRoundTripTests` pins it.
+
 ## Pixel baselines
 
 Nine frames — three views, standalone, in all three variants — are rendered on every test run and
@@ -916,12 +945,14 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 ## Continuous integration
 
-`.github/workflows/build.yml`, on push and pull request to `main`, and on demand.
+`.github/workflows/build.yml`, on push and pull request to `master`, and on demand. Both runners
+install the `wasm-tools` workload first, because the solution includes the browser gallery.
+`.github/workflows/pages.yml` deploys that gallery separately; see *In the browser*.
 
 | Runner | Builds | Runs |
 |---|---|---|
 | `ubuntu-latest` | the whole solution | the 92 unit tests |
-| `windows-latest` | the whole solution | the 92 unit tests **and** the 9 pixel baselines |
+| `windows-latest` | the whole solution | the 92 unit tests **and** the 10 pixel tests (9 baselines + a substrate round trip) |
 
 **Linux is not there for symmetry.** This is a library other people will build on whatever they
 have, and a Linux job is the only thing that catches a Windows-only assumption drifting into the

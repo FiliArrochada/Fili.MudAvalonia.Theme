@@ -1,0 +1,72 @@
+name: pages
+
+# Publishes the gallery's browser build and deploys it as the repository's GitHub Pages site:
+# https://filiarrochada.github.io/Fili.MudAvalonia.Theme/
+#
+# One-time setup: Settings -> Pages -> Build and deployment -> Source = "GitHub Actions". Until
+# that is switched, the deploy job fails.
+#
+# No base-path rewriting is needed. Pages serves a project site under /Fili.MudAvalonia.Theme/,
+# and every URL the page loads (./main.js, ./_framework/...) is relative, so the same output
+# works there and at the root of a local server.
+#
+# Tests are build.yml's job. This deploys whatever master builds; a broken theme that still
+# compiles is caught there, not here.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one halfway: a cancelled deploy can leave the
+# site pointing at a half-uploaded artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      # Avalonia.Browser links Skia and HarfBuzz into dotnet.wasm, and that native link is what
+      # this workload provides.
+      - name: Install wasm-tools workload
+        run: dotnet workload install wasm-tools
+
+      - name: Publish the browser gallery
+        run: >
+          dotnet publish src/Fili.MudAvalonia.Theme.Gallery.Browser
+          --configuration Release
+          --output publish
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

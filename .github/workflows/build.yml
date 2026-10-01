@@ -65,13 +65,19 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
           restore-keys: nuget-${{ runner.os }}-
 
+      # The solution includes the browser gallery, whose build links Skia and HarfBuzz into
+      # dotnet.wasm. That native link is what this workload provides; without it the solution
+      # does not build on either runner.
+      - name: Install wasm-tools workload
+        run: dotnet workload install wasm-tools
+
       - name: Restore
         run: dotnet restore Fili.MudAvalonia.Theme.sln
 
       - name: Build
         run: dotnet build Fili.MudAvalonia.Theme.sln --configuration Release --no-restore
 
-      # The fast suite: 86 tests, no rendering, identical everywhere.
+      # The fast suite: 92 tests, no rendering, identical everywhere.
       - name: Test (unit)
         run: >
           dotnet test tst/Fili.MudAvalonia.Theme.UnitTests
@@ -81,8 +87,8 @@ jobs:
           --report-xunit-trx
           --results-directory ${{ github.workspace }}/artifacts/test-results
 
-      # The pixel suite: nine gallery frames, Skia, diffed against committed PNGs. Windows only,
-      # for the reason in the job comment above.
+      # The pixel suite: nine gallery frames plus a substrate round trip, Skia, diffed against
+      # committed PNGs. Windows only, for the reason in the job comment above.
       - name: Test (pixel baselines)
         if: runner.os == 'Windows'
         run: >

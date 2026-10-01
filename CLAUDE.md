@@ -283,9 +283,11 @@ needs on SDK 10.
 ## Commands
 
 ```powershell
+dotnet workload install wasm-tools   # once - the solution includes the browser gallery
 dotnet build Fili.MudAvalonia.Theme.sln
 dotnet test  Fili.MudAvalonia.Theme.sln
 dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
+dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser     # needs the wasm-tools workload
 
 # Accept new pixel baselines, after looking at the diff image the failure printed:
 $env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
@@ -309,6 +311,14 @@ rendered on a developer machine is genuinely unknown until it runs. If the first
 pixel frames, compare the uploaded artifact with the committed baseline before believing the
 theme changed - and if the answer is that the runner simply rasterises differently, the fix is a
 second committed set of baselines per environment, never a wider tolerance.
+
+**The gallery has two heads and one view.** `MainView` is the whole UI; `MainWindow` hosts it on
+desktop and the browser head sets it as the single view. Put gallery UI in `MainView`, never in
+the window, or the GitHub Pages build silently loses it. And never construct a `StyleInclude` in
+gallery code: one built at runtime loads by reflection, which the browser build's trimming can
+strip. `App` keeps the XAML-declared base and puts the same instance back instead, pinned by
+`SubstrateRoundTripTests` against the committed baseline - not against a frame rendered in the
+same test, which a broken restore breaks identically.
 
 The gallery is the development loop, not a deliverable added at the end. A theme has no surface of
 its own, so tune against the gallery rather than against an app.
