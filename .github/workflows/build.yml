@@ -48,18 +48,18 @@ jobs:
       FILI_PIXEL_DIFF_DIR: ${{ github.workspace }}/artifacts/pixel-diff
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # global.json pins the SDK and opts `dotnet test` into Microsoft.Testing.Platform, which
       # xunit v3 needs on SDK 10. Reading the pin rather than restating it here is what keeps
       # the runner on the same SDK as the repository.
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
       - name: Cache NuGet packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.os }}
           path: artifacts/test-results/*.trx
@@ -113,7 +113,7 @@ jobs:
       # rather than reproduced locally first.
       - name: Upload pixel diffs
         if: failure() && runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pixel-diffs
           path: artifacts/pixel-diff/
