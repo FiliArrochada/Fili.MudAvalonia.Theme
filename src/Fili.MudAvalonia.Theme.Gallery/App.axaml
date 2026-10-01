@@ -44,7 +44,8 @@
   </Application.Resources>
 
   <!--
-    Styles[0] is replaced in code at startup (App.UseSubstrate) so the gallery can swap bases.
+    Styles[0] is swapped in code (App.UseSubstrate) when the gallery flips to Fluent and back;
+    the instance declared here is kept and put back, never rebuilt.
     A consuming app writes the two lines directly and needs no code at all.
   -->
   <Application.Styles>

@@ -4,7 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Markup.Xaml;
-using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Themes.Fluent;
 
 namespace Fili.MudAvalonia.Theme.Gallery;
@@ -28,11 +27,23 @@ public enum Substrate
 
 public partial class App : Application
 {
+    /// <summary>
+    /// The shipping base as App.axaml declared it: this package's fork of Avalonia's Simple
+    /// templates, repaletted through <c>Themes/Base/Accents.axaml</c>.
+    /// <para>
+    /// Kept and reused rather than rebuilt. A StyleInclude written in XAML is resolved at
+    /// compile time; one constructed in code loads its source by reflection at runtime, which
+    /// trimming can strip from the browser build - and the gallery would then lose its whole base
+    /// the first time the substrate was flipped back from Fluent.
+    /// </para>
+    /// </summary>
+    private IStyle? _standaloneBase;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
 
-        UseSubstrate(Substrate.Standalone);
+        _standaloneBase = Styles[0];
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -40,6 +51,11 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow();
+        }
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
+        {
+            // The browser build: no windows, one view filling the page.
+            singleView.MainView = new MainView();
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -64,19 +80,9 @@ public partial class App : Application
         Styles[0] = substrate switch
         {
             Substrate.Fluent => CreateFluentSubstrate(),
-            _ => CreateStandaloneBase(),
+            _ => _standaloneBase!,
         };
     }
-
-    /// <summary>
-    /// The shipping base: this package's fork of Avalonia's Simple templates, repaletted through
-    /// <c>Themes/Base/Accents.axaml</c>. No external theme package is involved.
-    /// </summary>
-    public static IStyle CreateStandaloneBase() =>
-        new StyleInclude(new Uri("avares://Fili.MudAvalonia.Theme.Gallery/"))
-        {
-            Source = new Uri("avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml"),
-        };
 
     /// <summary>
     /// FluentTheme carrying the Mud accent.
