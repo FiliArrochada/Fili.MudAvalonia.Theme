@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -121,6 +123,7 @@ public static class GalleryFrames
         window[!Window.BackgroundProperty] = new DynamicResourceExtension("FiliBackgroundGrayBrush");
 
         window.Show();
+        var shown = Stopwatch.StartNew();
         Dispatcher.UIThread.RunJobs();
 
         // Now that the templates exist, ask the content how tall it actually wants to be and
@@ -139,6 +142,8 @@ public static class GalleryFrames
             Dispatcher.UIThread.RunJobs();
         }
 
+        SettleAnimations(shown);
+
         var unstable = UnstableRegions(window);
 
         var frameBitmap = window.CaptureRenderedFrame()
@@ -148,6 +153,43 @@ public static class GalleryFrames
         window.Close();
 
         return new RenderedFrame(frameBitmap, unstable);
+    }
+
+    /// <summary>
+    /// Longer than every finite animation that starts when a view is shown. The longest is the
+    /// snackbar's 0.45s enter (Themes/Controls/Notifications.axaml); the 0.75s and 1.25s ones
+    /// run only while a card closes, which no gallery frame does.
+    /// </summary>
+    private static readonly TimeSpan SettleTime = TimeSpan.FromMilliseconds(600);
+
+    /// <summary>
+    /// Lets every finite animation reach its last key frame before the frame is taken.
+    ///
+    /// <para>
+    /// The animation clock follows wall time, so a one-shot animation is wherever the clock had
+    /// got to when the capture happened. The snackbar's enter fade was about 99% done when its
+    /// baselines were recorded, and a faster or slower run leaves it at some other percentage —
+    /// a deterministic failure on one machine that passes on another. Masking the cards instead
+    /// would hide the one region whose colours this suite most needs to watch. Waiting is exact:
+    /// with <c>FillMode="Forward"</c> a finished animation holds its final value for good.
+    /// </para>
+    /// <para>
+    /// The infinite ones never settle, which is what <see cref="UnstableRegions"/> is for.
+    /// </para>
+    /// </summary>
+    private static void SettleAnimations(Stopwatch shown)
+    {
+        var remaining = SettleTime - shown.Elapsed;
+
+        if (remaining > TimeSpan.Zero)
+        {
+            Thread.Sleep(remaining);
+        }
+
+        // One tick after the wait, so the clock observes the elapsed time and applies the final
+        // key frames; CaptureRenderedFrame then renders that state.
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        Dispatcher.UIThread.RunJobs();
     }
 
     /// <summary>

@@ -206,6 +206,11 @@ Two conversions are already applied and should stay applied consistently:
   rectangle, located from the live tree rather than remembered, and compares everything else
   strictly. Do not answer a flaky frame with a wider tolerance: a budget big enough to absorb an
   animation is big enough to hide a redrawn glyph, everywhere in the frame.
+- **A one-shot animation is not reproducible either, until it finishes.** The same wall clock
+  drives the snackbar's 0.45s enter fade, and a frame captured at 99% of it fails strictly on
+  one machine and passes on another. `GalleryFrames.Render` therefore waits out `SettleTime`
+  before capturing. Raise that constant if a longer animation starts on load; do not mask a
+  region whose colours the suite is meant to be watching.
 - **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
   comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
   is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
