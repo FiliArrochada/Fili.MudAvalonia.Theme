@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Avalonia;
@@ -95,6 +96,28 @@ public static class GalleryFrames
     /// call to <c>SetupWithoutStarting</c>, or by the headless session in a test.
     /// </summary>
     public static RenderedFrame Render(GalleryFrame frame)
+    {
+        // Rendered under the invariant culture, so a frame is the same on every machine. The
+        // palette tab formats contrast ratios with the current culture - "6,00:1" on a pt-PT
+        // machine, "6.00:1" on an en-US CI runner - and the baselines, recorded on the first,
+        // failed on the second while nothing about the theme had changed. The gallery itself
+        // keeps the reader's own number format; only the capture is pinned.
+        var (culture, uiCulture) = (CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture);
+
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            return RenderUnderCurrentCulture(frame);
+        }
+        finally
+        {
+            (CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture) = (culture, uiCulture);
+        }
+    }
+
+    private static RenderedFrame RenderUnderCurrentCulture(GalleryFrame frame)
     {
         var app = (App)Application.Current!;
 

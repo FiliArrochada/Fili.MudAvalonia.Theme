@@ -218,6 +218,12 @@ Two conversions are already applied and should stay applied consistently:
   one machine and passes on another. `GalleryFrames.Render` therefore waits out `SettleTime`
   before capturing. Raise that constant if a longer animation starts on load; do not mask a
   region whose colours the suite is meant to be watching.
+- **A frame must not depend on the machine's locale.** The palette tab formats contrast ratios
+  with the current culture, so baselines recorded on a pt-PT machine said `6,00:1` and the en-US
+  CI runner rendered `6.00:1` - three palette frames failed in CI while every other frame passed,
+  which is the signature to recognise. `GalleryFrames.Render` pins the invariant culture for the
+  capture. Anything else that varies per machine (time zone, current date) needs the same
+  treatment before it appears in a baselined view.
 - **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
   comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
   is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
