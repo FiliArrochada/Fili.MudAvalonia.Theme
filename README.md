@@ -958,14 +958,18 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 ## Continuous integration
 
-`.github/workflows/build.yml`, on push and pull request to `master`, and on demand. Both runners
-install the `wasm-tools` workload first, because the solution includes the browser gallery.
-`.github/workflows/pages.yml` deploys that gallery separately; see *In the browser*.
+`.github/workflows/build.yml`, on push and pull request to `master`, and on demand.
+`.github/workflows/pages.yml` deploys the browser gallery separately; see *In the browser*.
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution | the 92 unit tests |
-| `windows-latest` | the whole solution | the 92 unit tests **and** the 10 pixel tests (9 baselines + a substrate round trip) |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 92 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 92 unit tests **and** the 10 pixel tests (9 baselines + a substrate round trip) |
+
+**Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
+and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
+too would cost every run time for a project no Windows step uses, and the Linux build still
+catches a change that breaks it.
 
 **Linux is not there for symmetry.** This is a library other people will build on whatever they
 have, and a Linux job is the only thing that catches a Windows-only assumption drifting into the
@@ -982,12 +986,13 @@ Nothing here packs and nothing here publishes. The licence and repository metada
 now, but pushing a NuGet package should be a deliberate step rather than a side effect of a
 green build.
 
-> **This workflow has never been executed on a runner.** The commands in it were verified
-> locally, exactly as written, but three things can only be found out by running it: whether
-> Skia renders identically enough on a hosted Windows image to match baselines rendered here,
-> whether the embedded fonts are enough on a runner with no system fonts installed, and whether
-> `global-json-file` finds the pinned SDK. If the pixel frames fail on the first run, compare the
-> uploaded artifact against the committed baseline before assuming the theme changed.
+**The hosted Windows runner renders these frames identically to a developer machine** — once the
+locale is pinned. Its first runs failed on the three palette frames only: the runner is en-US and
+the baselines were recorded on a pt-PT machine, so the contrast ratios read `6.00:1` against
+`6,00:1`. `GalleryFrames.Render` now captures under the invariant culture, and every frame
+matches. If a frame fails in CI and nowhere else, compare the uploaded artifact with the
+committed baseline, and look for something that varies per machine before assuming the theme
+changed.
 
 ## Known gaps
 

@@ -312,18 +312,18 @@ PNGs. The split is deliberate - the pixel suite needs headless drawing turned OF
 text measurement, and the unit suite should not silently start measuring differently because the
 pixel suite needed a different platform.
 
-**CI runs both, on two runners, and the pixel suite on only one of them.** Linux builds
-everything and runs the unit tests; Windows also runs the baselines, because those PNGs were
-rendered on Windows with Skia. A failing frame uploads the rendered image and the diff as the
-`pixel-diffs` artifact - which is why the diff directory is overridable through
+**CI runs both, on two runners, and the pixel suite on only one of them.** Linux builds the
+whole solution and runs the unit tests; Windows builds only the two test projects (everything but
+the browser gallery, so it skips the `wasm-tools` install) and also runs the baselines, because
+those PNGs were rendered on Windows with Skia. A failing frame uploads the rendered image and the
+diff as the `pixel-diffs` artifact - which is why the diff directory is overridable through
 `FILI_PIXEL_DIFF_DIR`, the default being a system temp path no artifact upload can reach.
 
-**The workflow has never been executed on a runner.** Its commands were verified locally exactly
-as written, but whether a hosted Windows image rasterises text closely enough to match baselines
-rendered on a developer machine is genuinely unknown until it runs. If the first run fails on
-pixel frames, compare the uploaded artifact with the committed baseline before believing the
-theme changed - and if the answer is that the runner simply rasterises differently, the fix is a
-second committed set of baselines per environment, never a wider tolerance.
+**The hosted Windows runner rasterises identically to a developer machine.** Its only failures so
+far were the locale (see the trap above). If a frame fails in CI and nowhere else, compare the
+uploaded artifact with the committed baseline and look for something machine-dependent first; if
+the runner ever genuinely rasterises differently, the fix is a second committed set of baselines
+per environment, never a wider tolerance.
 
 **The gallery has two heads and one view.** `MainView` is the whole UI; `MainWindow` hosts it on
 desktop and the browser head sets it as the single view. Put gallery UI in `MainView`, never in

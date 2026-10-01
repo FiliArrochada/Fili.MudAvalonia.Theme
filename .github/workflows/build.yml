@@ -24,7 +24,7 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------------------
-  # Both runners build everything; only one of them runs the pixel suite.
+  # Linux builds the whole solution; Windows builds what it tests and runs the pixel suite.
   #
   # Linux is not here for symmetry. This is a library other people will build on whatever they
   # have, and a Linux job is the only thing that would catch a Windows-only assumption creeping
@@ -33,6 +33,11 @@ jobs:
   # runner would fail all nine frames on glyph edges while nothing was actually wrong. The fix
   # for that day is a second committed set of baselines per platform, not a wider tolerance -
   # one wide enough to cover a different rasteriser would be wide enough to hide a real change.
+  #
+  # Only Linux builds the browser gallery. Its build links Skia and HarfBuzz into dotnet.wasm,
+  # which needs the wasm-tools workload, and installing that on Windows cost every run time for
+  # a project no Windows step uses. Windows builds the two test projects instead, which between
+  # them reference every other project in the solution.
   # ---------------------------------------------------------------------------------------
   test:
     name: Test (${{ matrix.os }})
@@ -40,7 +45,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            projects: Fili.MudAvalonia.Theme.sln
+            wasm: true
+          - os: windows-latest
+            projects: tst/Fili.MudAvalonia.Theme.UnitTests tst/Fili.MudAvalonia.Theme.PixelTests
+            wasm: false
 
     env:
       # Somewhere the artifact upload below can actually reach. The default is the system temp
@@ -65,17 +76,19 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      # The solution includes the browser gallery, whose build links Skia and HarfBuzz into
-      # dotnet.wasm. That native link is what this workload provides; without it the solution
-      # does not build on either runner.
+      # Only where the browser gallery is built; see the job comment above. Without it, even
+      # restoring that project fails.
       - name: Install wasm-tools workload
+        if: matrix.wasm
         run: dotnet workload install wasm-tools
 
       - name: Restore
-        run: dotnet restore Fili.MudAvalonia.Theme.sln
+        shell: bash
+        run: for p in ${{ matrix.projects }}; do dotnet restore "$p"; done
 
       - name: Build
-        run: dotnet build Fili.MudAvalonia.Theme.sln --configuration Release --no-restore
+        shell: bash
+        run: for p in ${{ matrix.projects }}; do dotnet build "$p" --configuration Release --no-restore; done
 
       # The fast suite: 92 tests, no rendering, identical everywhere.
       - name: Test (unit)
