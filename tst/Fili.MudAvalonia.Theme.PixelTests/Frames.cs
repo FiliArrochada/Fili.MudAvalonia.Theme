@@ -147,13 +147,10 @@ public static class Frames
     }
 
     /// <summary>
-    /// Avalonia 12.1.2 deprecates <c>Save(string)</c> in favour of an overload taking
-    /// BitmapEncoderOptions, a type that ships with no public surface to construct. Until it has
-    /// one, the deprecated call is the only one that writes a PNG.
+    /// Writes a PNG. Avalonia 12.1.2 deprecates <c>Save(string)</c>; the replacement takes encoder
+    /// options, and <c>PngBitmapEncoderOptions.Default</c> is the PNG one.
     /// </summary>
-#pragma warning disable CS0618
-    public static void Save(Bitmap bitmap, string path) => bitmap.Save(path);
-#pragma warning restore CS0618
+    public static void Save(Bitmap bitmap, string path) => bitmap.Save(path, PngBitmapEncoderOptions.Default);
 
     private static bool IsMasked(IReadOnlyList<PixelRect> masked, int x, int y)
     {

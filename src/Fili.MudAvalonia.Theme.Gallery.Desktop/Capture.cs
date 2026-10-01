@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Avalonia.Media.Imaging;
 
 namespace Fili.MudAvalonia.Theme.Gallery.Desktop;
 
@@ -27,7 +28,7 @@ internal static class Capture
 
             using (var rendered = GalleryFrames.Render(frame))
             {
-                rendered.Bitmap.Save(path);
+                rendered.Bitmap.Save(path, PngBitmapEncoderOptions.Default);
             }
 
             Console.WriteLine(path);
