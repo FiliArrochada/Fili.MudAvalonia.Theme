@@ -986,9 +986,8 @@ the reason the suite is worth running in CI at all; a red X with no picture woul
 prompt to re-run it. The tests set `FILI_PIXEL_DIFF_DIR` to a path inside the workspace for
 exactly this — the default is the system temp directory, which no artifact upload can reach.
 
-Nothing here packs and nothing here publishes. The licence and repository metadata are in place
-now, but pushing a NuGet package should be a deliberate step rather than a side effect of a
-green build.
+Neither of those packs or publishes anything. Publishing to nuget.org is its own workflow and
+happens only when you push a version tag; see *Releasing*.
 
 **The hosted Windows runner renders these frames identically to a developer machine** — once the
 locale is pinned. Its first runs failed on the three palette frames only: the runner is en-US and
@@ -997,6 +996,39 @@ the baselines were recorded on a pt-PT machine, so the contrast ratios read `6.0
 matches. If a frame fails in CI and nowhere else, compare the uploaded artifact with the
 committed baseline, and look for something that varies per machine before assuming the theme
 changed.
+
+## Releasing
+
+`.github/workflows/release.yml` publishes the package to nuget.org, and only when a version tag is
+pushed:
+
+```powershell
+# 1. bump <Version> in Directory.Build.props, commit, push
+# 2. tag that exact version and push the tag
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The workflow runs the unit and pixel suites on Windows first, because a tag can point at a commit
+`build.yml` never saw pass. It then checks that the tag matches `<Version>` exactly and fails if it
+does not, packs the `.nupkg` and its `.snupkg` symbols, pushes both, and creates a GitHub release
+with the packages attached and generated notes. A version with a suffix (`0.2.0-preview.1`) is
+marked as a prerelease.
+
+Publishing uses **nuget.org trusted publishing**: the workflow swaps GitHub's OIDC token for an API
+key that expires within the hour, so no key is stored anywhere. Two one-time steps:
+
+1. On nuget.org, under *Trusted Publishing*, add a policy for owner `FiliArrochada`, repository
+   `Fili.MudAvalonia.Theme`, workflow `release.yml`.
+2. In this repository's *Settings → Secrets and variables → Actions → Variables*, set
+   `NUGET_USER` to the nuget.org username that owns that policy. It is a name, not a secret; the
+   workflow fails early with a clear message if it is missing.
+
+Packages built on a runner set `ContinuousIntegrationBuild`, so the PDBs carry `/_/` paths
+instead of the runner's directory layout, and Source Link points each file at the tagged commit.
+
+A version cannot be replaced on nuget.org, only unlisted. Re-running a release that failed after
+the push is safe (`--skip-duplicate`), but fixing a bad package means a new version.
 
 ## Known gaps
 

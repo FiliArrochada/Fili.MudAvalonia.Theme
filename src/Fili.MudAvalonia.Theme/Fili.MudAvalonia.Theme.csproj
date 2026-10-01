@@ -7,6 +7,9 @@
     <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light, dark and high contrast.</Description>
     <PackageTags>avalonia;theme;material;design-tokens</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- A .snupkg beside the .nupkg; `dotnet nuget push` uploads both. -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>

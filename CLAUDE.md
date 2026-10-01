@@ -309,6 +309,14 @@ dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser     # needs the 
 $env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
 ```
 
+**Releasing is a tag, and the tag is the human's to push.** `.github/workflows/release.yml` runs on
+`v*` tags only: it reruns both suites on Windows, refuses a tag that does not equal `<Version>` in
+`Directory.Build.props`, then packs, pushes to nuget.org through trusted publishing (no stored
+key; the `NUGET_USER` repository variable names the account) and creates the GitHub release. A
+nuget.org version can never be replaced, so a release is outward-facing and permanent: bump
+`<Version>` in a reviewed commit and leave creating and pushing the tag to the human, like every
+other git write here.
+
 **There are two test projects.** `tst/{Name}.UnitTests` is the fast one and renders nothing;
 `tst/{Name}.PixelTests` renders nine gallery frames with Skia and diffs them against committed
 PNGs. The split is deliberate - the pixel suite needs headless drawing turned OFF, which changes

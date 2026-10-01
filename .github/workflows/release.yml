@@ -1,0 +1,145 @@
+name: release
+
+# Publishes Fili.MudAvalonia.Theme to nuget.org when a version tag is pushed:
+#
+#   1. bump <Version> in Directory.Build.props and commit it
+#   2. git tag v<that version> && git push origin v<that version>
+#
+# The tag must match <Version> exactly; the publish job checks before packing, so a typo in
+# either fails the release instead of shipping a package whose version nobody chose.
+#
+# Authentication is nuget.org trusted publishing: GitHub's OIDC token is exchanged for an API key
+# that lives for one hour, so no long-lived key is stored anywhere. One-time setup:
+#   - nuget.org -> account -> Trusted Publishing: add a policy for repository owner
+#     FiliArrochada, repository Fili.MudAvalonia.Theme, workflow file release.yml
+#   - this repository -> Settings -> Secrets and variables -> Actions -> Variables:
+#     NUGET_USER = the nuget.org username that owns that policy (a name, not a secret)
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# Never two releases of the same tag at once.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # The same gate build.yml applies on Windows: both suites, pixel baselines included. A tag can
+  # point at any commit, including one build.yml never saw go green, so the release checks again.
+  test:
+    name: Test (windows-latest)
+    runs-on: windows-latest
+    env:
+      FILI_PIXEL_DIFF_DIR: ${{ github.workspace }}/artifacts/pixel-diff
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        shell: bash
+        run: |
+          for p in tst/Fili.MudAvalonia.Theme.UnitTests tst/Fili.MudAvalonia.Theme.PixelTests; do
+            dotnet build "$p" --configuration Release
+          done
+
+      - name: Test (unit)
+        run: dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --configuration Release --no-build
+
+      - name: Test (pixel baselines)
+        run: dotnet test tst/Fili.MudAvalonia.Theme.PixelTests --configuration Release --no-build
+
+      - name: Upload pixel diffs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pixel-diffs
+          path: artifacts/pixel-diff/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create the GitHub release
+      id-token: write   # trusted publishing to nuget.org
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Check the tag matches the package version
+        id: version
+        run: |
+          version="$(dotnet msbuild src/Fili.MudAvalonia.Theme/Fili.MudAvalonia.Theme.csproj -getProperty:Version)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match <Version>$version</Version> in Directory.Build.props."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check trusted publishing is configured
+        env:
+          NUGET_USER: ${{ vars.NUGET_USER }}
+        run: |
+          if [ -z "$NUGET_USER" ]; then
+            echo "::error::Repository variable NUGET_USER is not set. See the header of release.yml."
+            exit 1
+          fi
+
+      # ContinuousIntegrationBuild switches on by itself here (Directory.Build.props, on
+      # GITHUB_ACTIONS), so the PDBs carry no runner paths and Source Link points at this commit.
+      - name: Pack
+        run: >
+          dotnet pack src/Fili.MudAvalonia.Theme
+          --configuration Release
+          --output artifacts/package
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: artifacts/package/
+
+      - name: Log in to nuget.org
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      # Pushing the .nupkg uploads the .snupkg beside it as well. --skip-duplicate makes a re-run
+      # of a half-finished release safe: a version nuget.org already has is left alone, never
+      # overwritten (nuget.org does not allow that anyway).
+      - name: Push to nuget.org
+        run: >
+          dotnet nuget push "artifacts/package/*.nupkg"
+          --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" artifacts/package/* \
+            --title "Fili.MudAvalonia.Theme $VERSION" \
+            --generate-notes \
+            $prerelease

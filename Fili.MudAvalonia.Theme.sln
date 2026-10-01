@@ -31,6 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pipelines", "Pipelines", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\pages.yml = .github\workflows\pages.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fili.MudAvalonia.Theme.PixelTests", "tst\Fili.MudAvalonia.Theme.PixelTests\Fili.MudAvalonia.Theme.PixelTests.csproj", "{BE90DF42-D8F7-438D-8BD6-7B3F8CAE3189}"

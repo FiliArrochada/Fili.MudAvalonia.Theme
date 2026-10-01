@@ -47,4 +47,13 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
+  <!--
+    On a CI runner only: normalises the source paths baked into PDBs and the package, so a
+    published build does not carry the runner's directory layout and the same commit produces
+    the same bytes. Local builds keep real paths, which the debugger needs.
+  -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
 </Project>
