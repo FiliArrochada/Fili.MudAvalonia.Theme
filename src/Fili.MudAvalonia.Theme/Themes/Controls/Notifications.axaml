@@ -38,7 +38,7 @@
   <ControlTheme x:Key="FiliNotificationCard" TargetType="NotificationCard">
     <Setter Property="UseLayoutRounding" Value="True" />
     <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
-    <Setter Property="Foreground" Value="{DynamicResource FiliWhiteBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliInfoContrastTextBrush}" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliBody2FontSize}" />
     <Setter Property="FontWeight" Value="Medium" />
@@ -121,15 +121,19 @@
 
     <Style Selector="^:information">
       <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliInfoContrastTextBrush}" />
     </Style>
     <Style Selector="^:success">
       <Setter Property="Background" Value="{DynamicResource FiliSuccessBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliSuccessContrastTextBrush}" />
     </Style>
     <Style Selector="^:warning">
       <Setter Property="Background" Value="{DynamicResource FiliWarningBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliWarningContrastTextBrush}" />
     </Style>
     <Style Selector="^:error">
       <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorContrastTextBrush}" />
     </Style>
   </ControlTheme>
 

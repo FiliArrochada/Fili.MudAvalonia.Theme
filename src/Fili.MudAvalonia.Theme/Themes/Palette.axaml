@@ -25,10 +25,17 @@
       <Color x:Key="FiliTertiaryColor">#1EC8A5</Color>
       <Color x:Key="FiliTertiaryContrastTextColor">#FFFFFF</Color>
 
+      <!-- The four status ContrastText values are Palette.cs's Colors.Shades.White, which
+           PaletteDark.cs does not override. They are what text on a filled status colour
+           (a snackbar) is painted in. -->
       <Color x:Key="FiliInfoColor">#2196F3</Color>
+      <Color x:Key="FiliInfoContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliSuccessColor">#00C853</Color>
+      <Color x:Key="FiliSuccessContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliWarningColor">#FF9800</Color>
+      <Color x:Key="FiliWarningContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliErrorColor">#F44336</Color>
+      <Color x:Key="FiliErrorContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliDarkColor">#424242</Color>
       <Color x:Key="FiliBlackColor">#272C34</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
@@ -110,9 +117,13 @@
       <Color x:Key="FiliTertiaryContrastTextColor">#FFFFFF</Color>
 
       <Color x:Key="FiliInfoColor">#3299FF</Color>
+      <Color x:Key="FiliInfoContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliSuccessColor">#0BBA83</Color>
+      <Color x:Key="FiliSuccessContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliWarningColor">#FFA800</Color>
+      <Color x:Key="FiliWarningContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliErrorColor">#F64E62</Color>
+      <Color x:Key="FiliErrorContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliDarkColor">#27272F</Color>
       <Color x:Key="FiliBlackColor">#27272F</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
@@ -196,10 +207,17 @@
       <Color x:Key="FiliTertiaryColor">#7BF0D6</Color>
       <Color x:Key="FiliTertiaryContrastTextColor">#000000</Color>
 
+      <!-- Black on every status colour, like the three above. These hues are pastels raised to
+           clear 10:1 on black, so white on them falls to about 1.6:1 - the least readable text
+           in the variant meant to be the most readable. -->
       <Color x:Key="FiliInfoColor">#9CD4FF</Color>
+      <Color x:Key="FiliInfoContrastTextColor">#000000</Color>
       <Color x:Key="FiliSuccessColor">#8CFFC0</Color>
+      <Color x:Key="FiliSuccessContrastTextColor">#000000</Color>
       <Color x:Key="FiliWarningColor">#FFD166</Color>
+      <Color x:Key="FiliWarningContrastTextColor">#000000</Color>
       <Color x:Key="FiliErrorColor">#FF9AA8</Color>
+      <Color x:Key="FiliErrorContrastTextColor">#000000</Color>
       <Color x:Key="FiliDarkColor">#000000</Color>
       <Color x:Key="FiliBlackColor">#000000</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
@@ -276,10 +294,14 @@
   <SolidColorBrush x:Key="FiliTertiaryBrush"              Color="{DynamicResource FiliTertiaryColor}" />
   <SolidColorBrush x:Key="FiliTertiaryContrastTextBrush"  Color="{DynamicResource FiliTertiaryContrastTextColor}" />
 
-  <SolidColorBrush x:Key="FiliInfoBrush"    Color="{DynamicResource FiliInfoColor}" />
-  <SolidColorBrush x:Key="FiliSuccessBrush" Color="{DynamicResource FiliSuccessColor}" />
-  <SolidColorBrush x:Key="FiliWarningBrush" Color="{DynamicResource FiliWarningColor}" />
-  <SolidColorBrush x:Key="FiliErrorBrush"   Color="{DynamicResource FiliErrorColor}" />
+  <SolidColorBrush x:Key="FiliInfoBrush"                Color="{DynamicResource FiliInfoColor}" />
+  <SolidColorBrush x:Key="FiliInfoContrastTextBrush"    Color="{DynamicResource FiliInfoContrastTextColor}" />
+  <SolidColorBrush x:Key="FiliSuccessBrush"             Color="{DynamicResource FiliSuccessColor}" />
+  <SolidColorBrush x:Key="FiliSuccessContrastTextBrush" Color="{DynamicResource FiliSuccessContrastTextColor}" />
+  <SolidColorBrush x:Key="FiliWarningBrush"             Color="{DynamicResource FiliWarningColor}" />
+  <SolidColorBrush x:Key="FiliWarningContrastTextBrush" Color="{DynamicResource FiliWarningContrastTextColor}" />
+  <SolidColorBrush x:Key="FiliErrorBrush"               Color="{DynamicResource FiliErrorColor}" />
+  <SolidColorBrush x:Key="FiliErrorContrastTextBrush"   Color="{DynamicResource FiliErrorContrastTextColor}" />
   <SolidColorBrush x:Key="FiliDarkBrush"    Color="{DynamicResource FiliDarkColor}" />
   <SolidColorBrush x:Key="FiliWhiteBrush"   Color="{DynamicResource FiliWhiteColor}" />
 

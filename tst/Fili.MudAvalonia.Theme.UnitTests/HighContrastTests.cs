@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.VisualTree;
@@ -29,7 +30,10 @@ public class HighContrastTests
         "FiliPrimaryColor", "FiliPrimaryContrastTextColor",
         "FiliSecondaryColor", "FiliSecondaryContrastTextColor",
         "FiliTertiaryColor", "FiliTertiaryContrastTextColor",
-        "FiliInfoColor", "FiliSuccessColor", "FiliWarningColor", "FiliErrorColor",
+        "FiliInfoColor", "FiliInfoContrastTextColor",
+        "FiliSuccessColor", "FiliSuccessContrastTextColor",
+        "FiliWarningColor", "FiliWarningContrastTextColor",
+        "FiliErrorColor", "FiliErrorContrastTextColor",
         "FiliDarkColor", "FiliBlackColor", "FiliWhiteColor",
         "FiliTextPrimaryColor", "FiliTextSecondaryColor", "FiliTextDisabledColor",
         "FiliActionDefaultColor", "FiliActionDisabledColor", "FiliActionDisabledBackgroundColor",
@@ -143,6 +147,66 @@ public class HighContrastTests
                 $"{key} is translucent in high contrast.");
         }
     });
+
+    /// <summary>
+    /// Every filled colour against the text painted on it, at WCAG AAA (7:1).
+    ///
+    /// <para>
+    /// Declaring a token is not the same as declaring a readable one. The status colours were
+    /// declared here and differed from dark — every test above passed — while snackbars still
+    /// painted white on them at about 1.6:1, because there was no contrast-text token to declare.
+    /// Light and dark are not held to this: they carry MudBlazor's own white, which is the point
+    /// of transcribing it.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public Task TextOnEveryFilledColourIsReadable() => UiThread.RunAsync(() =>
+    {
+        foreach (var fill in new[] { "Primary", "Secondary", "Tertiary", "Info", "Success", "Warning", "Error" })
+        {
+            var ratio = ContrastRatio(
+                Resolve($"Fili{fill}Color", HighContrast),
+                Resolve($"Fili{fill}ContrastTextColor", HighContrast));
+
+            Assert.True(ratio >= 7, $"Text on Fili{fill}Color is {ratio:N1}:1 in high contrast.");
+        }
+    });
+
+    /// <summary>
+    /// The snackbar paints its text in the contrast colour of its OWN type, not one shared
+    /// white. In light and dark the two are the same value, so only this variant can tell a
+    /// setter that is missing from one that is present.
+    /// </summary>
+    [Theory]
+    [InlineData(NotificationType.Information, "FiliInfoContrastTextColor")]
+    [InlineData(NotificationType.Success, "FiliSuccessContrastTextColor")]
+    [InlineData(NotificationType.Warning, "FiliWarningContrastTextColor")]
+    [InlineData(NotificationType.Error, "FiliErrorContrastTextColor")]
+    public Task EverySnackbarTypePaintsItsOwnContrastText(NotificationType type, string token) =>
+        UiThread.RunAsync(() =>
+        {
+            var application = Application.Current!;
+            var previous = application.RequestedThemeVariant;
+
+            try
+            {
+                application.RequestedThemeVariant = HighContrast;
+
+                var card = new NotificationCard { NotificationType = type, Content = "Text" };
+                var window = new Window { Content = card };
+
+                window.Show();
+                card.ApplyTemplate();
+
+                Assert.Equal(
+                    Resolve(token, HighContrast),
+                    Assert.IsAssignableFrom<ISolidColorBrush>(card.Foreground).Color);
+            }
+            finally
+            {
+                application.RequestedThemeVariant = previous;
+            }
+        });
 
     /// <summary>
     /// A hard ring replaces every shadow. This is what separates a card, a menu or a dialog from
@@ -316,6 +380,26 @@ public class HighContrastTests
             $"{key} did not resolve under {variant}.");
 
         return Assert.IsType<Color>(value);
+    }
+
+    /// <summary>The WCAG 2 contrast ratio of two opaque colours.</summary>
+    private static double ContrastRatio(Color a, Color b)
+    {
+        var (lighter, darker) = (Luminance(a), Luminance(b)) is var (x, y) && x > y ? (x, y) : (y, x);
+
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    private static double Luminance(Color color)
+    {
+        static double Linear(byte channel)
+        {
+            var c = channel / 255d;
+
+            return c <= 0.04045 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
+        }
+
+        return (0.2126 * Linear(color.R)) + (0.7152 * Linear(color.G)) + (0.0722 * Linear(color.B));
     }
 
     private static BoxShadows Elevation(int level, ThemeVariant variant)

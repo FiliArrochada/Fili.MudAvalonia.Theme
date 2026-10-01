@@ -301,9 +301,11 @@ from whichever edges it is anchored to.
 Two things were read rather than chosen. The **elevation is 6** — `_snackbar.scss` spells out the
 same three shadow layers `FiliElevation6` carries, character for character, so the level is
 transcribed rather than picked. And the **severity colours come from `_alert.scss`**, because a
-snackbar is a filled `MudAlert`: the palette colour as ground, its contrast text (white, in every
-case, in MudBlazor's palette) as foreground, at **Medium** weight — the filled alert's 500
-overrides the snackbar's own 400.
+snackbar is a filled `MudAlert`: the palette colour as ground, its contrast text as foreground,
+at **Medium** weight — the filled alert's 500 overrides the snackbar's own 400. Each severity has
+its own contrast token (`FiliInfoContrastTextBrush` and so on). In light and dark all four are
+MudBlazor's white; in high contrast they are black, because that variant's status colours are
+pastels and white on them would be about 1.6:1.
 
 **The enter and exit animations are copied from the forked template deliberately**, and one of
 them is load-bearing: the key frame that sets `IsClosed` at 100% is what actually removes a card.
@@ -918,8 +920,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution | the 86 unit tests |
-| `windows-latest` | the whole solution | the 86 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution | the 92 unit tests |
+| `windows-latest` | the whole solution | the 92 unit tests **and** the 9 pixel baselines |
 
 **Linux is not there for symmetry.** This is a library other people will build on whatever they
 have, and a Linux job is the only thing that catches a Windows-only assumption drifting into the
