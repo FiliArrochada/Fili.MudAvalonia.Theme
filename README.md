@@ -870,8 +870,12 @@ character Roboto lacks — Arabic, Hebrew, CJK — falls back to a font the oper
 same text renders as nothing, silently. An app targeting the browser has to embed a face for every
 script it displays and register it with `FontManagerOptions.FontFallbacks`. The theme does not do
 this for you — which scripts an app needs is the app's decision, and each one is a few hundred
-kilobytes. The gallery's browser head is the worked example: it ships static Noto Sans Arabic for
-the right-to-left section, in `src/Fili.MudAvalonia.Theme.Gallery.Browser/Assets/Fonts`.
+kilobytes. The gallery is the worked example: it ships static Noto Sans Arabic for the
+right-to-left section, in `src/Fili.MudAvalonia.Theme.Gallery/Assets/Fonts`, and `GalleryFonts`
+registers it for every head. Registering it on desktop too is deliberate even though Windows has
+Arabic fonts of its own: an OS fallback is whatever that machine has installed, so text drawn with
+it is not the same on Linux, on macOS, or on another Windows image — including the CI runner the
+pixel baselines are compared on.
 
 ## Gallery
 

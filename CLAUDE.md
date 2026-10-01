@@ -146,9 +146,12 @@ Two conversions are already applied and should stay applied consistently:
   as Regular.
 - **A browser build has no system fonts.** Text in any script Roboto and Inter lack — the
   gallery's Arabic, first — renders as nothing there while looking fine on desktop, where the OS
-  falls back silently. The browser head embeds static Noto Sans Arabic and registers it through
-  `FontManagerOptions.FontFallbacks` in its `Program.cs`. New non-Latin text in the gallery needs
-  a face there too, and the only check is looking at the published page.
+  falls back silently. The gallery embeds static Noto Sans Arabic in its own `Assets/Fonts` and
+  `GalleryFonts.WithGalleryFonts()` registers it as a `FontManagerOptions.FontFallbacks` entry for
+  the desktop head, the browser head AND `GalleryFrames.Configure` - so the pixel baselines do not
+  depend on whichever Arabic face the machine has installed either. New non-Latin text in the
+  gallery needs a face added there too; on desktop nothing fails without one, so the checks are
+  the published page and a baseline that changes when it should not.
 - **RTL needs nothing from a template, and one thing from a glyph.** Avalonia mirrors a whole
   subtree with a single transform where the flow direction CHANGES, so hardcoded `Left`/`Right`
   alignment, dock sides and grid columns flip on their own — do not "fix" them. What does need

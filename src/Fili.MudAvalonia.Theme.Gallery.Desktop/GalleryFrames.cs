@@ -89,7 +89,8 @@ public static class GalleryFrames
         AppBuilder.Configure<App>()
             .UseSkia()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
-            .WithInterFont();
+            .WithInterFont()
+            .WithGalleryFonts();
 
     /// <summary>
     /// Renders one frame. The application must already be set up — by the screenshot mode's own
