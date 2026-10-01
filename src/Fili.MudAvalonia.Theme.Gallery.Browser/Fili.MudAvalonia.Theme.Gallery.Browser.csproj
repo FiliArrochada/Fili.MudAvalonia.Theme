@@ -21,6 +21,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Noto Sans Arabic, the fallback for the gallery's right-to-left section. A browser has no
+      system fonts to fall back on: the only faces this build can draw with are the ones it ships,
+      and neither Roboto nor Inter has Arabic glyphs, so without this the Arabic labels render
+      as nothing. Desktop never needed it because the OS supplies an Arabic face.
+      Static Regular and Medium rather than the variable file, for the same reason the theme
+      embeds static Roboto: Avalonia picks a face per weight instead of setting an axis.
+      SIL Open Font License 1.1; the licence travels with the files in Assets/Fonts/OFL.txt.
+    -->
+    <AvaloniaResource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Fili.MudAvalonia.Theme.Gallery\Fili.MudAvalonia.Theme.Gallery.csproj" />
   </ItemGroup>
 

@@ -346,6 +346,8 @@ Two things to know if you go looking:
   appears. The first version of that test failed for exactly this reason.
 - `HasMirrorTransform` is false on the controls *inside* an RTL subtree. It is true only on the
   element where the direction changed.
+- **In a browser, RTL text needs a font for its script.** The mirroring works anywhere; the
+  glyphs do not, because there are no system fonts to fall back on — see *Fonts*.
 
 ### High contrast
 
@@ -859,6 +861,15 @@ Two things to know before changing them:
   family carrying three weights. Avalonia's embedded font collection groups them correctly
   anyway; `EveryUsedWeightHasItsOwnFace` is what keeps that true, and is why it asserts the
   family name *starts with* Roboto rather than equals it.
+
+**Roboto covers Latin, Greek and Cyrillic, and nothing else.** On desktop that never shows: a
+character Roboto lacks — Arabic, Hebrew, CJK — falls back to a font the operating system supplies.
+**A browser build has no system fonts at all.** It can only draw with the faces it ships, so the
+same text renders as nothing, silently. An app targeting the browser has to embed a face for every
+script it displays and register it with `FontManagerOptions.FontFallbacks`. The theme does not do
+this for you — which scripts an app needs is the app's decision, and each one is a few hundred
+kilobytes. The gallery's browser head is the worked example: it ships static Noto Sans Arabic for
+the right-to-left section, in `src/Fili.MudAvalonia.Theme.Gallery.Browser/Assets/Fonts`.
 
 ## Gallery
 
