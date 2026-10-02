@@ -85,6 +85,25 @@ Two conversions are already applied and should stay applied consistently:
 - **Base type is 14px, not 16.** First thing to check when a ported screen feels off.
 - **`Button` has no `BoxShadow`.** Only `Border` does, which is why the raised button is a
   `ControlTheme` with a `Border` in its template rather than a handful of setters.
+- **A colour class is only a colour, exactly as `Color` is in MudBlazor - on every control.**
+  `primary` alone is a primary TEXT button; `filled primary` is the filled one. `SplitButton` takes
+  the same classes (MudButtonGroup's Variant x Color x Size), and on a `TextBlock` a colour class
+  is MudText's `Color` - so `secondary` is the PINK secondary colour, and grey supporting text is
+  `Foreground="{DynamicResource FiliTextSecondaryBrush}"`. `text`/`outlined`/`filled` switch the
+  ControlTheme (FiliTheme.axaml); colour and size are nested `^.primary` / `^.small` styles inside
+  each theme.
+- **Button.axaml, and one marked region each in SplitButton.axaml and FiliTheme.axaml, are
+  GENERATED** by `ButtonThemeGenerator` (unit-test project, `Generation/`) from one list of eight
+  colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
+  any difference, and rewrites the files when `FILI_REGENERATE=1` is set. Each colour needs five
+  tokens - `Fili{C}Color`, `…ContrastTextColor`, `…HoverColor` (the colour at 6%, 35% in high
+  contrast), `…DarkenColor` and `…LightenColor`. The last two are MudBlazor's derivation, ported
+  as `MudColorPort`, and `PaletteDerivationTests` asserts every one in every variant against it, so
+  changing a colour without its shades fails the build. The port must use .NET's own
+  `Math.Round`, which scales by 100 in double arithmetic before rounding half-to-even (0.465 ->
+  0.46, 0.575 -> 0.57); it is checked against the 14 values mudblazor.com publishes.
+  `ButtonMatrixTests` and `SplitButtonMatrixTests` check every cell under a real headless
+  `MouseMove`.
 - **Control themes are keyed by TYPE. A class only ever names a variant.** Every theme is declared
   under a `Fili*` name for the inventory, then aliased at the bottom of its file:
 
@@ -313,6 +332,9 @@ dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser     # needs the 
 
 # Accept new pixel baselines, after looking at the diff image the failure printed:
 $env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+
+# Button.axaml and two marked regions are generated - edit ButtonThemeGenerator, then rewrite them:
+$env:FILI_REGENERATE = "1"; dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --filter-class "*GeneratedThemeTests"
 ```
 
 **Releasing is a tag, and the tag is the human's to push.** `.github/workflows/release.yml` runs on

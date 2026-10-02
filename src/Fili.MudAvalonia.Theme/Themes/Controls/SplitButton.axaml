@@ -30,15 +30,23 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-  <!-- One half of the pair. Bare, because the SplitButton above it owns the geometry. -->
+  <!--
+    One half of the pair. Bare, because the SplitButton owns the geometry and every colour: the
+    half paints its fill from Background and its state layer from BorderBrush, and the
+    SplitButton sets both on the half through `/template/ Button`. A selector may cross only ONE
+    /template/ boundary, so the parent cannot reach the half's own parts - it sets the half's
+    properties instead, and the half's template does the rest.
+  -->
   <ControlTheme x:Key="FiliSplitButtonHalf" TargetType="Button">
     <Setter Property="Cursor" Value="Hand" />
-    <!-- The resting state-layer colour, so the SplitButton can light this half from outside.
-         A selector may cross only ONE /template/ boundary, so the parent cannot reach in. -->
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Panel>
+        <!-- Background="Transparent" is load-bearing. Without it the area under the label hit
+             nothing at all - the pointer fell through to the window - so hovering or pointing
+             at a split button's label reached no button. SplitButtonMatrixTests hovers exactly
+             there. -->
+        <Panel Background="Transparent">
           <Border x:Name="PART_Root"
                   Background="{TemplateBinding Background}"
                   CornerRadius="{TemplateBinding CornerRadius}" />
@@ -55,22 +63,29 @@
         </Panel>
       </ControlTemplate>
     </Setter>
-
-    <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
-    </Style>
-    <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
-    </Style>
-    <Style Selector="^:pressed /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayPressedBrush}" />
-    </Style>
   </ControlTheme>
 
+  <!--
+    SplitButton takes MudButtonGroup's Variant x Color x Size, with the same classes as Button:
+    `text` is the default, `outlined` and `filled` switch the variant, a colour class is only a
+    colour, and `small` / `large` size it. `<SplitButton Classes="filled primary">` is
+    `<MudButtonGroup Variant="Variant.Filled" Color="Color.Primary">`.
+
+    Three properties carry everything, so the styles below only ever set these:
+
+      Foreground    the label and chevron
+      Background    the fill of both halves (transparent unless filled)
+      BorderBrush   the LINE: the separator between the halves, and the outline when outlined
+
+    The line is the group's own rule from _buttongroup.scss: text-primary (or the colour) for a
+    text group, the colour's full 1px border for an outlined one, `divider` for a filled one with
+    no colour, and `{color}-lighten` between the segments of a filled coloured one.
+  -->
   <ControlTheme x:Key="FiliSplitButton" TargetType="SplitButton">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
     <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
@@ -87,74 +102,427 @@
 
     <Setter Property="Template">
       <ControlTemplate>
-        <Grid ColumnDefinitions="*,Auto,Auto">
-          <Button x:Name="PART_PrimaryButton"
-                  Grid.Column="0"
-                  Theme="{StaticResource FiliSplitButtonHalf}"
-                  Background="{TemplateBinding Background}"
-                  Foreground="{TemplateBinding Foreground}"
-                  Content="{TemplateBinding Content}"
-                  ContentTemplate="{TemplateBinding ContentTemplate}"
-                  Command="{TemplateBinding Command}"
-                  CommandParameter="{TemplateBinding CommandParameter}"
-                  CornerRadius="4,0,0,4"
-                  FontFamily="{TemplateBinding FontFamily}"
-                  FontSize="{TemplateBinding FontSize}"
-                  FontWeight="{TemplateBinding FontWeight}"
-                  Padding="{TemplateBinding Padding}"
-                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                  Focusable="False"
-                  KeyboardNavigation.IsTabStop="False" />
+        <Border x:Name="PART_Root"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid ColumnDefinitions="*,Auto,Auto">
+            <Button x:Name="PART_PrimaryButton"
+                    Grid.Column="0"
+                    Theme="{StaticResource FiliSplitButtonHalf}"
+                    Background="{TemplateBinding Background}"
+                    Foreground="{TemplateBinding Foreground}"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    Command="{TemplateBinding Command}"
+                    CommandParameter="{TemplateBinding CommandParameter}"
+                    CornerRadius="4,0,0,4"
+                    FontFamily="{TemplateBinding FontFamily}"
+                    FontSize="{TemplateBinding FontSize}"
+                    FontWeight="{TemplateBinding FontWeight}"
+                    Padding="{TemplateBinding Padding}"
+                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                    Focusable="False"
+                    KeyboardNavigation.IsTabStop="False" />
 
-          <!-- border-left: 1px solid text-primary. BorderOpacity is 1.0, so it is a hard line. -->
-          <Border x:Name="SeparatorBorder"
-                  Grid.Column="1"
-                  Width="1"
-                  Margin="0,4"
-                  Background="{TemplateBinding BorderBrush}" />
+            <!-- The line between the segments. BorderOpacity is 1.0, so it is a hard line. -->
+            <Border x:Name="SeparatorBorder"
+                    Grid.Column="1"
+                    Width="1"
+                    Background="{TemplateBinding BorderBrush}" />
 
-          <Button x:Name="PART_SecondaryButton"
-                  Grid.Column="2"
-                  Theme="{StaticResource FiliSplitButtonHalf}"
-                  Background="{TemplateBinding Background}"
-                  Foreground="{TemplateBinding Foreground}"
-                  CornerRadius="0,4,4,0"
-                  Padding="4,6"
-                  MinWidth="32"
-                  HorizontalContentAlignment="Center"
-                  VerticalContentAlignment="Center"
-                  Focusable="False"
-                  KeyboardNavigation.IsTabStop="False">
-            <Path Width="24" Height="24"
-                  Stretch="None"
-                  Data="{StaticResource FiliExpandMoreGeometry}"
-                  Fill="{Binding $parent[SplitButton].Foreground}" />
-          </Button>
-        </Grid>
+            <Button x:Name="PART_SecondaryButton"
+                    Grid.Column="2"
+                    Theme="{StaticResource FiliSplitButtonHalf}"
+                    Background="{TemplateBinding Background}"
+                    Foreground="{TemplateBinding Foreground}"
+                    CornerRadius="0,4,4,0"
+                    Padding="4,0"
+                    MinWidth="32"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Focusable="False"
+                    KeyboardNavigation.IsTabStop="False">
+              <Path Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliExpandMoreGeometry}"
+                    Fill="{Binding $parent[SplitButton].Foreground}" />
+            </Button>
+          </Grid>
+        </Border>
       </ControlTemplate>
     </Setter>
 
-    <!-- The flyout being open reads as "this half is active", which is the pressed layer. It is
-         set through the half's BorderBrush because a selector cannot cross two /template/
-         boundaries - the same limit the Slider hits reaching its Thumb's halo. -->
+    <!-- GENERATED by ButtonThemeGenerator: split button variants, colours and sizes. -->
+    <!-- Text, no colour: action-default-hover on the half under the pointer. -->
+    <Style Selector="^ /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+    </Style>
+    <Style Selector="^:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+    </Style>
     <Style Selector="^[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
-      <Setter Property="BorderBrush" Value="{DynamicResource FiliOverlayPressedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
     </Style>
 
+    <!-- Text and outlined colours: the label, the line, and the hover tint. -->
     <Style Selector="^.primary">
+      <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^.primary /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.primary /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.primary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.primary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.secondary /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary">
+      <Setter Property="Foreground" Value="{DynamicResource FiliTertiaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryBrush}" />
+    </Style>
+    <Style Selector="^.tertiary /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.info">
+      <Setter Property="Foreground" Value="{DynamicResource FiliInfoBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^.info /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.info /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.info:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.info[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.success">
+      <Setter Property="Foreground" Value="{DynamicResource FiliSuccessBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^.success /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.success /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.success:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.success[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning">
+      <Setter Property="Foreground" Value="{DynamicResource FiliWarningBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^.warning /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.error">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.error:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.error[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark">
+      <Setter Property="Foreground" Value="{DynamicResource FiliDarkBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkBrush}" />
+    </Style>
+    <Style Selector="^.dark /template/ Button:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark /template/ Button:pressed">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+
+    <!-- Color.Inherit: the surrounding text colour, for the label and the line. -->
+    <Style Selector="^.inherit">
+      <Setter Property="Foreground" Value="{Binding $parent[Control].(TextElement.Foreground)}" />
+      <Setter Property="BorderBrush" Value="{Binding $self.Foreground}" />
+    </Style>
+
+    <!-- `.mud-button-group-text-size-*`. -->
+    <Style Selector="^.small">
+      <Setter Property="Padding" Value="5,4" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="^.large">
+      <Setter Property="Padding" Value="11,8" />
+      <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <!-- Outlined: each segment's own 1px border in the line colour, 5px 15px. Avalonia draws one
+         outline round both halves plus the separator between them, which is the same picture. -->
+    <Style Selector="^.outlined">
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="15,5" />
+    </Style>
+    <Style Selector="^.outlined.small">
+      <Setter Property="Padding" Value="9,3" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="^.outlined.large">
+      <Setter Property="Padding" Value="21,7" />
+      <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <!-- Filled: action-default-hover as the fill, `divider` between the segments, elevation 2
+         lifting to 4. A coloured fill divides with {color}-lighten and darkens on hover. -->
+    <Style Selector="^.filled">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDividerBrush}" />
+      <Setter Property="Padding" Value="16,6" />
+    </Style>
+    <Style Selector="^.filled /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation2}" />
+    </Style>
+    <Style Selector="^.filled:pointerover /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+    </Style>
+    <Style Selector="^.filled:focus-visible /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
+    </Style>
+    <Style Selector="^.filled /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^.filled /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^.filled:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^.filled[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^.filled.primary">
       <Setter Property="Background" Value="{DynamicResource FiliPrimaryBrush}" />
       <Setter Property="Foreground" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.primary /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.primary /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.primary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.primary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.secondary">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSecondaryLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.secondary /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.secondary /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.secondary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.secondary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliSecondaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.tertiary">
+      <Setter Property="Background" Value="{DynamicResource FiliTertiaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliTertiaryContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTertiaryLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.tertiary /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliTertiaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.tertiary /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliTertiaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.tertiary:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliTertiaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.tertiary[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliTertiaryDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.info">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliInfoContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliInfoLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.info /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.info /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.info:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.info[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliInfoDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.success">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliSuccessContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliSuccessLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.success /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.success /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.success:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.success[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliSuccessDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.warning">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliWarningContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliWarningLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.warning /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.warning /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.warning:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.warning[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliWarningDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.error">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.error /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.error /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.error:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.error[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.dark">
+      <Setter Property="Background" Value="{DynamicResource FiliDarkBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliDarkContrastTextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliDarkLightenBrush}" />
+    </Style>
+    <Style Selector="^.filled.dark /template/ Button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource FiliDarkDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.dark /template/ Button:pressed">
+      <Setter Property="Background" Value="{DynamicResource FiliDarkDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.dark:focus-visible /template/ Button#PART_PrimaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliDarkDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.dark[Tag=flyout-open] /template/ Button#PART_SecondaryButton">
+      <Setter Property="Background" Value="{DynamicResource FiliDarkDarkenBrush}" />
+    </Style>
+    <Style Selector="^.filled.small">
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="^.filled.large">
+      <Setter Property="Padding" Value="22,8" />
+      <Setter Property="FontSize" Value="15" />
     </Style>
 
+    <!-- Disabled last, so it beats every colour. -->
     <Style Selector="^:disabled">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
     </Style>
-    <Style Selector="^:disabled.primary">
+    <Style Selector="^:disabled /template/ Button">
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^.filled:disabled">
       <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
     </Style>
+    <Style Selector="^.filled:disabled /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <!-- END GENERATED -->
   </ControlTheme>
 
   <!--

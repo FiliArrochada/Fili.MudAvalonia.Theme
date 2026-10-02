@@ -46,6 +46,13 @@ public class HighContrastTests
         "FiliSkeletonColor", "FiliPrimaryHoverColor",
         "FiliOverlayHoverColor", "FiliOverlayPressedColor", "FiliInputFilledColor",
         "FiliOverlayDarkColor", "FiliOverlayLightColor", "FiliTooltipBackgroundColor",
+        "FiliDarkContrastTextColor", "FiliActionDefaultHoverColor",
+        "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
+        "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",
+        "FiliPrimaryDarkenColor", "FiliSecondaryDarkenColor", "FiliTertiaryDarkenColor", "FiliInfoDarkenColor",
+        "FiliSuccessDarkenColor", "FiliWarningDarkenColor", "FiliErrorDarkenColor", "FiliDarkDarkenColor",
+        "FiliPrimaryLightenColor", "FiliSecondaryLightenColor", "FiliTertiaryLightenColor", "FiliInfoLightenColor",
+        "FiliSuccessLightenColor", "FiliWarningLightenColor", "FiliErrorLightenColor", "FiliDarkLightenColor",
     ];
 
     /// <summary>
@@ -64,20 +71,24 @@ public class HighContrastTests
     ];
 
     /// <summary>
-    /// The only token whose high-contrast value is legitimately the dark one. White is white.
+    /// The only tokens whose high-contrast value is legitimately the dark one. White is white,
+    /// and white is also the text on Dark's fill in every variant.
     /// </summary>
-    private const string SharedWithDark = "FiliWhiteColor";
+    private static readonly string[] SharedWithDark = ["FiliWhiteColor", "FiliDarkContrastTextColor"];
 
     /// <summary>
-    /// Tokens allowed to keep an alpha channel here. All six are overlays laid OVER content
-    /// rather than content themselves: two state layers, the input fill, the selection tint and
-    /// the two scrims. Everything else must be opaque, because a translucent line or label
+    /// Tokens allowed to keep an alpha channel here. All of them are overlays laid OVER content
+    /// rather than content themselves: the state layers (including each colour's hover tint), the
+    /// input fill, the selection tint and the two scrims. Everything else must be opaque, because a translucent line or label
     /// composites against the ground and loses exactly the contrast this variant is for.
     /// </summary>
     private static readonly string[] MayBeTranslucent =
     [
         "FiliOverlayHoverColor", "FiliOverlayPressedColor", "FiliInputFilledColor",
         "FiliPrimaryHoverColor", "FiliOverlayDarkColor", "FiliOverlayLightColor",
+        "FiliActionDefaultHoverColor",
+        "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
+        "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",
     ];
 
     /// <summary>The bridge equivalents: the accent ramp and Simple's own highlight overlay.</summary>
@@ -103,16 +114,17 @@ public class HighContrastTests
     [Fact]
     public Task EveryPaletteTokenHasItsOwnValue() => UiThread.RunAsync(() =>
     {
-        foreach (var key in PaletteTokens.Where(k => k != SharedWithDark))
+        foreach (var key in PaletteTokens.Except(SharedWithDark))
         {
             Assert.True(
                 Resolve(key, HighContrast) != Resolve(key, ThemeVariant.Dark),
                 $"{key} is not declared for high contrast: it fell back to the dark value.");
         }
 
-        Assert.Equal(
-            Resolve(SharedWithDark, ThemeVariant.Dark),
-            Resolve(SharedWithDark, HighContrast));
+        foreach (var key in SharedWithDark)
+        {
+            Assert.Equal(Resolve(key, ThemeVariant.Dark), Resolve(key, HighContrast));
+        }
     });
 
     /// <summary>

@@ -68,7 +68,7 @@ public class ThemeCompositionTests
     });
 
     [Theory]
-    [InlineData("FiliContainedButton")]
+    [InlineData("FiliFilledButton")]
     [InlineData("FiliTextButton")]
     [InlineData("FiliOutlinedButton")]
     public Task ButtonControlThemesResolve(string key) => UiThread.RunAsync(() =>
@@ -88,7 +88,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task ContainedButtonIsElevated() => UiThread.RunAsync(() =>
     {
-        var button = Templated(new Button { Classes = { "primary" }, Content = "Save" });
+        var button = Templated(new Button { Classes = { "filled", "primary" }, Content = "Save" });
 
         var root = button.GetVisualDescendants()
             .OfType<Border>()
@@ -110,7 +110,7 @@ public class ThemeCompositionTests
     [Fact]
     public Task ButtonContentKeepsItsContrastForeground() => UiThread.RunAsync(() =>
     {
-        var button = Templated(new Button { Classes = { "primary" }, Content = "Save" });
+        var button = Templated(new Button { Classes = { "filled", "primary" }, Content = "Save" });
 
         var text = button.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault();
         Assert.NotNull(text);
@@ -561,7 +561,11 @@ public class ThemeCompositionTests
 
         keyboard.Focus(NavigationMethod.Tab);
         Dispatcher.UIThread.RunJobs();
-        Assert.Equal(OverlayHover(), Of(Layer(keyboard).Background));
+
+        // A button's tint is MudBlazor's action-default-hover (_button.scss), not the generic
+        // Material overlay the circular halos below use.
+        Assert.True(Application.Current!.TryFindResource("FiliActionDefaultHoverColor", ThemeVariant.Light, out var tint));
+        Assert.Equal((Color)tint!, Of(Layer(keyboard).Background));
 
         pointer.Focus(NavigationMethod.Pointer);
         Dispatcher.UIThread.RunJobs();

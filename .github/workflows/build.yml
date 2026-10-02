@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: for p in ${{ matrix.projects }}; do dotnet build "$p" --configuration Release --no-restore; done
 
-      # The fast suite: 89 tests, no rendering, identical everywhere.
+      # The fast suite: 198 tests, no rendering, identical everywhere.
       - name: Test (unit)
         run: >
           dotnet test tst/Fili.MudAvalonia.Theme.UnitTests

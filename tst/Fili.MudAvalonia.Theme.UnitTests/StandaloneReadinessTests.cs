@@ -32,7 +32,7 @@ public class StandaloneReadinessTests
     /// </summary>
     internal static readonly string[] ThemeKeys =
     [
-        "FiliContainedButton", "FiliTextButton", "FiliOutlinedButton",
+        "FiliFilledButton", "FiliTextButton", "FiliOutlinedButton",
         "FiliStandardTextBox", "FiliFilledTextBox", "FiliOutlinedTextBox",
         "FiliCheckBox", "FiliRadioButton", "FiliToggleSwitch",
         "FiliToggleButton", "FiliRepeatButton", "FiliHyperlinkButton",

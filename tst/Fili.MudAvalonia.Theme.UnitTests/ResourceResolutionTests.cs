@@ -40,6 +40,13 @@ public class ResourceResolutionTests
         "FiliOverlayHoverColor", "FiliOverlayPressedColor",
         "FiliInputFilledColor",
         "FiliOverlayDarkColor", "FiliOverlayLightColor", "FiliTooltipBackgroundColor",
+        "FiliDarkContrastTextColor", "FiliActionDefaultHoverColor",
+        "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
+        "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",
+        "FiliPrimaryDarkenColor", "FiliSecondaryDarkenColor", "FiliTertiaryDarkenColor", "FiliInfoDarkenColor",
+        "FiliSuccessDarkenColor", "FiliWarningDarkenColor", "FiliErrorDarkenColor", "FiliDarkDarkenColor",
+        "FiliPrimaryLightenColor", "FiliSecondaryLightenColor", "FiliTertiaryLightenColor", "FiliInfoLightenColor",
+        "FiliSuccessLightenColor", "FiliWarningLightenColor", "FiliErrorLightenColor", "FiliDarkLightenColor",
     ];
 
     private static readonly string[] BrushTokens =
@@ -61,6 +68,13 @@ public class ResourceResolutionTests
         // DynamicResource is not type-checked, so the mistake compiles and ships.
         "FiliTooltipBackgroundBrush",
         "FiliInputFilledBrush",
+        "FiliDarkContrastTextBrush", "FiliActionDefaultHoverBrush",
+        "FiliSecondaryHoverBrush", "FiliTertiaryHoverBrush", "FiliInfoHoverBrush", "FiliSuccessHoverBrush",
+        "FiliWarningHoverBrush", "FiliErrorHoverBrush", "FiliDarkHoverBrush",
+        "FiliPrimaryDarkenBrush", "FiliSecondaryDarkenBrush", "FiliTertiaryDarkenBrush", "FiliInfoDarkenBrush",
+        "FiliSuccessDarkenBrush", "FiliWarningDarkenBrush", "FiliErrorDarkenBrush", "FiliDarkDarkenBrush",
+        "FiliPrimaryLightenBrush", "FiliSecondaryLightenBrush", "FiliTertiaryLightenBrush", "FiliInfoLightenBrush",
+        "FiliSuccessLightenBrush", "FiliWarningLightenBrush", "FiliErrorLightenBrush", "FiliDarkLightenBrush",
     ];
 
     [Fact]

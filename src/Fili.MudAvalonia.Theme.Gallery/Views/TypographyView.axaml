@@ -6,7 +6,7 @@
     <StackPanel Margin="24" Spacing="4" MaxWidth="900" HorizontalAlignment="Left">
 
       <TextBlock Classes="h6" Text="Type ramp" />
-      <TextBlock Classes="body2 secondary"
+      <TextBlock Classes="body2" Foreground="{DynamicResource FiliTextSecondaryBrush}"
                  TextWrapping="Wrap"
                  Margin="0,0,0,16"
                  Text="Note the base size: body2 is 14px, not 16px. That smaller baseline is a large part of why the look reads dense and tidy, and it is the first thing to check if a ported screen feels wrong." />

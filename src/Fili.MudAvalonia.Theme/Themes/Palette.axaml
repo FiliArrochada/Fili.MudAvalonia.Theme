@@ -37,6 +37,7 @@
       <Color x:Key="FiliErrorColor">#F44336</Color>
       <Color x:Key="FiliErrorContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliDarkColor">#424242</Color>
+      <Color x:Key="FiliDarkContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliBlackColor">#272C34</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
 
@@ -78,6 +79,49 @@
         filled bar.
       -->
       <Color x:Key="FiliPrimaryHoverColor">#0F594AE2</Color>
+
+      <!-- The other colours' `mud-palette-{color}-hover`: the colour at HoverOpacity, 0.06 ->
+           0F (MudThemeProvider.razor.cs, `SetAlpha(palette.HoverOpacity)`). What a text or
+           outlined button of that colour paints under itself on hover, focus and press. -->
+      <Color x:Key="FiliSecondaryHoverColor">#0FFF4081</Color>
+      <Color x:Key="FiliTertiaryHoverColor">#0F1EC8A5</Color>
+      <Color x:Key="FiliInfoHoverColor">#0F2196F3</Color>
+      <Color x:Key="FiliSuccessHoverColor">#0F00C853</Color>
+      <Color x:Key="FiliWarningHoverColor">#0FFF9800</Color>
+      <Color x:Key="FiliErrorHoverColor">#0FF44336</Color>
+      <Color x:Key="FiliDarkHoverColor">#0F424242</Color>
+      <!-- `mud-palette-action-default-hover`: ActionDefault at HoverOpacity. Black here, so
+           #0F000000 - the hover of a button with no colour. -->
+      <Color x:Key="FiliActionDefaultHoverColor">#0F000000</Color>
+
+      <!--
+        `mud-palette-{color}-darken`: a filled button's fill on hover, focus and press.
+        Palette.cs derives it as `Color.ColorRgbDarken()`, which is HSL lightness minus 0.075
+        (MudColor.cs), with hue rounded to a degree and saturation and lightness to two places
+        the way .NET's Math.Round does it: scaled by 100 in double arithmetic, then rounded
+        half-to-even, so 0.465 goes to 0.46. PaletteDerivationTests recomputes every one of these
+        with MudColorPort, a C# port of that code, and fails if a value here disagrees.
+
+        `mud-palette-{color}-lighten` is the same with lightness PLUS 0.075 (ColorRgbLighten). A
+        filled button group divides its segments with it. Darken and lighten of the seven
+        non-Dark colours, 14 values, all match mudblazor.com exactly.
+      -->
+      <Color x:Key="FiliPrimaryDarkenColor">#3E2CDD</Color>
+      <Color x:Key="FiliSecondaryDarkenColor">#FF1F69</Color>
+      <Color x:Key="FiliTertiaryDarkenColor">#19A98C</Color>
+      <Color x:Key="FiliInfoDarkenColor">#0C80DF</Color>
+      <Color x:Key="FiliSuccessDarkenColor">#00A344</Color>
+      <Color x:Key="FiliWarningDarkenColor">#D68100</Color>
+      <Color x:Key="FiliErrorDarkenColor">#F21C0D</Color>
+      <Color x:Key="FiliDarkDarkenColor">#2E2E2E</Color>
+      <Color x:Key="FiliPrimaryLightenColor">#766AE7</Color>
+      <Color x:Key="FiliSecondaryLightenColor">#FF6699</Color>
+      <Color x:Key="FiliTertiaryLightenColor">#2ADFBB</Color>
+      <Color x:Key="FiliInfoLightenColor">#47A7F5</Color>
+      <Color x:Key="FiliSuccessLightenColor">#00EB62</Color>
+      <Color x:Key="FiliWarningLightenColor">#FFA724</Color>
+      <Color x:Key="FiliErrorLightenColor">#F66055</Color>
+      <Color x:Key="FiliDarkLightenColor">#575757</Color>
 
       <!-- State-layer overlays. Material behaviour, not a MudBlazor palette token. -->
       <Color x:Key="FiliOverlayHoverColor">#0A000000</Color>
@@ -125,6 +169,7 @@
       <Color x:Key="FiliErrorColor">#F64E62</Color>
       <Color x:Key="FiliErrorContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliDarkColor">#27272F</Color>
+      <Color x:Key="FiliDarkContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliBlackColor">#27272F</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
 
@@ -156,6 +201,34 @@
       <Color x:Key="FiliSkeletonColor">#1CFFFFFF</Color>
 
       <Color x:Key="FiliPrimaryHoverColor">#0F776BE7</Color>
+
+      <!-- `mud-palette-{color}-hover`, the colour at 0F. -->
+      <Color x:Key="FiliSecondaryHoverColor">#0FFF4081</Color>
+      <Color x:Key="FiliTertiaryHoverColor">#0F1EC8A5</Color>
+      <Color x:Key="FiliInfoHoverColor">#0F3299FF</Color>
+      <Color x:Key="FiliSuccessHoverColor">#0F0BBA83</Color>
+      <Color x:Key="FiliWarningHoverColor">#0FFFA800</Color>
+      <Color x:Key="FiliErrorHoverColor">#0FF64E62</Color>
+      <Color x:Key="FiliDarkHoverColor">#0F27272F</Color>
+      <Color x:Key="FiliActionDefaultHoverColor">#0FADADB1</Color>
+
+      <!-- ColorRgbDarken of the dark palette's own colours; PaletteDark.cs sets none itself. -->
+      <Color x:Key="FiliPrimaryDarkenColor">#5A4BE2</Color>
+      <Color x:Key="FiliSecondaryDarkenColor">#FF1F69</Color>
+      <Color x:Key="FiliTertiaryDarkenColor">#19A98C</Color>
+      <Color x:Key="FiliInfoDarkenColor">#0A85FF</Color>
+      <Color x:Key="FiliSuccessDarkenColor">#099A6C</Color>
+      <Color x:Key="FiliWarningDarkenColor">#D68F00</Color>
+      <Color x:Key="FiliErrorDarkenColor">#F42F46</Color>
+      <Color x:Key="FiliDarkDarkenColor">#17171C</Color>
+      <Color x:Key="FiliPrimaryLightenColor">#978DEC</Color>
+      <Color x:Key="FiliSecondaryLightenColor">#FF6699</Color>
+      <Color x:Key="FiliTertiaryLightenColor">#2ADFBB</Color>
+      <Color x:Key="FiliInfoLightenColor">#5CADFF</Color>
+      <Color x:Key="FiliSuccessLightenColor">#0DDE9C</Color>
+      <Color x:Key="FiliWarningLightenColor">#FFB624</Color>
+      <Color x:Key="FiliErrorLightenColor">#F87786</Color>
+      <Color x:Key="FiliDarkLightenColor">#383843</Color>
 
       <Color x:Key="FiliOverlayHoverColor">#14FFFFFF</Color>
       <Color x:Key="FiliOverlayPressedColor">#29FFFFFF</Color>
@@ -219,6 +292,7 @@
       <Color x:Key="FiliErrorColor">#FF9AA8</Color>
       <Color x:Key="FiliErrorContrastTextColor">#000000</Color>
       <Color x:Key="FiliDarkColor">#000000</Color>
+      <Color x:Key="FiliDarkContrastTextColor">#FFFFFF</Color>
       <Color x:Key="FiliBlackColor">#000000</Color>
       <Color x:Key="FiliWhiteColor">#FFFFFF</Color>
 
@@ -263,6 +337,36 @@
       -->
       <Color x:Key="FiliPrimaryHoverColor">#59D3C4FF</Color>
 
+      <!-- At 35% like the primary above, and white for Dark, whose colour here is black. -->
+      <Color x:Key="FiliSecondaryHoverColor">#59FF9DC4</Color>
+      <Color x:Key="FiliTertiaryHoverColor">#597BF0D6</Color>
+      <Color x:Key="FiliInfoHoverColor">#599CD4FF</Color>
+      <Color x:Key="FiliSuccessHoverColor">#598CFFC0</Color>
+      <Color x:Key="FiliWarningHoverColor">#59FFD166</Color>
+      <Color x:Key="FiliErrorHoverColor">#59FF9AA8</Color>
+      <Color x:Key="FiliDarkHoverColor">#33FFFFFF</Color>
+      <Color x:Key="FiliActionDefaultHoverColor">#33FFFFFF</Color>
+
+      <!-- The same derivation. Dark is the exception: darkening black is black, which would
+           leave a filled dark button with no hover at all, so it lifts to the table-hover
+           grey instead. -->
+      <Color x:Key="FiliPrimaryDarkenColor">#B399FF</Color>
+      <Color x:Key="FiliSecondaryDarkenColor">#FF7AAF</Color>
+      <Color x:Key="FiliTertiaryDarkenColor">#5AEDCD</Color>
+      <Color x:Key="FiliInfoDarkenColor">#7AC6FF</Color>
+      <Color x:Key="FiliSuccessDarkenColor">#66FFAB</Color>
+      <Color x:Key="FiliWarningDarkenColor">#FFC53D</Color>
+      <Color x:Key="FiliErrorDarkenColor">#FF7588</Color>
+      <Color x:Key="FiliDarkDarkenColor">#333333</Color>
+      <Color x:Key="FiliPrimaryLightenColor">#F0EBFF</Color>
+      <Color x:Key="FiliSecondaryLightenColor">#FFC2DA</Color>
+      <Color x:Key="FiliTertiaryLightenColor">#9AF4E0</Color>
+      <Color x:Key="FiliInfoLightenColor">#C2E4FF</Color>
+      <Color x:Key="FiliSuccessLightenColor">#ADFFD2</Color>
+      <Color x:Key="FiliWarningLightenColor">#FFDC8A</Color>
+      <Color x:Key="FiliErrorLightenColor">#FFC2CA</Color>
+      <Color x:Key="FiliDarkLightenColor">#151515</Color>
+
       <Color x:Key="FiliOverlayHoverColor">#33FFFFFF</Color>
       <Color x:Key="FiliOverlayPressedColor">#59FFFFFF</Color>
 
@@ -303,6 +407,33 @@
   <SolidColorBrush x:Key="FiliErrorBrush"               Color="{DynamicResource FiliErrorColor}" />
   <SolidColorBrush x:Key="FiliErrorContrastTextBrush"   Color="{DynamicResource FiliErrorContrastTextColor}" />
   <SolidColorBrush x:Key="FiliDarkBrush"    Color="{DynamicResource FiliDarkColor}" />
+  <SolidColorBrush x:Key="FiliDarkContrastTextBrush" Color="{DynamicResource FiliDarkContrastTextColor}" />
+
+  <SolidColorBrush x:Key="FiliSecondaryHoverBrush" Color="{DynamicResource FiliSecondaryHoverColor}" />
+  <SolidColorBrush x:Key="FiliTertiaryHoverBrush" Color="{DynamicResource FiliTertiaryHoverColor}" />
+  <SolidColorBrush x:Key="FiliInfoHoverBrush" Color="{DynamicResource FiliInfoHoverColor}" />
+  <SolidColorBrush x:Key="FiliSuccessHoverBrush" Color="{DynamicResource FiliSuccessHoverColor}" />
+  <SolidColorBrush x:Key="FiliWarningHoverBrush" Color="{DynamicResource FiliWarningHoverColor}" />
+  <SolidColorBrush x:Key="FiliErrorHoverBrush" Color="{DynamicResource FiliErrorHoverColor}" />
+  <SolidColorBrush x:Key="FiliDarkHoverBrush" Color="{DynamicResource FiliDarkHoverColor}" />
+  <SolidColorBrush x:Key="FiliActionDefaultHoverBrush" Color="{DynamicResource FiliActionDefaultHoverColor}" />
+
+  <SolidColorBrush x:Key="FiliPrimaryDarkenBrush" Color="{DynamicResource FiliPrimaryDarkenColor}" />
+  <SolidColorBrush x:Key="FiliSecondaryDarkenBrush" Color="{DynamicResource FiliSecondaryDarkenColor}" />
+  <SolidColorBrush x:Key="FiliTertiaryDarkenBrush" Color="{DynamicResource FiliTertiaryDarkenColor}" />
+  <SolidColorBrush x:Key="FiliInfoDarkenBrush" Color="{DynamicResource FiliInfoDarkenColor}" />
+  <SolidColorBrush x:Key="FiliSuccessDarkenBrush" Color="{DynamicResource FiliSuccessDarkenColor}" />
+  <SolidColorBrush x:Key="FiliWarningDarkenBrush" Color="{DynamicResource FiliWarningDarkenColor}" />
+  <SolidColorBrush x:Key="FiliErrorDarkenBrush" Color="{DynamicResource FiliErrorDarkenColor}" />
+  <SolidColorBrush x:Key="FiliDarkDarkenBrush" Color="{DynamicResource FiliDarkDarkenColor}" />
+  <SolidColorBrush x:Key="FiliPrimaryLightenBrush" Color="{DynamicResource FiliPrimaryLightenColor}" />
+  <SolidColorBrush x:Key="FiliSecondaryLightenBrush" Color="{DynamicResource FiliSecondaryLightenColor}" />
+  <SolidColorBrush x:Key="FiliTertiaryLightenBrush" Color="{DynamicResource FiliTertiaryLightenColor}" />
+  <SolidColorBrush x:Key="FiliInfoLightenBrush" Color="{DynamicResource FiliInfoLightenColor}" />
+  <SolidColorBrush x:Key="FiliSuccessLightenBrush" Color="{DynamicResource FiliSuccessLightenColor}" />
+  <SolidColorBrush x:Key="FiliWarningLightenBrush" Color="{DynamicResource FiliWarningLightenColor}" />
+  <SolidColorBrush x:Key="FiliErrorLightenBrush" Color="{DynamicResource FiliErrorLightenColor}" />
+  <SolidColorBrush x:Key="FiliDarkLightenBrush" Color="{DynamicResource FiliDarkLightenColor}" />
   <SolidColorBrush x:Key="FiliWhiteBrush"   Color="{DynamicResource FiliWhiteColor}" />
 
   <SolidColorBrush x:Key="FiliTextPrimaryBrush"   Color="{DynamicResource FiliTextPrimaryColor}" />

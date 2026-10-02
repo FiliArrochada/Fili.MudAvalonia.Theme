@@ -43,8 +43,8 @@
               <TextBlock Classes="caption" Text="148 titles across 4 stores" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-              <Button Classes="text" Content="Scan" />
-              <Button Classes="primary" Content="Add game" />
+              <Button Classes="primary" Content="Scan" />
+              <Button Classes="filled primary" Content="Add game" />
             </StackPanel>
           </Grid>
 
@@ -135,7 +135,7 @@
             <ProgressBar Value="45" />
             <TextBlock Classes="caption" Text="29 of 63 unlocked" />
           </StackPanel>
-          <Button Classes="primary" Content="Play" HorizontalAlignment="Stretch" />
+          <Button Classes="filled primary" Content="Play" HorizontalAlignment="Stretch" />
           <Button Classes="outlined" Content="Uninstall" HorizontalAlignment="Stretch" />
         </StackPanel>
       </Border>

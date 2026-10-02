@@ -44,11 +44,17 @@ Then use the tokens by key, and the type ramp by class:
   <StackPanel Spacing="4">
     <TextBlock Classes="h6" Text="Section" />
     <TextBlock Classes="caption" Text="Supporting line" />
+    <TextBlock Classes="body2 error" Text="Could not reach the store" />
   </StackPanel>
 </Border>
 
 <Border Background="{DynamicResource FiliPrimaryBrush}" />
 ```
+
+A colour class on a `TextBlock` is `MudText`'s `Color`: the palette colour, so `secondary` is the
+secondary colour. Grey supporting text is `text-secondary`, which MudBlazor reaches through its
+`mud-text-secondary` utility class rather than a `Color`; here it is
+`Foreground="{DynamicResource FiliTextSecondaryBrush}"`.
 
 Always `DynamicResource`, never `StaticResource` — see **The one rule** below.
 
@@ -67,27 +73,49 @@ base became a fork of Simple that this repo owns, the hazard went with it: a `Te
 
 ### Buttons
 
-Four variant classes, each backed by a `ControlTheme`:
+MudButton's whole Variant × Color × Size matrix, one class for each parameter:
 
 ```xml
-<Button Classes="primary"   Content="Save" />        raised, primary fill, elevation 2/4/8
-<Button Classes="secondary" Content="Share" />       raised, secondary fill
-<Button Classes="outlined"  Content="Cancel" />      1px line, no fill
-<Button Classes="text"      Content="Learn more" />  flat — Material's actual default
+<Button Content="Learn more" />                         text, default colour — MudButton's defaults
+<Button Classes="primary" Content="Learn more" />       text, primary
+<Button Classes="outlined error" Content="Delete" />    outlined, error
+<Button Classes="filled primary" Content="Save" />      filled, primary, elevation 2/4/8
+<Button Classes="filled success small" Content="OK" />  filled, success, small
+<Button Classes="inherit" Content="Sign in" />          the surrounding text colour
 ```
+
+- **Variant:** `text` (the default), `outlined`, `filled`. Each is a `ControlTheme`.
+- **Colour:** `primary`, `secondary`, `tertiary`, `info`, `success`, `warning`, `error`, `dark`,
+  `inherit`, or none for `Color.Default`.
+- **Size:** `small`, `large`, or none for `Size.Medium`.
+
+**A colour class is only a colour**, as `Color` is in MudBlazor: `primary` on its own is a primary
+*text* button, and the fill comes from `filled`. With no colour, a button is `text-primary` with a
+grey hover, which is MudBlazor's default and not Material's primary one.
+
+Every value is from `_button.scss`. Text and outlined buttons tint with the colour at 6%
+(`{color}-hover`) on hover, focus and press. Filled ones switch to `{color}-darken` and lift 2 → 4
+→ 8. Outlined's line is the colour itself, because `BorderOpacity` is 1.0. The darker and lighter
+shades are MudBlazor's own derivation, HSL lightness ∓ 0.075 with .NET's rounding, ported to C# in
+`MudColorPort`; `PaletteDerivationTests` checks every shade token against it in all three variants,
+and the port against the 14 values mudblazor.com publishes. `Button.axaml` is written by
+`ButtonThemeGenerator` from one list of colours, so no colour can differ from the others, and
+`GeneratedThemeTests` fails if the file is edited by hand. `ButtonMatrixTests` checks every cell of
+the matrix, at rest and on a real pointer hover. Both helpers live in the unit-test project, under
+`Generation/`.
 
 **The class names are MudBlazor's vocabulary, and they collide on purpose.** `primary`,
 `secondary`, `outlined`, `text` and `filled` are `Color.Primary`, `Color.Secondary`,
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
-**All 44 of them, which is the list to grep an app against before adopting:**
+**All 46 of them, which is the list to grep an app against before adopting:**
 
 | | |
 |---|---|
 | Type ramp (`TextBlock`) | `h1`–`h6`, `subtitle1`, `subtitle2`, `body1`, `body2`, `caption`, `overline` |
 | Surfaces (`Border`) | `surface`, `appbar`, `elevation0/1/2/4/6/8/12/16/24` |
-| Colour (`Color`) | `primary`, `secondary`, `info`, `success`, `warning`, `error`, `inherit` |
+| Colour (`Color`) | `primary`, `secondary`, `tertiary`, `info`, `success`, `warning`, `error`, `dark`, `inherit` |
 | Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
 | Size (`Size`) | `small`, `medium`, `large`, `dense` |
 | Placement | `inset`, `middle`, `vertical`, `underline`, `no-underline` |
@@ -96,7 +124,7 @@ package, so they are not namespaced to `mud-primary` or hidden behind an attache
 undeclared class is a collision nobody signed off on, and a declared one no selector uses is a
 lie to adopters. It walks the styles *and* the control themes, because the variant names live in
 a resource dictionary rather than in the styles collection: walking only `Application.Styles`
-finds 28 of the 44.
+finds barely half of them.
 
 Note how ordinary those words are — `small`, `flat`, `middle`, `vertical`, `error`. That is the
 hazard, and it is why the list is a published interface rather than an implementation detail.
@@ -119,6 +147,20 @@ property — only the `Border` inside a template does.
 
 `SplitButton` is a two-segment `MudButtonGroup`; `DropDownButton` is a `MudMenu` whose activator
 is a button.
+
+```xml
+<SplitButton Content="Save" />                         text group, text-primary
+<SplitButton Classes="outlined primary" Content="Export" />
+<SplitButton Classes="filled primary" Content="Deploy" />
+```
+
+**The split button takes Button's classes, meaning the same things**: `text` by default,
+`outlined` and `filled`, a colour class that is only a colour, `small` and `large`. That is
+MudButtonGroup's own Variant × Color × Size, and the same generator writes it
+(`ButtonThemeGenerator`, into a marked region of `SplitButton.axaml`). The line between the halves
+follows the group's rule: text-primary or the colour for a text group, the colour's own border
+for an outlined one, `divider` for a filled one with no colour, and the colour's lighten shade
+between filled coloured segments.
 
 `_buttongroup.scss` is almost entirely about joining segments into one shape: a non-last child
 loses its right-hand corner radii, a non-first child loses its left-hand ones and pulls back by
@@ -969,8 +1011,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 89 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 89 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 198 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 198 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
@@ -1086,6 +1128,12 @@ And the things that are not controls:
 - **No counter under a field.** The error/helper line exists; `MudTextField`'s character counter
   would need an attached property.
 - **No `divider-light` token**, so `MudDivider`'s `light` variant is not implemented.
+- **The `dark` colour barely shows as text or a line in dark mode, and not at all in high
+  contrast**: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme behaves the
+  same way. A filled dark button stays visible.
+- **Colour only reaches `Button`, `SplitButton`, `TextBlock` and `ProgressBar`.** `CheckBox`,
+  `RadioButton`, `ToggleSwitch` and `Slider` are primary only, and `DropDownButton` still defaults
+  to primary text where `MudMenu` defaults to `Color.Default`.
 - **RTL works, with one deliberate exception** — see *Right to left* above. The remaining gap is
   narrow: no control here has a *bidi-aware* behaviour beyond mirroring, so if one ever needs to
   keep a numeral or a code fragment left-to-right inside otherwise-RTL content, that is the app's

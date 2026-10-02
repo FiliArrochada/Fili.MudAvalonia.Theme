@@ -46,7 +46,8 @@ public class ClassVocabularyTests
         "elevation8", "elevation12", "elevation16", "elevation24",
 
         // Colour, from MudBlazor's Color enum.
-        "error", "info", "inherit", "primary", "secondary", "success", "warning",
+        "dark", "error", "info", "inherit", "primary", "secondary", "success", "tertiary",
+        "warning",
 
         // Shape, from MudBlazor's Variant enum and the per-control parameters.
         "filled", "flat", "outlined", "rounded", "text",

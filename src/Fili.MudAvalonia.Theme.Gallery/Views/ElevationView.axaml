@@ -5,7 +5,7 @@
   <ScrollViewer>
     <StackPanel Margin="24" Spacing="16">
       <TextBlock Classes="h6" Text="Elevation ladder" />
-      <TextBlock Classes="body2 secondary"
+      <TextBlock Classes="body2" Foreground="{DynamicResource FiliTextSecondaryBrush}"
                  TextWrapping="Wrap"
                  MaxWidth="680"
                  HorizontalAlignment="Left"

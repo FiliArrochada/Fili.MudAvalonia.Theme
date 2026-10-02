@@ -8,7 +8,7 @@
 
       <StackPanel Spacing="4">
         <TextBlock Classes="h6" Text="Control states" />
-        <TextBlock Classes="body2 secondary"
+        <TextBlock Classes="body2" Foreground="{DynamicResource FiliTextSecondaryBrush}"
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
@@ -17,28 +17,78 @@
 
       <!-- Buttons -->
       <StackPanel Spacing="8">
-        <TextBlock Classes="overline" Text="Button — enabled" />
-        <StackPanel Orientation="Horizontal" Spacing="12">
+        <TextBlock Classes="overline" Text="Button — variant × colour" />
+        <TextBlock Classes="caption" Text="Text (the default variant)" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Default" Classes="text" />
           <Button Content="Primary" Classes="primary" />
           <Button Content="Secondary" Classes="secondary" />
-          <Button Content="Outlined" Classes="outlined" />
-          <Button Content="Text" Classes="text" />
-          <Button Content="No class" />
+          <Button Content="Tertiary" Classes="tertiary" />
+          <Button Content="Info" Classes="info" />
+          <Button Content="Success" Classes="success" />
+          <Button Content="Warning" Classes="warning" />
+          <Button Content="Error" Classes="error" />
+          <Button Content="Dark" Classes="dark" />
+        </StackPanel>
+        <TextBlock Classes="caption" Text="Outlined" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Default" Classes="outlined" />
+          <Button Content="Primary" Classes="outlined primary" />
+          <Button Content="Secondary" Classes="outlined secondary" />
+          <Button Content="Tertiary" Classes="outlined tertiary" />
+          <Button Content="Info" Classes="outlined info" />
+          <Button Content="Success" Classes="outlined success" />
+          <Button Content="Warning" Classes="outlined warning" />
+          <Button Content="Error" Classes="outlined error" />
+          <Button Content="Dark" Classes="outlined dark" />
+        </StackPanel>
+        <TextBlock Classes="caption" Text="Filled" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Default" Classes="filled" />
+          <Button Content="Primary" Classes="filled primary" />
+          <Button Content="Secondary" Classes="filled secondary" />
+          <Button Content="Tertiary" Classes="filled tertiary" />
+          <Button Content="Info" Classes="filled info" />
+          <Button Content="Success" Classes="filled success" />
+          <Button Content="Warning" Classes="filled warning" />
+          <Button Content="Error" Classes="filled error" />
+          <Button Content="Dark" Classes="filled dark" />
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudButton's Variant × Color, one class each: Classes=&quot;outlined error&quot; is Variant.Outlined, Color.Error. A colour class is only a colour, so primary on its own is a primary TEXT button; the fill comes from filled. Hover each one: text and outlined tint with the colour at 6%, filled switches to the colour's darken shade and lifts 2 → 4 → 8, which no forked template can express because Button has no BoxShadow — only the Border inside a template has one. Default is Color.Default: text-primary, and a grey fill when filled. No ripple — the tint is the static half of it." />
+
+        <TextBlock Classes="overline" Text="Button — size and inherit" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Content="Small" Classes="filled primary small" VerticalAlignment="Center" />
+          <Button Content="Medium" Classes="filled primary" VerticalAlignment="Center" />
+          <Button Content="Large" Classes="filled primary large" VerticalAlignment="Center" />
+          <Button Content="Small" Classes="outlined primary small" VerticalAlignment="Center" />
+          <Button Content="Large" Classes="outlined primary large" VerticalAlignment="Center" />
+          <Button Content="Small" Classes="primary small" VerticalAlignment="Center" />
+          <Button Content="Large" Classes="primary large" VerticalAlignment="Center" />
+          <Border Classes="appbar" Padding="8,0" CornerRadius="{DynamicResource FiliCornerRadius}" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+              <Button Content="Inherit" Classes="inherit" VerticalAlignment="Center" />
+              <Button Content="Inherit" Classes="outlined inherit" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
         </StackPanel>
 
         <TextBlock Classes="overline" Text="Button — disabled" Margin="0,8,0,0" />
-        <StackPanel Orientation="Horizontal" Spacing="12">
-          <Button Content="Primary" Classes="primary" IsEnabled="False" />
-          <Button Content="Secondary" Classes="secondary" IsEnabled="False" />
-          <Button Content="Outlined" Classes="outlined" IsEnabled="False" />
-          <Button Content="Text" Classes="text" IsEnabled="False" />
-          <Button Content="No class" IsEnabled="False" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Filled" Classes="filled primary" IsEnabled="False" />
+          <Button Content="Outlined" Classes="outlined primary" IsEnabled="False" />
+          <Button Content="Text" Classes="primary" IsEnabled="False" />
+          <Button Content="Default" IsEnabled="False" />
         </StackPanel>
 
         <TextBlock Classes="overline" Text="Button — keyboard focus" Margin="0,8,0,0" />
         <StackPanel Orientation="Horizontal" Spacing="12">
-          <Button x:Name="FocusedSample" Content="Tabbed to" Classes="primary" />
-          <Button Content="Not focused" Classes="primary" />
+          <Button x:Name="FocusedSample" Content="Tabbed to" Classes="filled primary" />
+          <Button Content="Not focused" Classes="filled primary" />
           <Button Content="Tabbed to" x:Name="FocusedText" />
           <Button Content="Not focused" />
         </StackPanel>
@@ -46,13 +96,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="The first and third carry keyboard focus, set from code-behind so it survives into a screenshot. MudBlazor has no focus ring to borrow — _reset.scss sets outline: none and every component maps :focus-visible to the hover tint — so the state layer is the whole affordance. It is :focus-visible rather than :focus on purpose: clicking a button should not leave it tinted after the pointer has gone." />
-
-        <TextBlock Classes="caption"
-                   TextWrapping="Wrap"
-                   MaxWidth="760"
-                   HorizontalAlignment="Left"
-                   Text="Hover and press the raised ones: elevation steps 2 → 4 → 8, which no forked template can express because Button has no BoxShadow — only the Border inside a template has one. The last button carries no class and is identical to the text one, because MudButton.Variant defaults to Variant.Text: the classes opt UP from flat rather than opting in to being themed. No ripple — the tinted state layer is the static half of it." />
+                   Text="The first and third carry keyboard focus, set from code-behind so it survives into a screenshot. MudBlazor has no focus ring to borrow — _reset.scss sets outline: none and _button.scss maps :focus-visible to the hover value — so the state is the whole affordance. It is :focus-visible rather than :focus on purpose: clicking a button should not leave it tinted after the pointer has gone." />
       </StackPanel>
 
       <!-- Split and drop-down buttons -->
@@ -67,7 +111,14 @@
               </MenuFlyout>
             </SplitButton.Flyout>
           </SplitButton>
-          <SplitButton Classes="primary" Content="Deploy">
+          <SplitButton Classes="outlined primary" Content="Export">
+            <SplitButton.Flyout>
+              <MenuFlyout>
+                <MenuItem Header="Export as PDF" />
+              </MenuFlyout>
+            </SplitButton.Flyout>
+          </SplitButton>
+          <SplitButton Classes="filled primary" Content="Deploy">
             <SplitButton.Flyout>
               <MenuFlyout>
                 <MenuItem Header="Deploy to staging" />
@@ -83,7 +134,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="A split button is MudButtonGroup: the joined halves square off their inner corners and a 1px divider sits between them. That divider is text-primary at FULL strength, not a hairline — Palette.cs sets BorderOpacity to 1.0, which looks like a mistake and is not one." />
+                   Text="A split button is MudButtonGroup, with the same classes as Button: text by default, outlined, filled, any colour, small and large. The halves square off their inner corners and a 1px line sits between them — text-primary or the colour at FULL strength, because Palette.cs sets BorderOpacity to 1.0; divider when filled; the colour&apos;s lighten shade between filled coloured segments." />
       </StackPanel>
 
       <!-- Selection -->
@@ -469,7 +520,7 @@
             <NumericUpDown Width="150" Value="42" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="12">
-            <Button Classes="primary" Content="حفظ" />
+            <Button Classes="filled primary" Content="حفظ" />
             <Separator Classes="vertical" />
             <TreeView Classes="surface" Width="200" Height="96">
               <TreeViewItem Header="المكتبة" IsExpanded="True">
