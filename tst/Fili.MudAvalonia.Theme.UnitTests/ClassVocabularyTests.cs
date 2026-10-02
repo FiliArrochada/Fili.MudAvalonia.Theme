@@ -55,8 +55,8 @@ public class ClassVocabularyTests
         // Size, from MudBlazor's Size enum.
         "dense", "large", "medium", "small",
 
-        // Placement and decoration, from MudDivider and MudLink.
-        "inset", "light", "middle", "no-underline", "underline", "vertical",
+        // Placement and decoration, from MudDivider, MudLink and MudTabs.
+        "border", "centered", "inset", "light", "middle", "no-underline", "underline", "vertical",
 
         // Components that are a class on an existing control: MudIconButton and MudChip on a
         // Button, MudAlert and MudSkeleton on a Border, with MudSkeleton's SkeletonType.

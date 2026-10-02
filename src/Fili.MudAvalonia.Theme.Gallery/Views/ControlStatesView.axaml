@@ -448,7 +448,7 @@
             <ListBoxItem>Third item</ListBoxItem>
             <ListBoxItem IsEnabled="False">Disabled item</ListBoxItem>
           </ListBox>
-          <TabControl Width="330" Height="140">
+          <TabControl Width="480" Height="140">
             <TabItem Header="One">
               <TextBlock Classes="body2" Margin="12" Text="First tab content" />
             </TabItem>
@@ -621,7 +621,7 @@
       <StackPanel Spacing="8">
         <TextBlock Classes="overline" Text="Tab strip and pips" />
         <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-          <TabStrip Width="330" SelectedIndex="0">
+          <TabStrip Width="480" SelectedIndex="0">
             <TabStripItem>Library</TabStripItem>
             <TabStripItem>Store</TabStripItem>
             <TabStripItem IsEnabled="False">Disabled</TabStripItem>
@@ -630,11 +630,44 @@
                      IsPreviousButtonVisible="True" IsNextButtonVisible="True"
                      VerticalAlignment="Center" />
         </StackPanel>
+
         <TextBlock Classes="caption"
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
                    Text="A TabStrip is a TabControl's header row without the content area — Avalonia splits them, MudBlazor does not, so both carry the same 48px/12px/6px metrics and the same 2px indicator. The pips are MudCarousel's bullets, and they are the RadioButtonChecked and RadioButtonUnchecked glyphs the radio button already uses rather than drawn dots: selecting one swaps the glyph, so a ring gains a disc. The 0.75 opacity on the whole row is transcribed from MudCarousel's own inline style." />
+
+        <TextBlock Classes="overline" Text="Tab options and app bar" Margin="0,8,0,0" />
+        <WrapPanel Orientation="Horizontal" ItemSpacing="24" LineSpacing="16">
+          <TabStrip Classes="primary" Width="480" SelectedIndex="0">
+            <TabStripItem>Primary</TabStripItem>
+            <TabStripItem>Store</TabStripItem>
+            <TabStripItem IsEnabled="False">Disabled</TabStripItem>
+          </TabStrip>
+          <TabStrip Classes="dark rounded" Width="480" SelectedIndex="1">
+            <TabStripItem>Dark</TabStripItem>
+            <TabStripItem>Rounded</TabStripItem>
+          </TabStrip>
+          <TabStrip Classes="border centered" Width="480" SelectedIndex="0">
+            <TabStripItem>Border</TabStripItem>
+            <TabStripItem>Centered</TabStripItem>
+          </TabStrip>
+          <TabStrip Classes="outlined rounded" Width="480" SelectedIndex="0">
+            <TabStripItem>Outlined</TabStripItem>
+            <TabStripItem>Rounded</TabStripItem>
+          </TabStrip>
+          <Border Classes="appbar dense" Width="480">
+            <TextBlock Classes="h6" Text="Dense app bar" VerticalAlignment="Center" />
+          </Border>
+          <Border Classes="appbar primary" Width="480">
+            <TextBlock Classes="h6" Text="Primary app bar" VerticalAlignment="Center" />
+          </Border>
+        </WrapPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudTabs' defaults: a surface bar with no rule under it, tabs in text-primary and at least 160px wide. A colour class is MudTabs' Color, the bar in the colour and the tabs in its contrast text; border, outlined, rounded and centered are its parameters of the same names, on a TabControl or a TabStrip. An app bar is 64px with 24px gutters, dense is 48px, and a colour class is MudAppBar's Color." />
       </StackPanel>
 
       <!-- Right to left -->

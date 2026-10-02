@@ -113,7 +113,7 @@ the matrix, at rest and on a real pointer hover. Both helpers live in the unit-t
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
-**All 54 of them, which is the list to grep an app against before adopting:**
+**All 56 of them, which is the list to grep an app against before adopting:**
 
 | | |
 |---|---|
@@ -122,7 +122,7 @@ package, so they are not namespaced to `mud-primary` or hidden behind an attache
 | Colour (`Color`) | `primary`, `secondary`, `tertiary`, `info`, `success`, `warning`, `error`, `dark`, `inherit` |
 | Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
 | Size (`Size`) | `small`, `medium`, `large`, `dense` |
-| Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline` |
+| Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline`, `border`, `centered` |
 | Component | `icon`, `chip`, `alert`, `skeleton`, `circle`, `rectangle`, `counter` |
 
 `ClassVocabularyTests` asserts that list is exactly what the theme uses, in both directions — an
@@ -321,9 +321,23 @@ the data is already in 0–24 space.
   named `PART_Track`, and the `Track`'s two `RepeatButton`s **are** the active and inactive halves
   of the rail — there is no separate fill element. Both orientations need their own `Template`; a
   horizontal one applied to a vertical slider renders sideways rather than degrading.
-- **TabControl** — a flat 48px strip with a 2px primary indicator and a hairline under it.
-  `ItemContainerTheme` is what carries the header theme down to a bare `<TabItem>`; without it the
-  control is themed and its headers are not, which looks like the theme half-applied.
+- **TabControl** — MudTabs' 48px bar with a 2px primary indicator. MudTabs' defaults decide the
+  rest, and this theme used to differ on each: the bar is `surface` with **no** rule under it
+  (`Border` defaults to false), tabs are text-primary rather than text-secondary, and
+  `MinimumTabWidth` is 160px. `ItemContainerTheme` is what carries the header theme down to a bare
+  `<TabItem>`; without it the control is themed and its headers are not, which looks like the
+  theme half-applied.
+
+```xml
+<TabControl Classes="primary">…</TabControl>              MudTabs Color: the bar in the colour
+<TabStrip Classes="border centered">…</TabStrip>          Border, Centered
+<TabControl Classes="outlined rounded">…</TabControl>     Outlined, Rounded
+```
+
+A colour class is MudTabs' `Color`, the colour of the **bar** - the tabs and the indicator take
+its contrast text, and the active tab's hover is `{color}-lighten`. A tab's theme cannot see its
+parent's class, so those are `TabControl.primary > TabItem` child selectors in `FiliTheme.axaml`;
+a descendant selector would also repaint a `TabControl` nested in the content.
 
 The indicator does not slide between tabs — that needs to measure both headers and animate
 between them, which means code-behind and a custom panel. A per-item indicator that fades is the
@@ -1075,8 +1089,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 313 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 313 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 343 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 343 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
@@ -1193,7 +1207,7 @@ And the things that are not controls:
   contrast**: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme behaves the
   same way. A filled dark button stays visible.
 - **Colour is on every control MudBlazor gives a `Color` that has an Avalonia counterpart here**,
-  except tabs. See [MudBlazor parity](docs/mudblazor-parity.md) for every remaining gap.
+  the tab bar and the app bar included. See [MudBlazor parity](docs/mudblazor-parity.md) for every remaining gap.
 - **RTL works, with one deliberate exception** — see *Right to left* above. The remaining gap is
   narrow: no control here has a *bidi-aware* behaviour beyond mirroring, so if one ever needs to
   keep a numeral or a code fragment left-to-right inside otherwise-RTL content, that is the app's

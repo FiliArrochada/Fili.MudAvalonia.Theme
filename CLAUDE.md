@@ -102,10 +102,11 @@ Two conversions are already applied and should stay applied consistently:
   ControlTheme (FiliTheme.axaml); colour and size are nested `^.primary` / `^.small` styles inside
   each theme.
 - **Button.axaml, and marked regions in SplitButton.axaml (split and drop-down), Chip, CheckBox,
-  RadioButton, ToggleSwitch, Slider, ProgressBar and FiliTheme.axaml (TextBlock and alert
-  colours), are GENERATED** by `ThemeColourGenerator` (unit-test project, `Generation/`) from one
-  list of eight colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
-  any difference, and rewrites the files when `FILI_REGENERATE=1` is set. Each colour needs five
+  RadioButton, ToggleSwitch, Slider, ProgressBar and FiliTheme.axaml (TextBlock, alert, app bar
+  and tab bar colours), are GENERATED** by `ThemeColourGenerator` (unit-test project,
+  `Generation/`) from one list of eight colours. Change the generator, never one colour's block by
+  hand: `GeneratedThemeTests` fails on any difference, and rewrites the files when
+  `FILI_REGENERATE=1` is set. Each colour needs five
   tokens - `Fili{C}Color`, `…ContrastTextColor`, `…HoverColor` (the colour at 6%, 35% in high
   contrast), `…DarkenColor` and `…LightenColor`. The last two are MudBlazor's derivation, ported
   as `MudColorPort`, and `PaletteDerivationTests` asserts every one in every variant against it, so

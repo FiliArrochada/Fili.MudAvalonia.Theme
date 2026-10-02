@@ -29,6 +29,8 @@ public static class ThemeColourGenerator
     public const string ProgressLabel = "progress bar colours.";
     public const string ChipLabel = "chip variants, colours, selection and sizes.";
     public const string AlertLabel = "alert colours.";
+    public const string TabsLabel = "tab bar colours.";
+    public const string AppBarLabel = "app bar colours.";
 
     private static readonly string[] Colours =
         ["Primary", "Secondary", "Tertiary", "Info", "Success", "Warning", "Error", "Dark"];
@@ -53,6 +55,8 @@ public static class ThemeColourGenerator
             (Controls("ProgressBar.axaml"), ProgressLabel, ProgressRegion()),
             (Controls("Chip.axaml"), ChipLabel, ChipRegion()),
             (FiliThemePath, AlertLabel, AlertRegion()),
+            (FiliThemePath, TabsLabel, TabsRegion()),
+            (FiliThemePath, AppBarLabel, AppBarRegion()),
         };
 
         // A file can hold more than one region, so each file's regions are applied in turn.
@@ -790,6 +794,48 @@ public static class ThemeColourGenerator
 
         return o.ToString();
     }
+
+    // ---------------------------------------------------------------------------------------
+    // FiliTheme.axaml region: MudTabs' Color, from _tabs.scss's .mud-tabs-tabbar-{color}: the bar
+    // in the colour, every tab and the indicator in its contrast text, a disabled tab still
+    // text-disabled, and {color}-lighten on the active tab's hover. A tab's theme cannot see its
+    // parent's class, so these are child selectors here rather than nested styles in the theme.
+    // ---------------------------------------------------------------------------------------
+
+    private static string TabsRegion()
+    {
+        var o = new StringBuilder();
+        foreach (var c in Colours)
+        {
+            var cls = c.ToLowerInvariant();
+            o.Append(TopStyle($"TabControl.{cls} /template/ Border#PART_TabBar", ("Background", Res($"Fili{c}Brush"))));
+            o.Append(TopStyle($"TabStrip.{cls}", ("Background", Res($"Fili{c}Brush"))));
+
+            foreach (var (parent, item) in new[] { ("TabControl", "TabItem"), ("TabStrip", "TabStripItem") })
+            {
+                var tab = $"{parent}.{cls} > {item}";
+                o.Append(TopStyle(tab, ("Foreground", Res($"Fili{c}ContrastTextBrush"))));
+                o.Append(TopStyle($"{tab}:selected", ("Foreground", Res($"Fili{c}ContrastTextBrush"))));
+                o.Append(TopStyle($"{tab}:disabled", ("Foreground", Res("FiliTextDisabledBrush"))));
+                o.Append(TopStyle($"{tab}:selected /template/ Border#PART_Indicator", ("Background", Res($"Fili{c}ContrastTextBrush"))));
+                o.Append(TopStyle($"{tab}:selected:pointerover /template/ Border#PART_StateLayer", ("Background", Res($"Fili{c}LightenBrush"))));
+                o.Append(TopStyle($"{tab}:selected:focus-visible /template/ Border#PART_StateLayer", ("Background", Res($"Fili{c}LightenBrush"))));
+            }
+        }
+
+        return o.ToString();
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // FiliTheme.axaml region: MudAppBar's Color, which is .mud-theme-{color} - the colour as the
+    // ground and its contrast text, inherited by the bar's content.
+    // ---------------------------------------------------------------------------------------
+
+    private static string AppBarRegion() =>
+        string.Concat(Colours.Select(c => TopStyle(
+            $"Border.appbar.{c.ToLowerInvariant()}",
+            ("Background", Res($"Fili{c}Brush")),
+            ("TextElement.Foreground", Res($"Fili{c}ContrastTextBrush")))));
 
     // ---------------------------------------------------------------------------------------
     // FiliTheme.axaml region: MudText's Color, one class per palette colour.

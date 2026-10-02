@@ -176,11 +176,21 @@ A split button takes the same classes as a button and they mean the same things:
 
 ```xml
 <Border Classes="appbar">
-  <DockPanel Margin="16,0">
+  <DockPanel>
     <Button DockPanel.Dock="Right" Classes="inherit" Content="Sign in" VerticalAlignment="Center" />
     <TextBlock Classes="h6" Text="Library" VerticalAlignment="Center" />
   </DockPanel>
 </Border>
+```
+
+The 24px gutters are MudAppBar's `Gutters`, on by default; `Padding="0"` turns them off.
+
+```razor
+<MudAppBar Dense="true" Color="Color.Secondary">…</MudAppBar>
+```
+
+```xml
+<Border Classes="appbar dense secondary">…</Border>
 ```
 
 The bar's text colour is inherited. A control that sets its own colour, such as a select, keeps
@@ -337,6 +347,9 @@ slider. Colour and size are classes, exactly as `Color` and `Size` are parameter
   <TabItem Header="One"><TextBlock Text="First tab" /></TabItem>
   <TabItem Header="Two"><TextBlock Text="Second tab" /></TabItem>
 </TabControl>
+
+<!-- <MudTabs Color="Color.Primary" Centered="true" Rounded="true" Border="true"> -->
+<TabControl Classes="primary centered rounded border">…</TabControl>
 
 <ListBox Classes="surface">
   <ListBoxItem Classes="dense">First</ListBoxItem>

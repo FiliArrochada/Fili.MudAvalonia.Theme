@@ -8,8 +8,10 @@
   shared resource for four values would be more indirection than repetition.
 
     48px minimum height, 12px/6px padding, button type at Medium
-    label text-secondary, going to primary when selected
-    a 2px indicator in primary under the selected item, and a hairline under the strip
+    160px minimum width, MudTabs.MinimumTabWidth
+    label text-primary, going to primary when selected
+    a 2px indicator in primary under the selected item, on a surface bar
+    the same classes: a colour, border, outlined, rounded, centered
 
   If either file changes, change both. The gallery shows them side by side for that reason.
 -->
@@ -17,13 +19,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <ControlTheme x:Key="FiliTabStripItem" TargetType="TabStripItem">
-    <Setter Property="Foreground" Value="{DynamicResource FiliTextSecondaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="FontSize" Value="{DynamicResource FiliButtonFontSize}" />
     <Setter Property="FontWeight" Value="Medium" />
     <Setter Property="LetterSpacing" Value="{DynamicResource FiliButtonLetterSpacing}" />
     <Setter Property="Padding" Value="12,6" />
     <Setter Property="MinHeight" Value="48" />
+    <Setter Property="MinWidth" Value="160" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Cursor" Value="Hand" />
@@ -49,11 +52,18 @@
       </ControlTemplate>
     </Setter>
 
+    <!-- _tabs.scss: action-default-hover on a tab, primary-hover on the active one. -->
     <Style Selector="^:pointerover /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+      <Setter Property="Background" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
     </Style>
     <Style Selector="^:focus-visible /template/ Border#PART_StateLayer">
-      <Setter Property="Background" Value="{DynamicResource FiliOverlayHoverBrush}" />
+      <Setter Property="Background" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+    </Style>
+    <Style Selector="^:selected:pointerover /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^:selected:focus-visible /template/ Border#PART_StateLayer">
+      <Setter Property="Background" Value="{DynamicResource FiliPrimaryHoverBrush}" />
     </Style>
 
     <Style Selector="^:selected">
@@ -64,27 +74,50 @@
     </Style>
 
     <Style Selector="^:disabled">
-      <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliTextDisabledBrush}" />
     </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="FiliTabStrip" TargetType="TabStrip">
-    <Setter Property="Background" Value="Transparent" />
+    <!-- The strip IS the bar, so its own Background paints it: surface, or a colour class. -->
+    <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
     <Setter Property="FontFamily" Value="{DynamicResource FiliFontFamily}" />
     <Setter Property="ItemContainerTheme" Value="{StaticResource FiliTabStripItem}" />
 
     <Setter Property="Template">
       <ControlTemplate>
-        <!-- The hairline the strip sits on, which is what separates it from the content an app
-             puts below it. A TabControl draws the same rule inside its own template. -->
-        <Border Background="{TemplateBinding Background}"
-                BorderBrush="{DynamicResource FiliDividerBrush}"
-                BorderThickness="0,0,0,1">
+        <Border x:Name="PART_TabBar" Background="{TemplateBinding Background}">
           <ItemsPresenter x:Name="PART_ItemsPresenter"
                           ItemsPanel="{TemplateBinding ItemsPanel}" />
         </Border>
       </ControlTemplate>
     </Setter>
+
+    <!--
+      The bar, from .mud-tabs-tabbar: surface, and no line under it unless asked. Each of these is
+      a style rather than a value inline in the template, because a value written there binds at
+      Template priority and the classes below could not move it.
+    -->
+    <Style Selector="^ /template/ Border#PART_TabBar">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesDefaultBrush}" />
+    </Style>
+    <!-- Border: .mud-tabs-border-top, a lines-default rule on the content side. -->
+    <Style Selector="^.border /template/ Border#PART_TabBar">
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <!-- Outlined: .mud-paper-outlined on the bar. -->
+    <Style Selector="^.outlined /template/ Border#PART_TabBar">
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <!-- Rounded: .mud-tabs-rounded, default-borderradius, with the tabs' tints clipped to it. -->
+    <Style Selector="^.rounded /template/ Border#PART_TabBar">
+      <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <!-- Centered: .mud-tabs-centered, `margin: auto` on the tab row. -->
+    <Style Selector="^.centered /template/ ItemsPresenter#PART_ItemsPresenter">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type TabStrip}" TargetType="TabStrip" BasedOn="{StaticResource FiliTabStrip}" />

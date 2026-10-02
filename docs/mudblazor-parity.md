@@ -6,7 +6,7 @@ where the two differ. For side-by-side markup, see [Razor and AXAML](razor-vs-ax
 The rule behind every row: **a class only ever names a MudBlazor variant.** Every control the
 theme templates is keyed to its type, so an unclassed control is already the MudBlazor default.
 Class names are MudBlazor's own words (`primary`, `outlined`, `small`), deliberately not
-namespaced. `ClassVocabularyTests` pins the full list of 54.
+namespaced. `ClassVocabularyTests` pins the full list of 56.
 
 | Mark | Meaning |
 |---|---|
@@ -100,7 +100,10 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | background, text colour | `appbar` | ✅ text colour is inherited, so a control's own colour wins |
 | height | `FiliAppbarHeight` | ✅ 64px |
 | elevation | the same | ✅ 4 |
-| `Dense`, `Bottom`, `Fixed` | — | ❌ |
+| `Dense` | `dense` | ✅ 48px |
+| `Color` | the colour classes | ✅ `.mud-theme-{color}`: the colour as ground, its contrast text inherited |
+| `Gutters` (default) | the same | ✅ 24px a side; `Padding="0"` for none |
+| `Bottom`, `Fixed` | — | ≈ placement, which is the app's layout |
 
 ### MudTextField → `TextBox`
 
@@ -189,8 +192,15 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | MudBlazor | Here | |
 |---|---|---|
 | 48px strip, 2px indicator | the same | ✅ |
+| tab bar | the same | ✅ `surface`, with no rule under it until `Border` |
+| tab text | the same | ✅ text-primary, primary when active, text-disabled when disabled |
+| hover | the same | ✅ `action-default-hover`; `primary-hover` on the active tab |
+| `MinimumTabWidth` (160px) | the same | ✅ |
+| `Color` | a colour class on the `TabControl` or `TabStrip` | ✅ the bar in the colour; tabs and indicator in its contrast text; `{color}-lighten` on the active tab's hover |
+| `Border` / `Outlined` | `border` / `outlined` | ✅ a `lines-default` rule under the bar, or round it |
+| `Rounded` / `Centered` | `rounded` / `centered` | ✅ |
+| `SliderColor`, `HideSlider`, `Elevation`, `Position` | — | ❌ |
 | sliding indicator | — | ❌ it fades per tab instead |
-| `Color`, `Centered`, `Rounded`, `Border` | — | ❌ |
 
 ### MudList → `ListBox`
 
