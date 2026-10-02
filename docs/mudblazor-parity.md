@@ -6,7 +6,7 @@ where the two differ. For side-by-side markup, see [Razor and AXAML](razor-vs-ax
 The rule behind every row: **a class only ever names a MudBlazor variant.** Every control the
 theme templates is keyed to its type, so an unclassed control is already the MudBlazor default.
 Class names are MudBlazor's own words (`primary`, `outlined`, `small`), deliberately not
-namespaced. `ClassVocabularyTests` pins the full list of 56.
+namespaced. `ClassVocabularyTests` pins the full list of 59.
 
 | Mark | Meaning |
 |---|---|
@@ -115,7 +115,7 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | `Error="true"` | `error` | ✅ |
 | validation | a binding's own validation error | ✅ message under the field at 12px, in the helper text's place |
 | `HelperText` | `AutomationProperties.HelpText` | ✅ caption, text-secondary; inset 4px under filled, 8px under outlined; read by a screen reader too |
-| `HelperTextOnFocus` | — | ❌ |
+| `HelperTextOnFocus` | `helper-on-focus` | ✅ the help keeps its room and shows while the field has focus |
 | `Counter` | `counter` with `MaxLength` | ✅ `12 / 50` on the right; the length alone when `MaxLength` is 0, as `Counter="0"` |
 | `Margin.Dense` | `dense` | ✅ standard 3px shorter, filled 8px, outlined 16px, with the label resting and floating to match |
 | `Margin.Normal` | `Margin` | ≈ only an outer margin in MudBlazor; an ordinary Avalonia property |
@@ -199,7 +199,8 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | `Color` | a colour class on the `TabControl` or `TabStrip` | ✅ the bar in the colour; tabs and indicator in its contrast text; `{color}-lighten` on the active tab's hover |
 | `Border` / `Outlined` | `border` / `outlined` | ✅ a `lines-default` rule under the bar, or round it |
 | `Rounded` / `Centered` | `rounded` / `centered` | ✅ |
-| `SliderColor`, `HideSlider`, `Elevation`, `Position` | — | ❌ |
+| `HideSlider` | `hide-slider` | ✅ |
+| `SliderColor`, `Elevation`, `Position` | — | ❌ |
 | sliding indicator | — | ❌ it fades per tab instead |
 
 ### MudList → `ListBox`
@@ -227,7 +228,7 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | a two-part `MudButtonGroup` | `SplitButton` | ✅ Button's classes: `outlined` / `filled`, any colour, `small` / `large` |
 | group separator | the same | ✅ text-primary or the colour; `divider` when filled; `{color}-lighten` between filled coloured segments |
 | `DropShadow="false"` | `filled flat` | ✅ on `SplitButton` and `DropDownButton` alike |
-| `Vertical` | — | ❌ |
+| `Vertical` | — | ≈ not applicable: `SplitButton` is two halves side by side; a vertical group is a `StackPanel` of buttons |
 | `MudMenu` with a button activator | `DropDownButton` | ✅ Button's classes; an unclassed one is `Color.Default`, text-primary |
 | menu items | `Menu`, `MenuItem` | ✅ strip items and dropdown rows are separate themes |
 
@@ -261,7 +262,8 @@ The message goes in the `Border`; an icon is a `PathIcon` inside it, and takes t
 | `SkeletonType.Text` (default) | `skeleton` | ✅ `skeleton` colour, 20px scaled to 60% as `_skeleton.scss` does |
 | `SkeletonType.Circle` / `Rectangle` | `circle` / `rectangle` | ✅ |
 | `Animation.Pulse` (default) | the same | ✅ 1.5s ease-in-out, 0.5s delay, opacity 1 → 0.4 → 1 |
-| `Animation.Wave`, `Animation.False` | — | ❌ |
+| `Animation.False` | `no-animation` | ✅ |
+| `Animation.Wave` | — | ❌ its band is an `::after` layer sliding over the skeleton; a `Border` has no second layer to animate |
 | `Width`, `Height` | `Width`, `Height` | ✅ |
 
 ### Not here

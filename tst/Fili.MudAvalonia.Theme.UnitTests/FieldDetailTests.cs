@@ -90,6 +90,28 @@ public class FieldDetailTests
         Assert.False(Block(box, "PART_HelperText").IsEffectivelyVisible);
     });
 
+    /// <summary>
+    /// HelperTextOnFocus: the help keeps its room and shows only while the field has focus, so
+    /// focusing a field never pushes the layout below it down.
+    /// </summary>
+    [Fact]
+    public Task HelperOnFocusShowsOnlyWhileFocused() => UiThread.RunAsync(() =>
+    {
+        var box = new TextBox { Width = 220, Classes = { "helper-on-focus" } };
+        AutomationProperties.SetHelpText(box, "Shown while focused");
+        Matrix.Show(box);
+        var helper = Block(box, "PART_HelperText");
+        var height = box.Bounds.Height;
+
+        Assert.Equal(0, helper.Opacity);
+        Assert.True(helper.IsEffectivelyVisible, "The help keeps its room while hidden.");
+
+        box.Focus();
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(1, helper.Opacity);
+        Assert.Equal(height, box.Bounds.Height);
+    });
+
     [Theory]
     [InlineData("filled", 4)]
     [InlineData("outlined", 8)]

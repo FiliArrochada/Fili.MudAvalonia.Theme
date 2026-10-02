@@ -283,6 +283,12 @@
     <Style Selector="^.error /template/ TextBlock#PART_HelperText">
       <Setter Property="IsVisible" Value="False" />
     </Style>
+    <!-- HelperTextOnFocus: `helper-on-focus`. The helper text keeps its room and shows only while
+         the field has focus, as MudBlazor's slides into view inside a container that keeps its
+         height. An error still takes its place. -->
+    <Style Selector="^.helper-on-focus:not(:focus-within) /template/ TextBlock#PART_HelperText">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
     <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Grid#PART_HelperLine">
       <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliErrorBrush}" />
     </Style>

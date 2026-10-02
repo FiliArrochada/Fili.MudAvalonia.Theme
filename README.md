@@ -113,7 +113,7 @@ the matrix, at rest and on a real pointer hover. Both helpers live in the unit-t
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
-**All 56 of them, which is the list to grep an app against before adopting:**
+**All 59 of them, which is the list to grep an app against before adopting:**
 
 | | |
 |---|---|
@@ -122,8 +122,9 @@ package, so they are not namespaced to `mud-primary` or hidden behind an attache
 | Colour (`Color`) | `primary`, `secondary`, `tertiary`, `info`, `success`, `warning`, `error`, `dark`, `inherit` |
 | Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
 | Size (`Size`) | `small`, `medium`, `large`, `dense` |
-| Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline`, `border`, `centered` |
+| Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline`, `border`, `centered`, `hide-slider` |
 | Component | `icon`, `chip`, `alert`, `skeleton`, `circle`, `rectangle`, `counter` |
+| Behaviour | `helper-on-focus`, `no-animation` |
 
 `ClassVocabularyTests` asserts that list is exactly what the theme uses, in both directions — an
 undeclared class is a collision nobody signed off on, and a declared one no selector uses is a
@@ -169,8 +170,10 @@ chip as a filled one. Chip selection rules (`MudChipSet`) stay with the app.
 MudAlert: the colour at 6% behind text in the colour's *darken* shade, which is what `_alert.scss`
 does and is easy to mistake for the colour itself; a `PathIcon` inside takes the colour.
 `outlined`, `filled` and `dense` are MudAlert's own. `<Border Classes="skeleton" Width="200" />`
-pulses on MudSkeleton's timing, and `circle` / `rectangle` are its other two types. The pixel
-suite masks skeletons for the same reason it masks an indeterminate progress bar.
+pulses on MudSkeleton's timing, and `circle` / `rectangle` are its other two types;
+`no-animation` is `Animation.False`. The pixel suite masks a pulsing skeleton for the same reason
+it masks an indeterminate progress bar, and compares a still one like everything else.
+`Animation.Wave` is not here: its band is an `::after` layer, which a `Border` does not have.
 
 ### Split and drop-down buttons
 
@@ -1089,8 +1092,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 343 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 343 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 345 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 345 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows

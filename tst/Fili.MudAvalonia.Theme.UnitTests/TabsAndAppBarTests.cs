@@ -101,6 +101,17 @@ public class TabsAndAppBarTests
         Assert.Equal(tabs.Bounds.Width - row.Bounds.Width, left * 2, 1);
     });
 
+    [Fact]
+    public Task HideSliderHidesTheIndicator() => UiThread.RunAsync(() =>
+    {
+        var tabs = Tabs("hide-slider", "primary");
+        var strip = Strip("hide-slider");
+
+        Assert.False(Named<Border>(Item(tabs, 0), "PART_Indicator").IsVisible);
+        Assert.False(Named<Border>((TabStripItem)strip.Items[0]!, "PART_Indicator").IsVisible);
+        Assert.True(Named<Border>(Item(Tabs(), 0), "PART_Indicator").IsVisible);
+    });
+
     // --------------------------------------------------------------------------------------
     // MudTabs.Color
     // --------------------------------------------------------------------------------------

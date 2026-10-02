@@ -181,7 +181,7 @@
         <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
           <StackPanel Width="220" Spacing="4">
             <Border Classes="skeleton" Width="200" HorizontalAlignment="Left" />
-            <Border Classes="skeleton" Width="160" HorizontalAlignment="Left" />
+            <Border Classes="skeleton no-animation" Width="160" HorizontalAlignment="Left" />
           </StackPanel>
           <Border Classes="skeleton circle" Width="40" Height="40" />
           <Border Classes="skeleton rectangle" Width="120" Height="60" />
@@ -196,7 +196,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="Each of these is a class on a control Avalonia already has. icon on a Button is MudIconButton: round, 12px round a 24px PathIcon, and action-default rather than text-primary; flat is DropShadow=&quot;false&quot;. chip on a Button or ToggleButton is MudChip, filled by default, and a selected filled chip draws as text. alert and skeleton on a Border are MudAlert, whose text is the colour&apos;s darken shade, and MudSkeleton, pulsing. light on a Separator is MudDivider.Light." />
+                   Text="Each of these is a class on a control Avalonia already has. icon on a Button is MudIconButton: round, 12px round a 24px PathIcon, and action-default rather than text-primary; flat is DropShadow=&quot;false&quot;. chip on a Button or ToggleButton is MudChip, filled by default, and a selected filled chip draws as text. alert and skeleton on a Border are MudAlert, whose text is the colour&apos;s darken shade, and MudSkeleton, pulsing (the second line is no-animation, Animation.False). light on a Separator is MudDivider.Light." />
       </StackPanel>
 
       <!-- Selection -->
@@ -312,7 +312,8 @@
           <TextBox Classes="outlined counter" Width="190" VerticalAlignment="Top" PlaceholderText="Title"
                    MaxLength="40" Text="Fili Manga Reader"
                    AutomationProperties.HelpText="Shown on the card" />
-          <TextBox Classes="counter" Width="190" VerticalAlignment="Top" PlaceholderText="Notes" Text="No limit" />
+          <TextBox Classes="counter helper-on-focus" Width="190" VerticalAlignment="Top" PlaceholderText="Notes" Text="No limit"
+                   AutomationProperties.HelpText="Shown while focused" />
           <TextBox Classes="filled error counter" Width="190" VerticalAlignment="Top" PlaceholderText="Code"
                    MaxLength="6" Text="1234567"
                    AutomationProperties.HelpText="Hidden in error" />
@@ -345,7 +346,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="Helper text is AutomationProperties.HelpText, which a screen reader announces too; an error takes its place. counter is MudTextField's Counter over MaxLength, the length alone when there is none. dense is Margin.Dense, and a select takes filled and outlined exactly as a text field does." />
+                   Text="Helper text is AutomationProperties.HelpText, which a screen reader announces too; an error takes its place. counter is MudTextField's Counter over MaxLength, the length alone when there is none, and helper-on-focus is HelperTextOnFocus: the third field's help appears when it has focus. dense is Margin.Dense, and a select takes filled and outlined exactly as a text field does." />
       </StackPanel>
 
       <!-- Range and progress -->
@@ -652,8 +653,8 @@
             <TabStripItem>Border</TabStripItem>
             <TabStripItem>Centered</TabStripItem>
           </TabStrip>
-          <TabStrip Classes="outlined rounded" Width="480" SelectedIndex="0">
-            <TabStripItem>Outlined</TabStripItem>
+          <TabStrip Classes="outlined rounded hide-slider" Width="480" SelectedIndex="0">
+            <TabStripItem>Outlined, no slider</TabStripItem>
             <TabStripItem>Rounded</TabStripItem>
           </TabStrip>
           <Border Classes="appbar dense" Width="480">
@@ -667,7 +668,7 @@
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="MudTabs' defaults: a surface bar with no rule under it, tabs in text-primary and at least 160px wide. A colour class is MudTabs' Color, the bar in the colour and the tabs in its contrast text; border, outlined, rounded and centered are its parameters of the same names, on a TabControl or a TabStrip. An app bar is 64px with 24px gutters, dense is 48px, and a colour class is MudAppBar's Color." />
+                   Text="MudTabs' defaults: a surface bar with no rule under it, tabs in text-primary and at least 160px wide. A colour class is MudTabs' Color, the bar in the colour and the tabs in its contrast text; border, outlined, rounded, centered and hide-slider are its parameters of the same names, on a TabControl or a TabStrip. An app bar is 64px with 24px gutters, dense is 48px, and a colour class is MudAppBar's Color." />
       </StackPanel>
 
       <!-- Right to left -->
