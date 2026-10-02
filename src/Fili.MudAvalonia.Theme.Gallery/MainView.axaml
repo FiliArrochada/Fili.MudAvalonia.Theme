@@ -33,8 +33,12 @@
             <!-- A selector rather than the light/dark switch it replaces, because there are three
                  variants now and high contrast is the one worth being able to reach in one click:
                  it is the only variant whose tokens are derived rather than transcribed. -->
+            <!-- Foreground in the bar's colour on purpose. The bar's colour is inherited and an
+                 input keeps its own text-primary, as in MudBlazor, which would be dark on the
+                 purple bar. Set on the select only: its dropdown items keep their own colour. -->
             <ComboBox x:Name="VariantSelector"
                       Width="140"
+                      Foreground="{DynamicResource FiliAppbarTextBrush}"
                       SelectedIndex="0"
                       VerticalAlignment="Center"
                       SelectionChanged="OnVariantChanged">

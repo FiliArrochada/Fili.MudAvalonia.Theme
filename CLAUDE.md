@@ -108,7 +108,7 @@ Two conversions are already applied and should stay applied consistently:
 - **When a control gets a ControlTheme, delete it from the blanket styles in `FiliTheme.axaml`.**
   A `Style` outranks a `ControlTheme` setter, so a leftover blanket `CornerRadius` silently
   overrides the template's. The remaining blanket selector is the pickers, which are still forked.
-- **A Style always outranks a ControlTheme setter.** This has bitten twice, in different
+- **A Style always outranks a ControlTheme setter.** This has bitten three times, in different
   costumes, and it is the single most likely way to break this package:
   - A blanket `Selector="TextBlock"` setting `Foreground` also matched the `TextBlock` a
     `ContentPresenter` makes for button content, repainting white-on-primary text body-grey.
@@ -116,10 +116,16 @@ Two conversions are already applied and should stay applied consistently:
     `Window, UserControl` and leaving only `LineHeight` and `LetterSpacing` on `TextBlock`.
   - A blanket input style setting `CornerRadius` flattened the filled field's top-only
     `4,4,0,0`. Fixed with `:not(.filled):not(.outlined)` on that selector.
+  - `Border.appbar TextBlock` painted app-bar text white - and, because a descendant selector
+    walks the LOGICAL tree, also every item of a ComboBox on the bar, which renders in a popup on
+    a white surface. White on white. Fixed by setting `TextElement.Foreground` on the bar
+    instead, so the colour is inherited and loses to any control's own.
 
   The rule that falls out: **any blanket style that sets a property a ControlTheme also sets needs
   a `:not()` guard, or it must move to the container as an inherited value.**
-  `ButtonContentKeepsItsContrastForeground` and `FilledTextFieldKeepsTopOnlyRounding` pin both.
+  `ButtonContentKeepsItsContrastForeground`, `FilledTextFieldKeepsTopOnlyRounding` and
+  `AppBarTests` pin all three. A descendant selector reaching into popups is the specific thing
+  to suspect whenever a container's style shows up somewhere it should not.
 - **`TextPresenter` has no `Foreground` AvaloniaProperty.** It reads the inherited
   `TextElement.Foreground` from its parent, so a setter targeting `PART_TextPresenter` fails to
   compile with `AVLN3000`. Set `Foreground` on the `TextBox` itself instead.

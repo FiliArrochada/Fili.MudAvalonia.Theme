@@ -208,14 +208,20 @@
   </Style>
 
   <!-- App bar -->
+  <!--
+    The text colour is INHERITED from the bar, not set on every TextBlock inside it. The blanket
+    `Border.appbar TextBlock` it replaces matched through the LOGICAL tree, which includes a
+    dropdown's items - they render in a popup on a white surface but are logical children of the
+    control on the bar - so an app-bar ComboBox opened onto white text on white. Inherited, the
+    colour reaches plain text and loses to every control that sets its own, which is also
+    MudBlazor's behaviour: .mud-input paints text-primary wherever it sits. A control that should
+    read in the bar's colour says so itself. Pinned by AppBarTests.
+  -->
   <Style Selector="Border.appbar">
     <Setter Property="Background" Value="{DynamicResource FiliAppbarBackgroundBrush}" />
     <Setter Property="Height" Value="{DynamicResource FiliAppbarHeight}" />
     <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation4}" />
-  </Style>
-
-  <Style Selector="Border.appbar TextBlock">
-    <Setter Property="Foreground" Value="{DynamicResource FiliAppbarTextBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliAppbarTextBrush}" />
   </Style>
 
   <!-- ============================== Controls ==============================
