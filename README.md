@@ -103,7 +103,7 @@ Every value is from `_button.scss`. Text and outlined buttons tint with the colo
 shades are MudBlazor's own derivation, HSL lightness ∓ 0.075 with .NET's rounding, ported to C# in
 `MudColorPort`; `PaletteDerivationTests` checks every shade token against it in all three variants,
 and the port against the 14 values mudblazor.com publishes. `Button.axaml` is written by
-`ButtonThemeGenerator` from one list of colours, so no colour can differ from the others, and
+`ThemeColourGenerator` from one list of colours, so no colour can differ from the others, and
 `GeneratedThemeTests` fails if the file is edited by hand. `ButtonMatrixTests` checks every cell of
 the matrix, at rest and on a real pointer hover. Both helpers live in the unit-test project, under
 `Generation/`.
@@ -161,7 +161,7 @@ is a button.
 **The split button takes Button's classes, meaning the same things**: `text` by default,
 `outlined` and `filled`, a colour class that is only a colour, `small` and `large`. That is
 MudButtonGroup's own Variant × Color × Size, and the same generator writes it
-(`ButtonThemeGenerator`, into a marked region of `SplitButton.axaml`). The line between the halves
+(`ThemeColourGenerator`, into a marked region of `SplitButton.axaml`). The line between the halves
 follows the group's rule: text-primary or the colour for a text group, the colour's own border
 for an outlined one, `divider` for a filled one with no colour, and the colour's lighten shade
 between filled coloured segments.
@@ -225,8 +225,16 @@ indistinguishable when the field sits on `FiliSurface`.
 <ToggleSwitch Content="Dark mode" />
 ```
 
-These have **one** Material shape each rather than a family of variants, so they carry no class at
-all.
+With no class they are MudBlazor's `Color.Default`, which is **grey, not primary**: the icon
+button a checkbox or radio glyph sits in is `action-default`, checked or not, and a switch keeps
+`_switch.scss`'s literal `#fafafa` thumb on and off. A colour class is `Color` — on a checkbox or
+radio it paints the glyph in every state, on a switch the thumb and track only when on — and
+`small` / `large` are MudIcon's 20 and 36px and the switch's own spans:
+
+```xml
+<CheckBox Classes="primary" Content="Enable sync" />
+<ToggleSwitch Classes="success large" Content="Online" />
+```
 
 **MudBlazor does not draw them — it renders Material icons.** `MudCheckBox` picks between
 `Icons.Material.Filled.CheckBox`, `CheckBoxOutlineBlank` and `IndeterminateCheckBox`; `MudRadio`
@@ -239,8 +247,8 @@ transcribed from `Icons/Material/Filled.cs`, and the templates swap between them
   grows an inner disc inside the ring rather than filling it; filling it is the usual mistake and
   the result reads as a round checkbox.
 - **ToggleSwitch** — a 20px thumb that is *larger* than its 14px track, overhanging it above and
-  below, with elevation under the thumb. The off track is `action-default` at 48% in **both**
-  states, not a separate grey.
+  below, with elevation under the thumb. The track is `action-default` at 48%, lifting to 50% when
+  on, and only a colour class changes its colour.
 
 All three centre a circular 40px state layer on the control rather than tinting the whole row.
 
@@ -256,8 +264,11 @@ the data is already in 0–24 space.
 <TabControl> <TabItem Header="One" /> </TabControl>
 ```
 
-- **Slider** — a 4px rail with a 12px knob that *grows* on hover and press (1.3× / 1.5×) rather
-  than only tinting. Structure is dictated by Avalonia, not Material: `Slider` requires a `Track`
+- **Slider** — `MudSlider` defaults to `Size.Small` and `Color.Primary`: a 2px rail and a 12px
+  thumb, with the inactive half at 30% of the colour. `medium` and `large` are 4px / 20px and
+  6px / 24px, and a colour class repaints it. The thumb does not grow: MudBlazor rings it, 1px of
+  the colour at 24% on hover and 2px on focus and press. The two halves of the rail reach under the
+  thumb so it reads as one continuous line, as MudBlazor's native range input does. Structure is dictated by Avalonia, not Material: `Slider` requires a `Track`
   named `PART_Track`, and the `Track`'s two `RepeatButton`s **are** the active and inactive halves
   of the rail — there is no separate fill element. Both orientations need their own `Template`; a
   horizontal one applied to a vertical slider renders sideways rather than degrading.
@@ -1015,8 +1026,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 198 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 198 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 255 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 255 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
@@ -1135,10 +1146,8 @@ And the things that are not controls:
 - **The `dark` colour barely shows as text or a line in dark mode, and not at all in high
   contrast**: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme behaves the
   same way. A filled dark button stays visible.
-- **Colour only reaches `Button`, `SplitButton`, `TextBlock` and `ProgressBar`.** `CheckBox`,
-  `RadioButton`, `ToggleSwitch` and `Slider` are primary only, and `DropDownButton` still defaults
-  to primary text where `MudMenu` defaults to `Color.Default`. See
-  [MudBlazor parity](docs/mudblazor-parity.md) for every gap.
+- **Colour is on every control MudBlazor gives a `Color` that has an Avalonia counterpart here**,
+  except tabs. See [MudBlazor parity](docs/mudblazor-parity.md) for every remaining gap.
 - **RTL works, with one deliberate exception** — see *Right to left* above. The remaining gap is
   narrow: no control here has a *bidi-aware* behaviour beyond mirroring, so if one ever needs to
   keep a numeral or a code fragment left-to-right inside otherwise-RTL content, that is the app's

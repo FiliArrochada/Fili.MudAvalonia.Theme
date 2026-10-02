@@ -79,8 +79,10 @@
     <Style Selector="^.secondary">
       <Setter Property="Foreground" Value="{DynamicResource FiliSecondaryBrush}" />
     </Style>
+    <!-- Color.Inherit: `color: inherit` - the surrounding text colour, bound because a
+         ControlTheme setter cannot withdraw its own Foreground and fall back to inheriting. -->
     <Style Selector="^.inherit">
-      <Setter Property="Foreground" Value="{DynamicResource FiliTextPrimaryBrush}" />
+      <Setter Property="Foreground" Value="{Binding $parent[Control].(TextElement.Foreground)}" />
     </Style>
 
     <Style Selector="^:disabled">

@@ -245,14 +245,19 @@ public class ThemeCompositionTests
             Assert.False(glyphs.Single(p => p.Name == hidden).IsVisible, $"{hidden} should be hidden.");
         });
 
+    /// <summary>
+    /// MudCheckBox.Color defaults to Color.Default, and the icon button it sits in is
+    /// action-default - so a checked box with no colour class is GREY, not primary. Primary is
+    /// Material's default and was this theme's until it was read against MudBlazor's source.
+    /// </summary>
     [Fact]
-    public Task CheckedCheckBoxGlyphIsPrimary() => UiThread.RunAsync(() =>
+    public Task CheckedCheckBoxGlyphIsActionDefault() => UiThread.RunAsync(() =>
     {
         var box = Templated(new CheckBox { IsChecked = true });
 
         var glyph = box.GetVisualDescendants().OfType<Shapes.Path>().Single(p => p.Name == "PART_Checked");
 
-        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(glyph.Fill).Color);
+        Assert.Equal(ActionDefault(), Assert.IsAssignableFrom<ISolidColorBrush>(glyph.Fill).Color);
     });
 
     /// <summary>
@@ -270,8 +275,9 @@ public class ThemeCompositionTests
 
         Assert.True(glyphs.Single(p => p.Name == "PART_Checked").IsVisible);
         Assert.False(glyphs.Single(p => p.Name == "PART_Unchecked").IsVisible);
+        // Color.Default: the checked glyph is action-default, like the checkbox's.
         Assert.Equal(
-            Primary(),
+            ActionDefault(),
             Assert.IsAssignableFrom<ISolidColorBrush>(
                 glyphs.Single(p => p.Name == "PART_Checked").Fill).Color);
     });
@@ -312,16 +318,15 @@ public class ThemeCompositionTests
         var off = Track(Templated(new ToggleSwitch()));
         var on = Track(Templated(new ToggleSwitch { IsChecked = true }));
 
-        // MudBlazor _switch.scss holds the track at opacity .48 in BOTH states and changes only
-        // its colour — action-default when off, the accent when on. An earlier version stepped
-        // 1.0 -> 0.5, which is Material spec rather than what MudBlazor renders.
+        // _switch.scss: the track is action-default at .48, lifting to .5 when on
+        // (`.mud-checked + .mud-switch-track`). With no colour class - MudSwitch.Color defaults to
+        // Color.Default, which adds no colour - it stays action-default when on; a colour class
+        // paints it, which SwitchMatrixTests covers.
         Assert.Equal(0.48, off.Opacity);
-        Assert.Equal(0.48, on.Opacity);
+        Assert.Equal(0.5, on.Opacity);
 
-        Assert.Equal(
-            ActionDefault(),
-            Assert.IsAssignableFrom<ISolidColorBrush>(off.Background).Color);
-        Assert.Equal(Primary(), Assert.IsAssignableFrom<ISolidColorBrush>(on.Background).Color);
+        Assert.Equal(ActionDefault(), Assert.IsAssignableFrom<ISolidColorBrush>(off.Background).Color);
+        Assert.Equal(ActionDefault(), Assert.IsAssignableFrom<ISolidColorBrush>(on.Background).Color);
     });
 
     [Theory]
@@ -592,7 +597,9 @@ public class ThemeCompositionTests
         ((InputElement)control).Focus(NavigationMethod.Tab);
         Dispatcher.UIThread.RunJobs();
 
-        Assert.Equal(OverlayHover(), ((ISolidColorBrush)halo.Fill!).Color);
+        // `.mud-icon-button:focus-visible` and `.mud-switch-base`'s hover: action-default-hover.
+        Application.Current!.TryFindResource("FiliActionDefaultHoverColor", ThemeVariant.Light, out var tint);
+        Assert.Equal((Color)tint!, ((ISolidColorBrush)halo.Fill!).Color);
     });
 
     /// <summary>

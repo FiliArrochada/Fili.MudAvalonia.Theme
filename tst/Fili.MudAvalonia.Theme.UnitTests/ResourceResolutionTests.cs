@@ -40,6 +40,7 @@ public class ResourceResolutionTests
         "FiliOverlayHoverColor", "FiliOverlayPressedColor",
         "FiliInputFilledColor",
         "FiliOverlayDarkColor", "FiliOverlayLightColor", "FiliTooltipBackgroundColor",
+        "FiliSwitchThumbColor",
         "FiliDarkContrastTextColor", "FiliActionDefaultHoverColor",
         "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
         "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",
@@ -67,6 +68,7 @@ public class ResourceResolutionTests
         // These two exist because a Border.Background bound to a Color silently renders nothing:
         // DynamicResource is not type-checked, so the mistake compiles and ships.
         "FiliTooltipBackgroundBrush",
+        "FiliSwitchThumbBrush",
         "FiliInputFilledBrush",
         "FiliDarkContrastTextBrush", "FiliActionDefaultHoverBrush",
         "FiliSecondaryHoverBrush", "FiliTertiaryHoverBrush", "FiliInfoHoverBrush", "FiliSuccessHoverBrush",

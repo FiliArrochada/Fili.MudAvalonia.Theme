@@ -205,7 +205,20 @@ the field without `error`, like MudBlazor's validation does.
 <Slider Value="{Binding Volume}" />
 ```
 
-`Color` on these four is not available yet: they are primary only.
+With no class these are MudBlazor's defaults: grey checkboxes, radios and switches, and a primary
+slider. Colour and size are classes, exactly as `Color` and `Size` are parameters:
+
+```razor
+<MudCheckBox @bind-Value="_sync" Color="Color.Primary" Size="Size.Small" Label="Enable sync" />
+<MudSwitch @bind-Value="_online" Color="Color.Success" Label="Online" />
+<MudSlider @bind-Value="_volume" Color="Color.Secondary" Size="Size.Medium" />
+```
+
+```xml
+<CheckBox IsChecked="{Binding Sync}" Classes="primary small" Content="Enable sync" />
+<ToggleSwitch IsChecked="{Binding Online}" Classes="success" Content="Online" />
+<Slider Value="{Binding Volume}" Classes="secondary medium" />
+```
 
 ## Progress, dividers, links
 

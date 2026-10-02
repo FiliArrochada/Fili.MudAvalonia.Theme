@@ -3,7 +3,7 @@ using Xunit;
 namespace Fili.MudAvalonia.Theme.UnitTests.Generation;
 
 /// <summary>
-/// The files <see cref="ButtonThemeGenerator"/> owns must be exactly what it writes.
+/// The files <see cref="ThemeColourGenerator"/> owns must be exactly what it writes.
 ///
 /// <para>
 /// <b>When this fails</b>, either a generated file was edited by hand - make the change in the
@@ -23,10 +23,10 @@ public class GeneratedThemeTests
         var regenerate = Environment.GetEnvironmentVariable(RegenerateVariable) == "1";
         var stale = new List<string>();
 
-        foreach (var (relativePath, content) in ButtonThemeGenerator.Generate(themeDirectory))
+        foreach (var (relativePath, content) in ThemeColourGenerator.Generate(themeDirectory))
         {
             var path = Path.Combine(themeDirectory, relativePath);
-            var current = ButtonThemeGenerator.Normalise(File.ReadAllText(path));
+            var current = ThemeColourGenerator.Normalise(File.ReadAllText(path));
 
             if (current == content)
             {
@@ -45,7 +45,7 @@ public class GeneratedThemeTests
 
         Assert.True(
             stale.Count == 0,
-            $"Out of date with ButtonThemeGenerator: {string.Join(", ", stale)}. Change the generator, "
+            $"Out of date with ThemeColourGenerator: {string.Join(", ", stale)}. Change the generator, "
             + $"not the file, then rewrite them with {RegenerateVariable}=1 (see this test's summary).");
     }
 

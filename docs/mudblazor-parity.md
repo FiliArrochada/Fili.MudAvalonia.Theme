@@ -109,16 +109,21 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | `MudRadio` | `RadioButton` | ✅ checked grows an inner disc |
 | `MudSwitch` | `ToggleSwitch` | ✅ 20px thumb over a 14px track |
 | `TriState` | `IsThreeState` | ✅ the indeterminate glyph |
-| `Color` | — | ❌ primary only |
-| `Size` | — | ❌ |
+| `Color.Default` (default) | no class | ✅ grey `action-default` glyphs, checked or not; the switch's `#fafafa` thumb on and off |
+| `Color.Primary` … `Color.Dark` | `primary` … `dark` | ✅ every glyph and the halo; on a switch, thumb and track only when on |
+| `Size.Small` / `Large` | `small` / `large` | ✅ glyph 20 / 36px; switch 14 / 26px thumb on its own span |
+| `UncheckedColor` | — | ❌ the colour reaches the unchecked state too, as when it is unset |
 
 ### MudSlider → `Slider`
 
 | MudBlazor | Here | |
 |---|---|---|
-| rail, knob, hover and press growth | the same | ✅ 4px rail, 12px knob, 1.3× / 1.5× |
+| `Size.Small` (default) | no class | ✅ 2px rail, 12px thumb |
+| `Size.Medium` / `Large` | `medium` / `large` | ✅ 4px / 20px and 6px / 24px |
+| `Color.Primary` (default) … `Color.Dark` | no class, or `secondary` … `dark` | ✅ thumb and active rail; inactive rail at 30% |
+| hover, focus and press | the same | ✅ a 1px / 2px ring of the colour at 24%; no growth |
 | vertical | `Orientation="Vertical"` | ✅ |
-| `Color`, `Size` | — | ❌ |
+| `Variant.Filled`, tick marks, value label | — | ❌ |
 
 ### MudProgressLinear → `ProgressBar`
 
@@ -128,8 +133,7 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | `Size.Medium` / `Large` | `medium` / `large` | ✅ 8 / 12px |
 | `Rounded` | `rounded` | ✅ |
 | `Indeterminate` | `IsIndeterminate` | ✅ MudBlazor's two-bar animation |
-| `Color` | `primary` `secondary` `info` `success` `warning` `error` | ✅ track at 20% of the colour |
-| `Color.Tertiary`, `Color.Dark` | — | ❌ |
+| `Color` | `primary` … `dark` | ✅ every palette colour, the track at 20% of it |
 | `Buffer`, `Striped` | — | ❌ |
 | `MudProgressCircular` | — | ❌ no circular progress control in Avalonia |
 
@@ -149,7 +153,7 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | `Underline.Hover` (default) | no class | ✅ |
 | `Underline.Always` / `None` | `underline` / `no-underline` | ✅ |
 | `Color.Primary` (default) | no class | ✅ |
-| `Color.Secondary` / `Inherit` | `secondary` / `inherit` | ≈ `inherit` paints text-primary |
+| `Color.Secondary` / `Inherit` | `secondary` / `inherit` | ✅ `inherit` is the surrounding text colour |
 
 ### MudTabs → `TabControl`, `TabStrip`
 
@@ -184,7 +188,7 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | a two-part `MudButtonGroup` | `SplitButton` | ✅ Button's classes: `outlined` / `filled`, any colour, `small` / `large` |
 | group separator | the same | ✅ text-primary or the colour; `divider` when filled; `{color}-lighten` between filled coloured segments |
 | `Vertical`, `DropShadow="false"` | — | ❌ |
-| `MudMenu` with a button activator | `DropDownButton` | ≈ defaults to primary text, where `MudMenu` defaults to `Color.Default`; `outlined` only |
+| `MudMenu` with a button activator | `DropDownButton` | ✅ Button's classes; an unclassed one is `Color.Default`, text-primary |
 | menu items | `Menu`, `MenuItem` | ✅ strip items and dropdown rows are separate themes |
 
 ### MudTooltip, MudSnackbar, MudDrawer, MudTreeView
@@ -254,8 +258,6 @@ Light and dark are MudBlazor's `Palette.cs` and `PaletteDark.cs`; high contrast 
 
 ## Known divergences
 
-- **`DropDownButton` defaults to primary text.** `MudMenu`'s activator defaults to
-  `Color.Default`, and the drop-down button has no colour or `filled` classes yet.
 - **The `dark` colour barely shows in dark mode, and not at all in high contrast** when used as text
   or a line: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme has the same
   property; a filled dark button is still visible.

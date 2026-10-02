@@ -128,6 +128,7 @@
           <SplitButton Content="Disabled" IsEnabled="False" />
           <DropDownButton Content="Sort by" />
           <DropDownButton Classes="outlined" Content="Filter" />
+          <DropDownButton Classes="filled primary" Content="Create" />
           <DropDownButton Content="Disabled" IsEnabled="False" />
         </StackPanel>
         <TextBlock Classes="caption"
@@ -159,11 +160,40 @@
           </StackPanel>
         </StackPanel>
 
+        <TextBlock Classes="caption" Text="Colours" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="24">
+          <StackPanel Spacing="4">
+            <CheckBox Classes="primary" Content="Primary" IsChecked="True" />
+            <CheckBox Classes="secondary" Content="Secondary" IsChecked="True" />
+            <CheckBox Classes="success" Content="Success" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <RadioButton Classes="primary" Content="Primary" GroupName="coloured" IsChecked="True" />
+            <RadioButton Classes="error" Content="Error" GroupName="coloured-error" IsChecked="True" />
+            <RadioButton Classes="info" Content="Info" GroupName="coloured-info" />
+          </StackPanel>
+          <StackPanel Spacing="4">
+            <ToggleSwitch Classes="primary" Content="Primary" IsChecked="True" />
+            <ToggleSwitch Classes="success" Content="Success" IsChecked="True" />
+            <ToggleSwitch Classes="error" Content="Error, off" />
+          </StackPanel>
+        </StackPanel>
+
+        <TextBlock Classes="caption" Text="Sizes" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+          <CheckBox Classes="primary small" Content="Small" IsChecked="True" VerticalAlignment="Center" />
+          <CheckBox Classes="primary large" Content="Large" IsChecked="True" VerticalAlignment="Center" />
+          <RadioButton Classes="primary small" Content="Small" GroupName="sized-small" IsChecked="True" VerticalAlignment="Center" />
+          <RadioButton Classes="primary large" Content="Large" GroupName="sized-large" IsChecked="True" VerticalAlignment="Center" />
+          <ToggleSwitch Classes="primary small" Content="Small" IsChecked="True" VerticalAlignment="Center" />
+          <ToggleSwitch Classes="primary large" Content="Large" IsChecked="True" VerticalAlignment="Center" />
+        </StackPanel>
+
         <TextBlock Classes="caption"
                    TextWrapping="Wrap"
                    MaxWidth="760"
                    HorizontalAlignment="Left"
-                   Text="None of these carries a class. Every control this theme templates is keyed to its type, so it arrives themed — a class now only ever names a MudBlazor variant, like Button.primary. MudBlazor does not draw these three, it renders Material icons, so the box and the ring here are the real CheckBox and RadioButtonChecked glyphs rather than approximations: look at the indeterminate bar and the radio's inner disc, which grows inside the ring instead of filling it." />
+                   Text="The first row carries no class, which is MudBlazor's Color.Default: grey, checked or not, because the icon button the glyph sits in is action-default — and a switch keeps its #fafafa thumb on and off. A colour class is Color: on a checkbox or radio it paints the glyph in every state, on a switch the thumb and track only when on. small and large are MudIcon's 20 and 36px and the switch's own spans. MudBlazor renders Material icons here rather than drawing boxes, so these are the real CheckBox and RadioButtonChecked glyphs." />
       </StackPanel>
 
       <!-- Inputs -->
@@ -220,8 +250,15 @@
         <TextBlock Classes="overline" Text="Range and progress" />
         <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
           <Slider Width="220" Value="40" />
+          <Slider Classes="secondary medium" Width="220" Value="55" />
+          <Slider Classes="success large" Width="220" Value="70" />
           <Slider Width="220" Value="40" IsEnabled="False" />
         </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="MudSlider defaults to Size.Small and Color.Primary: a 2px rail and a 12px thumb, the inactive rail at 30% of the colour. medium and large are 4px / 20px and 6px / 24px. Hover a thumb: it does not grow, it gains a 1px ring of the colour at 24%, and 2px while dragged or focused." />
 
         <TextBlock Classes="caption"
                    TextWrapping="Wrap"

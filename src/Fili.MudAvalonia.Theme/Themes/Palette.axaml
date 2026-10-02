@@ -147,6 +147,10 @@
       <Color x:Key="FiliOverlayDarkColor">#80212121</Color>
       <Color x:Key="FiliOverlayLightColor">#80FFFFFF</Color>
       <Color x:Key="FiliTooltipBackgroundColor">#616161</Color>
+      <!-- `.mud-switch-base { color: #fafafa }` - a literal in _switch.scss, not a palette
+           property, so it is the same in light and dark. It is the thumb of every switch
+           with no colour, on and off; a coloured switch replaces it only when on. -->
+      <Color x:Key="FiliSwitchThumbColor">#FAFAFA</Color>
 
     </ResourceDictionary>
 
@@ -239,6 +243,7 @@
       <Color x:Key="FiliOverlayDarkColor">#80212121</Color>
       <Color x:Key="FiliOverlayLightColor">#80FFFFFF</Color>
       <Color x:Key="FiliTooltipBackgroundColor">#616161</Color>
+      <Color x:Key="FiliSwitchThumbColor">#FAFAFA</Color>
 
     </ResourceDictionary>
 
@@ -381,6 +386,8 @@
       <Color x:Key="FiliOverlayDarkColor">#E6000000</Color>
       <Color x:Key="FiliOverlayLightColor">#E6FFFFFF</Color>
       <Color x:Key="FiliTooltipBackgroundColor">#000000</Color>
+      <!-- Pure white: the #fafafa thumb is the brightest thing on the black ground. -->
+      <Color x:Key="FiliSwitchThumbColor">#FFFFFF</Color>
 
     </ResourceDictionary>
 
@@ -483,6 +490,7 @@
     spec rather than what MudBlazor renders.
   -->
   <SolidColorBrush x:Key="FiliTooltipBackgroundBrush" Color="{DynamicResource FiliTooltipBackgroundColor}" />
+  <SolidColorBrush x:Key="FiliSwitchThumbBrush" Color="{DynamicResource FiliSwitchThumbColor}" />
 
   <SolidColorBrush x:Key="FiliInputFilledBrush"    Color="{DynamicResource FiliInputFilledColor}" />
 

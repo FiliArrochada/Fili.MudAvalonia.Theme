@@ -97,9 +97,9 @@ Two conversions are already applied and should stay applied consistently:
   `Foreground="{DynamicResource FiliTextSecondaryBrush}"`. `text`/`outlined`/`filled` switch the
   ControlTheme (FiliTheme.axaml); colour and size are nested `^.primary` / `^.small` styles inside
   each theme.
-- **Button.axaml, and one marked region each in SplitButton.axaml and FiliTheme.axaml, are
-  GENERATED** by `ButtonThemeGenerator` (unit-test project, `Generation/`) from one list of eight
-  colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
+- **Button.axaml, and marked regions in SplitButton.axaml (split and drop-down), CheckBox,
+  RadioButton, ToggleSwitch, Slider, ProgressBar and FiliTheme.axaml, are GENERATED** by
+  `ThemeColourGenerator` (unit-test project, `Generation/`) from one list of eight colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
   any difference, and rewrites the files when `FILI_REGENERATE=1` is set. Each colour needs five
   tokens - `Fili{C}Color`, `…ContrastTextColor`, `…HoverColor` (the colour at 6%, 35% in high
   contrast), `…DarkenColor` and `…LightenColor`. The last two are MudBlazor's derivation, ported
@@ -109,6 +109,12 @@ Two conversions are already applied and should stay applied consistently:
   0.46, 0.575 -> 0.57); it is checked against the 14 values mudblazor.com publishes.
   `ButtonMatrixTests` and `SplitButtonMatrixTests` check every cell under a real headless
   `MouseMove`.
+- **Most MudBlazor components default to `Color.Default`, and Color.Default is NOT primary.**
+  MudButton, MudMenu, MudButtonGroup, MudCheckBox, MudRadio and MudSwitch all default to it, and
+  it means text-primary text or the grey `action-default` icon colour - a checked checkbox with no
+  class is grey. Only MudSlider and MudLink default to primary. Primary
+  everywhere is MATERIAL's default and this theme carried it until each control was read against
+  its `.razor.cs`; check the component's parameter default before assuming one.
 - **Control themes are keyed by TYPE. A class only ever names a variant.** Every theme is declared
   under a `Fili*` name for the inventory, then aliased at the bottom of its file:
 
@@ -338,7 +344,7 @@ dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser     # needs the 
 # Accept new pixel baselines, after looking at the diff image the failure printed:
 $env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
 
-# Button.axaml and two marked regions are generated - edit ButtonThemeGenerator, then rewrite them:
+# Button.axaml and the marked regions are generated - edit ThemeColourGenerator, then rewrite them:
 $env:FILI_REGENERATE = "1"; dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --filter-class "*GeneratedThemeTests"
 ```
 

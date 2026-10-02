@@ -30,53 +30,56 @@
 
           <!-- 24px glyph + 4px padding = 32px; the state layer extends past it, as the
                ripple does in MudBlazor. -->
-          <Panel Grid.Column="0" Width="40" Height="40">
+          <!-- Size scales the glyph and its halo together: MudIcon is 20 / 24 / 36px. -->
+          <LayoutTransformControl x:Name="PART_Scale" Grid.Column="0">
+            <Panel Width="40" Height="40">
 
-            <Ellipse x:Name="PART_StateLayer"
-                     Width="40" Height="40"
-                     Fill="Transparent" />
+              <Ellipse x:Name="PART_StateLayer"
+                       Width="40" Height="40"
+                       Fill="Transparent" />
 
-            <!--
-              Unchecked and checked are separate glyphs, not one box that fills.
+              <!--
+                Unchecked and checked are separate glyphs, not one box that fills.
 
-              FlowDirection="LeftToRight" on each is the RIGHT-TO-LEFT opt-out. Avalonia mirrors
-              a whole subtree with one transform wherever the flow direction changes, so under RTL
-              the tick would come out reversed - and a checkmark is not a directional symbol, so
-              Material's bidirectionality guidance says it must not mirror. Avalonia's own Simple
-              theme pins its check path the same way, which is how this was found.
+                FlowDirection="LeftToRight" on each is the RIGHT-TO-LEFT opt-out. Avalonia mirrors
+                a whole subtree with one transform wherever the flow direction changes, so under RTL
+                the tick would come out reversed - and a checkmark is not a directional symbol, so
+                Material's bidirectionality guidance says it must not mirror. Avalonia's own Simple
+                theme pins its check path the same way, which is how this was found.
 
-              Arrows and chevrons are deliberately NOT opted out: a tree's disclosure arrow SHOULD
-              point left in RTL, and the mirror gives that for free.
-            -->
-            <Path x:Name="PART_Unchecked"
-                  Width="24" Height="24"
-                  Stretch="None"
-                  Data="{StaticResource FiliCheckBoxUncheckedGeometry}"
-                  Fill="{DynamicResource FiliActionDefaultBrush}"
-                  FlowDirection="LeftToRight"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center" />
+                Arrows and chevrons are deliberately NOT opted out: a tree's disclosure arrow SHOULD
+                point left in RTL, and the mirror gives that for free.
+              -->
+              <Path x:Name="PART_Unchecked"
+                    Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliCheckBoxUncheckedGeometry}"
+                    Fill="{DynamicResource FiliActionDefaultBrush}"
+                    FlowDirection="LeftToRight"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
 
-            <Path x:Name="PART_Checked"
-                  Width="24" Height="24"
-                  Stretch="None"
-                  Data="{StaticResource FiliCheckBoxCheckedGeometry}"
-                  Fill="{DynamicResource FiliPrimaryBrush}"
-                  FlowDirection="LeftToRight"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  IsVisible="False" />
+              <Path x:Name="PART_Checked"
+                    Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliCheckBoxCheckedGeometry}"
+                    Fill="{DynamicResource FiliActionDefaultBrush}"
+                    FlowDirection="LeftToRight"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False" />
 
-            <Path x:Name="PART_Indeterminate"
-                  Width="24" Height="24"
-                  Stretch="None"
-                  Data="{StaticResource FiliCheckBoxIndeterminateGeometry}"
-                  Fill="{DynamicResource FiliPrimaryBrush}"
-                  FlowDirection="LeftToRight"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  IsVisible="False" />
-          </Panel>
+              <Path x:Name="PART_Indeterminate"
+                    Width="24" Height="24"
+                    Stretch="None"
+                    Data="{StaticResource FiliCheckBoxIndeterminateGeometry}"
+                    Fill="{DynamicResource FiliActionDefaultBrush}"
+                    FlowDirection="LeftToRight"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False" />
+            </Panel>
+          </LayoutTransformControl>
 
           <ContentPresenter x:Name="PART_ContentPresenter"
                             Grid.Column="1"
@@ -104,17 +107,172 @@
       <Setter Property="IsVisible" Value="True" />
     </Style>
 
+    <!-- GENERATED by ThemeColourGenerator: checkbox colours and sizes. -->
+    <!-- No colour: the action-default halo. -->
     <Style Selector="^:pointerover /template/ Ellipse#PART_StateLayer">
-      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
     </Style>
-    <!-- Keyboard focus lights the same 40px halo as hover. MudBlazor has no ring to borrow:
-         _reset.scss sets `outline: none` and the state layer is the whole affordance. -->
     <Style Selector="^:focus-visible /template/ Ellipse#PART_StateLayer">
-      <Setter Property="Fill" Value="{DynamicResource FiliOverlayHoverBrush}" />
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
     </Style>
     <Style Selector="^:pressed /template/ Ellipse#PART_StateLayer">
-      <Setter Property="Fill" Value="{DynamicResource FiliOverlayPressedBrush}" />
+      <Setter Property="Fill" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
     </Style>
+
+    <!-- Colours: every glyph, checked or not, and the halo. -->
+    <Style Selector="^.primary /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^.primary /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^.primary /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryBrush}" />
+    </Style>
+    <Style Selector="^.primary:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.primary:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.primary:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliPrimaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.secondary /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.secondary /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryBrush}" />
+    </Style>
+    <Style Selector="^.secondary:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.secondary:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSecondaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryBrush}" />
+    </Style>
+    <Style Selector="^.tertiary /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryBrush}" />
+    </Style>
+    <Style Selector="^.tertiary /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryBrush}" />
+    </Style>
+    <Style Selector="^.tertiary:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.tertiary:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliTertiaryHoverBrush}" />
+    </Style>
+    <Style Selector="^.info /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^.info /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^.info /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoBrush}" />
+    </Style>
+    <Style Selector="^.info:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.info:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.info:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliInfoHoverBrush}" />
+    </Style>
+    <Style Selector="^.success /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^.success /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^.success /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessBrush}" />
+    </Style>
+    <Style Selector="^.success:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.success:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.success:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliSuccessHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^.warning /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^.warning /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningBrush}" />
+    </Style>
+    <Style Selector="^.warning:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.warning:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliWarningHoverBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.error:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.error:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliErrorHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark /template/ Path#PART_Unchecked">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkBrush}" />
+    </Style>
+    <Style Selector="^.dark /template/ Path#PART_Checked">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkBrush}" />
+    </Style>
+    <Style Selector="^.dark /template/ Path#PART_Indeterminate">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkBrush}" />
+    </Style>
+    <Style Selector="^.dark:pointerover /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark:focus-visible /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+    <Style Selector="^.dark:pressed /template/ Ellipse#PART_StateLayer">
+      <Setter Property="Fill" Value="{DynamicResource FiliDarkHoverBrush}" />
+    </Style>
+
+    <!-- `mud-icon-size-small` / `-large`: 1.25rem and 2.25rem against 1.5rem. -->
+    <Style Selector="^.small /template/ LayoutTransformControl#PART_Scale">
+      <Setter Property="LayoutTransform" Value="scale(0.8333333)" />
+    </Style>
+    <Style Selector="^.large /template/ LayoutTransformControl#PART_Scale">
+      <Setter Property="LayoutTransform" Value="scale(1.5)" />
+    </Style>
+    <!-- END GENERATED -->
 
     <Style Selector="^:disabled /template/ Path#PART_Unchecked">
       <Setter Property="Fill" Value="{DynamicResource FiliActionDisabledBrush}" />
