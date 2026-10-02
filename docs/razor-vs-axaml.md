@@ -1,0 +1,318 @@
+# Razor and AXAML
+
+The same UI written twice: MudBlazor Razor first, then the AXAML that gives the same look with this
+theme. For the full parameter-by-parameter list, see [MudBlazor parity](mudblazor-parity.md).
+
+Two rules explain almost every pair below:
+
+- **A class names a variant, and nothing else.** A MudBlazor parameter value such as
+  `Variant.Outlined` or `Color.Error` becomes a lowercase class: `outlined`, `error`. Defaults
+  need no class, because every control is themed by its type.
+- **Behaviour stays Avalonia's.** Binding, events, validation and layout are ordinary Avalonia.
+  The theme only supplies the look, so `@bind-Value` becomes a `{Binding}` and `OnClick` becomes
+  `Command` or `Click`.
+
+## Setup
+
+```razor
+@* MainLayout.razor *@
+<MudThemeProvider @bind-IsDarkMode="_dark" />
+```
+
+```xml
+<!-- App.axaml -->
+<Application.Styles>
+  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
+  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+</Application.Styles>
+```
+
+```csharp
+// IsDarkMode, and this theme's third variant
+Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+Application.Current!.RequestedThemeVariant = FiliThemeVariants.HighContrast;
+```
+
+## Buttons
+
+```razor
+<MudButton>Learn more</MudButton>
+<MudButton Color="Color.Primary">Learn more</MudButton>
+<MudButton Variant="Variant.Outlined" Color="Color.Error">Delete</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Small">OK</MudButton>
+<MudButton Variant="Variant.Filled" Disabled="true">Saving…</MudButton>
+<MudButton Color="Color.Inherit">Sign in</MudButton>
+```
+
+```xml
+<Button Content="Learn more" />
+<Button Classes="primary" Content="Learn more" />
+<Button Classes="outlined error" Content="Delete" />
+<Button Classes="filled primary" Content="Save" />
+<Button Classes="filled success small" Content="OK" />
+<Button Classes="filled" Content="Saving…" IsEnabled="False" />
+<Button Classes="inherit" Content="Sign in" />
+```
+
+`primary` on its own is a primary *text* button, exactly as `Color="Color.Primary"` is without a
+`Variant`. The fill comes from `filled`.
+
+## Button groups
+
+```razor
+<MudButtonGroup Variant="Variant.Filled" Color="Color.Primary">
+    <MudButton>Deploy</MudButton>
+    <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown">
+        <MudMenuItem>Deploy to staging</MudMenuItem>
+    </MudMenu>
+</MudButtonGroup>
+```
+
+```xml
+<SplitButton Classes="filled primary" Content="Deploy">
+  <SplitButton.Flyout>
+    <MenuFlyout>
+      <MenuItem Header="Deploy to staging" />
+    </MenuFlyout>
+  </SplitButton.Flyout>
+</SplitButton>
+```
+
+A split button takes the same classes as a button and they mean the same things:
+`outlined primary`, `filled error small`, and so on.
+
+## Typography
+
+```razor
+<MudText Typo="Typo.h6">Section</MudText>
+<MudText Typo="Typo.caption">Supporting line</MudText>
+<MudText Typo="Typo.overline">Label</MudText>
+<MudText>Body text</MudText>
+<MudText Typo="Typo.body2" Color="Color.Error">Could not reach the store</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary">Last synced an hour ago</MudText>
+```
+
+```xml
+<TextBlock Classes="h6" Text="Section" />
+<TextBlock Classes="caption" Text="Supporting line" />
+<TextBlock Classes="overline" Text="Label" />
+<TextBlock Text="Body text" />
+<TextBlock Classes="body2 error" Text="Could not reach the store" />
+<TextBlock Classes="body2" Foreground="{DynamicResource FiliTextSecondaryBrush}" Text="Last synced an hour ago" />
+```
+
+## Surfaces
+
+```razor
+<MudPaper Elevation="4" Class="pa-4">
+    <MudText Typo="Typo.h6">Section</MudText>
+</MudPaper>
+
+<MudPaper Outlined="true" Class="pa-4">…</MudPaper>
+```
+
+```xml
+<Border Classes="surface elevation4" Padding="16">
+  <TextBlock Classes="h6" Text="Section" />
+</Border>
+
+<Border Classes="surface outlined" Padding="16">…</Border>
+```
+
+`pa-4` is MudBlazor's 4 × 4px spacing step. Here it is a plain `Padding="16"`, or
+`{DynamicResource FiliSpacing4}` where a resource is wanted.
+
+## App bar
+
+```razor
+<MudAppBar>
+    <MudText Typo="Typo.h6">Library</MudText>
+    <MudSpacer />
+    <MudButton Color="Color.Inherit">Sign in</MudButton>
+</MudAppBar>
+```
+
+```xml
+<Border Classes="appbar">
+  <DockPanel Margin="16,0">
+    <Button DockPanel.Dock="Right" Classes="inherit" Content="Sign in" VerticalAlignment="Center" />
+    <TextBlock Classes="h6" Text="Library" VerticalAlignment="Center" />
+  </DockPanel>
+</Border>
+```
+
+The bar's text colour is inherited. A control that sets its own colour, such as a select, keeps
+it, just as a `MudSelect` keeps `text-primary` in an app bar. `inherit` is how a button asks for
+the bar's colour instead.
+
+## Text fields
+
+```razor
+<MudTextField @bind-Value="_email" Label="Email" />
+<MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Filled" />
+<MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Outlined" />
+<MudTextField @bind-Value="_email" Label="Email" Variant="Variant.Outlined" Error="true" />
+```
+
+```xml
+<TextBox Text="{Binding Email}" PlaceholderText="Email" />
+<TextBox Text="{Binding Email}" PlaceholderText="Email" Classes="filled" />
+<TextBox Text="{Binding Email}" PlaceholderText="Email" Classes="outlined" />
+<TextBox Text="{Binding Email}" PlaceholderText="Email" Classes="outlined error" />
+```
+
+`PlaceholderText` is the floating label. A binding that fails validation shows its message under
+the field without `error`, like MudBlazor's validation does.
+
+## Selects and numbers
+
+```razor
+<MudSelect T="string" @bind-Value="_platform" Label="Platform">
+    <MudSelectItem Value="@("PC")">PC</MudSelectItem>
+    <MudSelectItem Value="@("Switch")">Switch</MudSelectItem>
+</MudSelect>
+
+<MudNumericField @bind-Value="_quantity" Label="Quantity" />
+```
+
+```xml
+<ComboBox SelectedItem="{Binding Platform}" PlaceholderText="Platform">
+  <ComboBoxItem>PC</ComboBoxItem>
+  <ComboBoxItem>Switch</ComboBoxItem>
+</ComboBox>
+
+<NumericUpDown Value="{Binding Quantity}" PlaceholderText="Quantity" />
+```
+
+## Selection controls
+
+```razor
+<MudCheckBox @bind-Value="_sync" Label="Enable sync" />
+<MudRadioGroup @bind-Value="_cadence">
+    <MudRadio Value="@("weekly")">Weekly</MudRadio>
+    <MudRadio Value="@("monthly")">Monthly</MudRadio>
+</MudRadioGroup>
+<MudSwitch @bind-Value="_dark" Label="Dark mode" />
+<MudSlider @bind-Value="_volume" />
+```
+
+```xml
+<CheckBox IsChecked="{Binding Sync}" Content="Enable sync" />
+<RadioButton GroupName="cadence" Content="Weekly" />
+<RadioButton GroupName="cadence" Content="Monthly" />
+<ToggleSwitch IsChecked="{Binding Dark}" Content="Dark mode" />
+<Slider Value="{Binding Volume}" />
+```
+
+`Color` on these four is not available yet: they are primary only.
+
+## Progress, dividers, links
+
+```razor
+<MudProgressLinear Value="65" />
+<MudProgressLinear Color="Color.Primary" Size="Size.Large" Rounded="true" Value="65" />
+<MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+
+<MudDivider />
+<MudDivider DividerType="DividerType.Inset" />
+<MudDivider Vertical="true" FlexItem="true" />
+
+<MudLink Href="/docs">Learn more</MudLink>
+<MudLink Href="/docs" Underline="Underline.Always">Learn more</MudLink>
+```
+
+```xml
+<ProgressBar Value="65" />
+<ProgressBar Classes="primary large rounded" Value="65" />
+<ProgressBar Classes="primary" IsIndeterminate="True" />
+
+<Separator />
+<Separator Classes="inset" />
+<Separator Classes="vertical" />
+
+<HyperlinkButton NavigateUri="https://example.com/docs" Content="Learn more" />
+<HyperlinkButton Classes="underline" NavigateUri="https://example.com/docs" Content="Learn more" />
+```
+
+## Tabs, lists and panels
+
+```razor
+<MudTabs>
+    <MudTabPanel Text="One">First tab</MudTabPanel>
+    <MudTabPanel Text="Two">Second tab</MudTabPanel>
+</MudTabs>
+
+<MudList T="string" Dense="true">
+    <MudListItem Text="First" />
+    <MudListItem Text="Second" />
+</MudList>
+
+<MudExpansionPanels>
+    <MudExpansionPanel Text="Details">…</MudExpansionPanel>
+</MudExpansionPanels>
+```
+
+```xml
+<TabControl>
+  <TabItem Header="One"><TextBlock Text="First tab" /></TabItem>
+  <TabItem Header="Two"><TextBlock Text="Second tab" /></TabItem>
+</TabControl>
+
+<ListBox Classes="surface">
+  <ListBoxItem Classes="dense">First</ListBoxItem>
+  <ListBoxItem Classes="dense">Second</ListBoxItem>
+</ListBox>
+
+<Expander Header="Details">…</Expander>
+```
+
+## Feedback
+
+```razor
+<MudTooltip Text="Saved to the cloud">
+    <MudButton>Sync</MudButton>
+</MudTooltip>
+
+@inject ISnackbar Snackbar
+@code {
+    void Done() => Snackbar.Add("Library scan finished", Severity.Success);
+}
+```
+
+```xml
+<Button Content="Sync" ToolTip.Tip="Saved to the cloud" />
+```
+
+```csharp
+// once, for the window
+var notifications = new WindowNotificationManager(TopLevel.GetTopLevel(this))
+{
+    Position = NotificationPosition.BottomRight,
+};
+
+// MudSnackbar's look comes with the theme
+notifications.Show(new Notification(null, "Library scan finished", NotificationType.Success));
+```
+
+## Drawer
+
+```razor
+<MudLayout>
+    <MudDrawer @bind-Open="_open" Variant="DrawerVariant.Persistent">
+        <MudNavMenu>…</MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>…</MudMainContent>
+</MudLayout>
+```
+
+```xml
+<SplitView IsPaneOpen="{Binding Open}" DisplayMode="Inline">
+  <SplitView.Pane>…</SplitView.Pane>
+  <!-- main content -->
+</SplitView>
+```
+
+The drawer's 240px width and its background and text colours come from the theme. `DisplayMode`
+covers MudBlazor's drawer variants: `Inline` (persistent), `Overlay` (temporary), and
+`CompactInline` / `CompactOverlay` (mini).

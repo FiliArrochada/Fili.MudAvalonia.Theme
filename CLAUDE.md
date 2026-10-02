@@ -10,6 +10,11 @@ style classes, `ControlTheme`s for the controls a Material look genuinely cannot
 and a gallery to look at it all in. No new control *types* and no services. Read `README.md`
 first; it carries the usage, the token tables and the known gaps.
 
+`docs/mudblazor-parity.md` maps every MudBlazor parameter and palette property to its class or
+token, and `docs/razor-vs-axaml.md` shows the same UI in both. **They are part of the change, not
+a follow-up:** adding, renaming or dropping a class or token means updating the parity row in the
+same commit, or the page starts lying to the people most likely to read it.
+
 **The public API is ONE TYPE and is meant to stay that way:** `FiliThemeVariants`, whose single
 member is the high-contrast `ThemeVariant`. It cannot be internal, and not for convenience — a
 custom variant is unreachable from XAML except through `x:Static`, so this package's own

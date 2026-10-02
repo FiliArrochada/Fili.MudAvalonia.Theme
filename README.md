@@ -6,6 +6,10 @@ and high contrast, with a gallery app to look at it in.
 **[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
 compiled to WebAssembly and served by GitHub Pages.
 
+Coming from MudBlazor? [MudBlazor parity](docs/mudblazor-parity.md) maps every component
+parameter and palette property to its class or token, and [Razor and AXAML](docs/razor-vs-axaml.md)
+shows the same UI written both ways.
+
 The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
 aim is the *look* — this is not a component library: no new control types, no services, and one
 public type. That type is `FiliThemeVariants`, whose only member is the high-contrast
@@ -1133,7 +1137,8 @@ And the things that are not controls:
   same way. A filled dark button stays visible.
 - **Colour only reaches `Button`, `SplitButton`, `TextBlock` and `ProgressBar`.** `CheckBox`,
   `RadioButton`, `ToggleSwitch` and `Slider` are primary only, and `DropDownButton` still defaults
-  to primary text where `MudMenu` defaults to `Color.Default`.
+  to primary text where `MudMenu` defaults to `Color.Default`. See
+  [MudBlazor parity](docs/mudblazor-parity.md) for every gap.
 - **RTL works, with one deliberate exception** — see *Right to left* above. The remaining gap is
   narrow: no control here has a *bidi-aware* behaviour beyond mirroring, so if one ever needs to
   keep a numeral or a code fragment left-to-right inside otherwise-RTL content, that is the app's
