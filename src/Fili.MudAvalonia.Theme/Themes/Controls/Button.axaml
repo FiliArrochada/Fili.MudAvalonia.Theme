@@ -7,12 +7,14 @@
     Color     none (Color.Default), primary, secondary, tertiary, info, success, warning, error,
               dark, inherit
     Size      none (Size.Medium), small, large
+    Shape     icon (MudIconButton), flat (DropShadow="false")
 
     <Button Content="Learn more" />                        text, default colour
     <Button Classes="primary" Content="Learn more" />      text, primary
     <Button Classes="outlined error" Content="Delete" />   outlined, error
     <Button Classes="filled primary" Content="Save" />     filled, primary
     <Button Classes="filled success small" Content="OK" /> filled, success, small
+    <Button Classes="icon primary"><PathIcon /></Button>   a round primary icon button
 
   A colour class is ONLY a colour, as Color is in MudBlazor. `primary` on its own is a primary
   TEXT button; the fill comes from `filled`. Each variant follows one rule for every colour:
@@ -91,6 +93,16 @@
     </Style>
     <Style Selector="^:pressed /template/ Border#PART_StateLayer">
       <Setter Property="Background" Value="{DynamicResource FiliActionDefaultHoverBrush}" />
+    </Style>
+
+    <!-- MudIconButton, Variant.Text: round, 12px round a 24px icon, and action-default rather
+         than text-primary - `.mud-icon-button` comes after `.mud-button` in MudBlazor's
+         bundle, so its colour wins. Before the colours, so a colour class still beats it. -->
+    <Style Selector="^.icon">
+      <Setter Property="CornerRadius" Value="999" />
+      <Setter Property="Padding" Value="12" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDefaultBrush}" />
     </Style>
 
     <Style Selector="^.primary">
@@ -206,6 +218,14 @@
       <Setter Property="FontSize" Value="15" />
     </Style>
 
+    <!-- `.mud-icon-button-size-small`: 3px; large keeps 12px and grows the icon instead. -->
+    <Style Selector="^.icon.small">
+      <Setter Property="Padding" Value="3" />
+    </Style>
+    <Style Selector="^.icon.large">
+      <Setter Property="Padding" Value="12" />
+    </Style>
+
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
     </Style>
@@ -262,6 +282,18 @@
     <Style Selector="^.large">
       <Setter Property="Padding" Value="21,7" />
       <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <!-- `.mud-button-outlined.mud-icon-button`: the default radius again, 5px; 4px small or large. -->
+    <Style Selector="^.icon">
+      <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+      <Setter Property="Padding" Value="5" />
+    </Style>
+    <Style Selector="^.icon.small">
+      <Setter Property="Padding" Value="4" />
+    </Style>
+    <Style Selector="^.icon.large">
+      <Setter Property="Padding" Value="4" />
     </Style>
 
     <Style Selector="^:disabled /template/ Border#PART_Root">
@@ -334,6 +366,15 @@
     </Style>
     <Style Selector="^:pressed /template/ Border#PART_Root">
       <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+
+    <!-- `.mud-button-filled.mud-icon-button`: 5px inside a transparent 1px border. -->
+    <Style Selector="^.icon">
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Padding" Value="5" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource FiliActionDefaultBrush}" />
     </Style>
 
     <Style Selector="^.primary">
@@ -455,6 +496,26 @@
     <Style Selector="^.large">
       <Setter Property="Padding" Value="22,8" />
       <Setter Property="FontSize" Value="15" />
+    </Style>
+    <Style Selector="^.icon.small">
+      <Setter Property="Padding" Value="4" />
+    </Style>
+    <Style Selector="^.icon.large">
+      <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <!-- `flat` is DropShadow="false": `.mud-button-disable-elevation` drops the shadow in every state. -->
+    <Style Selector="^.flat /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.flat:pointerover /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.flat:focus-visible /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.flat:pressed /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
     </Style>
 
     <!-- Disabled drops to the ground: no shadow at all, not a dimmed one. -->

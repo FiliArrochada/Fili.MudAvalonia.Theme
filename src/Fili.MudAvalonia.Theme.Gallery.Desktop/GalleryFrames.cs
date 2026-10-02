@@ -211,9 +211,10 @@ public static class GalleryFrames
     /// rather than by remembering coordinates.
     ///
     /// <para>
-    /// There is exactly one today: an indeterminate ProgressBar. Its band is driven by an
-    /// animation clock that follows wall time, so the phase depends on how long the process took
-    /// to get here — two runs of the SAME BUILD differ by about eighty pixels, every time.
+    /// There are two today, both animated for ever: an indeterminate ProgressBar, and a skeleton,
+    /// whose pulse never settles. Each is driven by an animation clock that follows wall time, so
+    /// the phase depends on how long the process took to get here — two runs of the SAME BUILD
+    /// differ, every time, and no settle time can wait out an infinite animation.
     /// </para>
     /// <para>
     /// Masking a rectangle is not the same as loosening the comparison, and the difference
@@ -230,17 +231,18 @@ public static class GalleryFrames
     private static IReadOnlyList<PixelRect> UnstableRegions(Window window) =>
     [
         .. window.GetVisualDescendants()
-            .OfType<ProgressBar>()
-            .Where(bar => bar.IsIndeterminate && bar.Bounds is { Width: > 0, Height: > 0 })
-            .Select(bar =>
+            .OfType<Control>()
+            .Where(c => c is ProgressBar { IsIndeterminate: true } || (c is Border && c.Classes.Contains("skeleton")))
+            .Where(c => c.Bounds is { Width: > 0, Height: > 0 })
+            .Select(c =>
             {
-                var origin = bar.TranslatePoint(default, window) ?? default;
+                var origin = c.TranslatePoint(default, window) ?? default;
 
                 return new PixelRect(
                     (int)Math.Floor(origin.X) - 2,
                     (int)Math.Floor(origin.Y) - 2,
-                    (int)Math.Ceiling(bar.Bounds.Width) + 4,
-                    (int)Math.Ceiling(bar.Bounds.Height) + 4);
+                    (int)Math.Ceiling(c.Bounds.Width) + 4,
+                    (int)Math.Ceiling(c.Bounds.Height) + 4);
             }),
     ];
 }

@@ -58,6 +58,47 @@ Application.Current!.RequestedThemeVariant = FiliThemeVariants.HighContrast;
 `primary` on its own is a primary *text* button, exactly as `Color="Color.Primary"` is without a
 `Variant`. The fill comes from `filled`.
 
+```razor
+<MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false">Flat</MudButton>
+<MudIconButton Icon="@Icons.Material.Filled.Menu" />
+<MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Primary" Size="Size.Small" />
+<MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" />
+```
+
+```xml
+<Button Classes="filled primary flat" Content="Flat" />
+<Button Classes="icon"><PathIcon Data="{StaticResource MenuIcon}" /></Button>
+<Button Classes="icon primary small"><PathIcon Data="{StaticResource FavoriteIcon}" /></Button>
+<Button Classes="icon filled primary"><PathIcon Data="{StaticResource AddIcon}" /></Button>
+```
+
+The glyphs are the app's: copy the path from MudBlazor's `Icons/Material/Filled.cs` into a
+`StreamGeometry`, without its `M0 0h24v24H0z` spacer.
+
+## Chips
+
+```razor
+<MudChip T="string">Default</MudChip>
+<MudChip T="string" Color="Color.Primary">Primary</MudChip>
+<MudChip T="string" Variant="Variant.Outlined" Color="Color.Secondary">Secondary</MudChip>
+<MudChip T="string" Variant="Variant.Text" Color="Color.Success" Size="Size.Small">Small</MudChip>
+
+<MudChipSet T="string" SelectionMode="SelectionMode.SingleSelection">
+    <MudChip Value="@("a")" Color="Color.Primary">Selected</MudChip>
+</MudChipSet>
+```
+
+```xml
+<Button Classes="chip" Content="Default" />
+<Button Classes="chip primary" Content="Primary" />
+<Button Classes="chip outlined secondary" Content="Secondary" />
+<Button Classes="chip text success small" Content="Small" />
+
+<ToggleButton Classes="chip primary" Content="Selected" IsChecked="{Binding IsA}" />
+```
+
+A selectable chip is a `ToggleButton`, and selected is `IsChecked`; the set's rules are bindings.
+
 ## Button groups
 
 ```razor
@@ -230,6 +271,7 @@ slider. Colour and size are classes, exactly as `Color` and `Size` are parameter
 <MudDivider />
 <MudDivider DividerType="DividerType.Inset" />
 <MudDivider Vertical="true" FlexItem="true" />
+<MudDivider Light="true" />
 
 <MudLink Href="/docs">Learn more</MudLink>
 <MudLink Href="/docs" Underline="Underline.Always">Learn more</MudLink>
@@ -243,6 +285,7 @@ slider. Colour and size are classes, exactly as `Color` and `Size` are parameter
 <Separator />
 <Separator Classes="inset" />
 <Separator Classes="vertical" />
+<Separator Classes="light" />
 
 <HyperlinkButton NavigateUri="https://example.com/docs" Content="Learn more" />
 <HyperlinkButton Classes="underline" NavigateUri="https://example.com/docs" Content="Learn more" />
@@ -281,6 +324,27 @@ slider. Colour and size are classes, exactly as `Color` and `Size` are parameter
 ```
 
 ## Feedback
+
+```razor
+<MudAlert Severity="Severity.Info">Library scan finished</MudAlert>
+<MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">Two folders were skipped</MudAlert>
+<MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true">Could not reach the store</MudAlert>
+
+<MudSkeleton Width="200px" />
+<MudSkeleton SkeletonType="SkeletonType.Circle" Width="40px" Height="40px" />
+```
+
+```xml
+<Border Classes="alert info"><TextBlock Text="Library scan finished" /></Border>
+<Border Classes="alert outlined warning"><TextBlock Text="Two folders were skipped" /></Border>
+<Border Classes="alert filled error dense"><TextBlock Text="Could not reach the store" /></Border>
+
+<Border Classes="skeleton" Width="200" />
+<Border Classes="skeleton circle" Width="40" Height="40" />
+```
+
+MudAlert's severity icon is not drawn for you: put a `PathIcon` next to the text and it takes the
+alert's colour.
 
 ```razor
 <MudTooltip Text="Saved to the cloud">

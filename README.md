@@ -113,7 +113,7 @@ the matrix, at rest and on a real pointer hover. Both helpers live in the unit-t
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
-**All 46 of them, which is the list to grep an app against before adopting:**
+**All 53 of them, which is the list to grep an app against before adopting:**
 
 | | |
 |---|---|
@@ -122,7 +122,8 @@ package, so they are not namespaced to `mud-primary` or hidden behind an attache
 | Colour (`Color`) | `primary`, `secondary`, `tertiary`, `info`, `success`, `warning`, `error`, `dark`, `inherit` |
 | Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
 | Size (`Size`) | `small`, `medium`, `large`, `dense` |
-| Placement | `inset`, `middle`, `vertical`, `underline`, `no-underline` |
+| Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline` |
+| Component | `icon`, `chip`, `alert`, `skeleton`, `circle`, `rectangle` |
 
 `ClassVocabularyTests` asserts that list is exactly what the theme uses, in both directions — an
 undeclared class is a collision nobody signed off on, and a declared one no selector uses is a
@@ -145,7 +146,31 @@ colour, which is two setters and a deletion. Grep for `Classes="` before adoptin
 
 The raised variants step elevation 2 → 4 → 8 across rest, hover and press, and drop to 0 when
 disabled. That step is the thing Fluent cannot express at all, because `Button` has no `BoxShadow`
-property — only the `Border` inside a template does.
+property — only the `Border` inside a template does. `flat` is `DropShadow="false"`: a filled
+button that stays at elevation 0 in every state.
+
+**`icon` is MudIconButton, `chip` is MudChip** - classes on a `Button`, not new controls:
+
+```xml
+<Button Classes="icon"><PathIcon Data="{StaticResource MenuIcon}" /></Button>      grey
+<Button Classes="icon primary small"><PathIcon Data="…" /></Button>
+<Button Classes="chip" Content="Default" />                                        grey, filled
+<ToggleButton Classes="chip primary" Content="Selected" IsChecked="True" />
+```
+
+An unclassed icon button is `action-default` grey rather than text-primary, because
+`.mud-icon-button` comes after `.mud-button` in MudBlazor's bundle; a colour class beats it. The
+`PathIcon` is 24px (18 small, 36 large) and the package ships no icon set - the gallery's glyphs
+are its own. A chip is MudChip's `Variant.Filled` by default; on a `ToggleButton`, `IsChecked` is
+`MudChip.GetVariant`'s swap, so a selected filled chip draws as a text chip and a selected text
+chip as a filled one. Chip selection rules (`MudChipSet`) stay with the app.
+
+**`alert` and `skeleton` are on a `Border`.** `<Border Classes="alert warning">` is a text-variant
+MudAlert: the colour at 6% behind text in the colour's *darken* shade, which is what `_alert.scss`
+does and is easy to mistake for the colour itself; a `PathIcon` inside takes the colour.
+`outlined`, `filled` and `dense` are MudAlert's own. `<Border Classes="skeleton" Width="200" />`
+pulses on MudSkeleton's timing, and `circle` / `rectangle` are its other two types. The pixel
+suite masks skeletons for the same reason it masks an indeterminate progress bar.
 
 ### Split and drop-down buttons
 
@@ -1026,8 +1051,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 255 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 255 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 293 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 293 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
@@ -1142,7 +1167,6 @@ And the things that are not controls:
   *Text fields* above.
 - **No counter under a field.** The error/helper line exists; `MudTextField`'s character counter
   would need an attached property.
-- **No `divider-light` token**, so `MudDivider`'s `light` variant is not implemented.
 - **The `dark` colour barely shows as text or a line in dark mode, and not at all in high
   contrast**: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme behaves the
   same way. A filled dark button stays visible.

@@ -6,7 +6,7 @@ where the two differ. For side-by-side markup, see [Razor and AXAML](razor-vs-ax
 The rule behind every row: **a class only ever names a MudBlazor variant.** Every control the
 theme templates is keyed to its type, so an unclassed control is already the MudBlazor default.
 Class names are MudBlazor's own words (`primary`, `outlined`, `small`), deliberately not
-namespaced. `ClassVocabularyTests` pins the full list of 46.
+namespaced. `ClassVocabularyTests` pins the full list of 53.
 
 | Mark | Meaning |
 |---|---|
@@ -33,16 +33,42 @@ Variant, colour and size are one class each and combine freely:
 | `Disabled` | `IsEnabled="False"` | ✅ |
 | hover, `:focus-visible`, `:active` | the same state, as in `_button.scss` | ✅ `{color}-hover` for text and outlined, `{color}-darken` for filled |
 | elevation 2 → 4 → 8 | the same | ✅ |
-| `DropShadow="false"` | — | ❌ |
+| `DropShadow="false"` | `flat` | ✅ elevation 0 at rest, hover, focus and press |
 | `FullWidth` | `HorizontalAlignment="Stretch"` | ≈ |
 | `StartIcon` / `EndIcon` | put an icon in `Content` | ≈ no icon margins applied |
 | ripple | — | ❌ no Avalonia primitive; the state tint is its static half |
 | uppercase label | — | ❌ Avalonia has no text-transform |
 
-### MudIconButton, MudFab, MudChip, MudBadge, MudAvatar
+### MudIconButton → `Button.icon`
 
-❌ None yet. An icon button and a chip are restyles of `Button` and `ToggleButton` and are the
-likely next additions. Badge needs an adorner, so it would be a new control, not a class.
+Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="…" /></Button>`.
+
+| MudBlazor | Here | |
+|---|---|---|
+| `Variant.Text` (default) | `icon` | ✅ round, 12px round a 24px icon |
+| `Variant.Outlined` / `Filled` | `icon outlined` / `icon filled` | ✅ `default-borderradius`, 5px padding; filled lifts like a filled button |
+| `Color.Default` (default) | no colour class | ✅ `action-default` grey, which beats a text button's text-primary |
+| `Color.Primary` … `Color.Dark` | the colour classes | ✅ |
+| `Size.Small` / `Large` | `small` / `large` | ✅ 3px round 18px; 12px round 36px (32px when outlined or filled) |
+| `Edge` | `Margin` | ≈ an ordinary Avalonia property |
+| `Icon` | a `PathIcon` in `Content` | ≈ the gallery carries a few Material glyphs; the theme ships no icon set |
+
+### MudChip → `Button.chip`, `ToggleButton.chip`
+
+| MudBlazor | Here | |
+|---|---|---|
+| `Variant.Filled` (default) | `chip` | ✅ 32px pill, `action-disabled-background` grey, `action-disabled` on hover |
+| `Variant.Outlined` / `Text` | `chip outlined` / `chip text` | ✅ |
+| `Color.Primary` … `Color.Dark` | the colour classes | ✅ filled: colour, `{color}-darken` on hover; text: `{color}-hover` ground, 12% on hover |
+| `Size.Small` / `Large` | `small` / `large` | ✅ 24 / 40px high, 12 / 16px text |
+| selected (in a `MudChipSet`) | `IsChecked` on a `ToggleButton.chip` | ✅ `MudChip.GetVariant`'s swap: a selected filled chip draws as text, a selected text chip as filled |
+| `Disabled` | `IsEnabled="False"` | ✅ |
+| `OnClose` close icon, `Avatar`, `Icon` | put them in `Content` | ≈ no close glyph or icon margins applied |
+| `MudChipSet` selection rules | — | ❌ single/multi selection is the app's, through `IsChecked` bindings |
+
+### MudFab, MudBadge, MudAvatar
+
+❌ None yet. Badge needs an adorner, so it would be a new control, not a class.
 
 ### MudText → `TextBlock`
 
@@ -144,7 +170,7 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | default | no class | ✅ 1px, no margin |
 | `DividerType.Inset` / `Middle` | `inset` / `middle` | ✅ 72px / 16px |
 | `Vertical` | `vertical` | ✅ |
-| `Light` | — | ❌ no `divider-light` token yet |
+| `Light` | `light` | ✅ `divider-light` |
 
 ### MudLink → `HyperlinkButton`
 
@@ -187,7 +213,8 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | `Outlined`, `Size.Small` / `Large` | `outlined`, `small` / `large` | ✅ |
 | a two-part `MudButtonGroup` | `SplitButton` | ✅ Button's classes: `outlined` / `filled`, any colour, `small` / `large` |
 | group separator | the same | ✅ text-primary or the colour; `divider` when filled; `{color}-lighten` between filled coloured segments |
-| `Vertical`, `DropShadow="false"` | — | ❌ |
+| `DropShadow="false"` | `filled flat` | ✅ on `SplitButton` and `DropDownButton` alike |
+| `Vertical` | — | ❌ |
 | `MudMenu` with a button activator | `DropDownButton` | ✅ Button's classes; an unclassed one is `Color.Default`, text-primary |
 | menu items | `Menu`, `MenuItem` | ✅ strip items and dropdown rows are separate themes |
 
@@ -200,12 +227,36 @@ likely next additions. Badge needs an adorner, so it would be a new control, not
 | `MudDrawer` | `SplitView` | ✅ 240px open, 56px mini |
 | `MudTreeView` | `TreeView` | ✅ 32px rows, 17px per level |
 
+### MudAlert → `Border.alert`
+
+The message goes in the `Border`; an icon is a `PathIcon` inside it, and takes the colour.
+
+| MudBlazor | Here | |
+|---|---|---|
+| `Severity.Normal` (default) | `alert` | ✅ text-primary on `dark-hover` |
+| `Severity.Info` / `Success` / `Warning` / `Error` | `info` / `success` / `warning` / `error` | ✅ any of the eight colour classes works |
+| `Variant.Text` (default) | no class | ✅ `{color}-hover` ground, `{color}-darken` text, the colour on the icon |
+| `Variant.Outlined` | `outlined` | ✅ a 1px line in the colour |
+| `Variant.Filled` | `filled` | ✅ the colour as ground, its contrast text at Medium weight |
+| `Dense` | `dense` | ✅ |
+| `ShowCloseIcon`, `ContentAlignment` | — | ≈ put a button in the content; align with ordinary layout |
+
+### MudSkeleton → `Border.skeleton`
+
+| MudBlazor | Here | |
+|---|---|---|
+| `SkeletonType.Text` (default) | `skeleton` | ✅ `skeleton` colour, 20px scaled to 60% as `_skeleton.scss` does |
+| `SkeletonType.Circle` / `Rectangle` | `circle` / `rectangle` | ✅ |
+| `Animation.Pulse` (default) | the same | ✅ 1.5s ease-in-out, 0.5s delay, opacity 1 → 0.4 → 1 |
+| `Animation.Wave`, `Animation.False` | — | ❌ |
+| `Width`, `Height` | `Width`, `Height` | ✅ |
+
 ### Not here
 
 These need a whole new control, or are not visual: MudDataGrid, MudTable, MudDatePicker,
 MudTimePicker, MudColorPicker, MudChart, MudRating, MudPagination, MudStepper, MudTimeline,
 MudBreadcrumbs, MudCarousel (left on the forked template), MudFileUpload, MudDialog (no dialog
-service), MudSkeleton, MudAlert, MudOverlay, MudHidden, MudFocusTrap, MudHotkey, MudForm, MudGrid,
+service), MudOverlay, MudHidden, MudFocusTrap, MudHotkey, MudForm, MudGrid,
 MudStack.
 
 ## Theme
@@ -231,9 +282,9 @@ Light and dark are MudBlazor's `Palette.cs` and `PaletteDark.cs`; high contrast 
 | `AppbarBackground` / `AppbarText` | `FiliAppbar…Color` | ✅ |
 | `LinesDefault` / `LinesInputs` / `Divider` | `FiliLines…Color`, `FiliDividerColor` | ✅ |
 | `TableLines` / `TableStriped` / `TableHover` | `FiliTable…Color` | ✅ |
-| `Skeleton` | `FiliSkeletonColor` | ✅ token only; no skeleton class |
+| `Skeleton` | `FiliSkeletonColor` | ✅ |
 | `OverlayDark` / `OverlayLight` | `FiliOverlayDark/LightColor` | ✅ |
-| `DividerLight` | — | ❌ |
+| `DividerLight` | `FiliDividerLightColor` | ✅ high contrast keeps a visible line |
 | `GrayDefault` … `GrayDarker` | — | ❌ only `GrayDarker` is used, inlined in the tooltip |
 | `HoverOpacity` / `BorderOpacity` | — | ≈ folded into the hover and line tokens rather than exposed |
 | `RippleOpacity` / `RippleOpacitySecondary` | — | ❌ no ripple |

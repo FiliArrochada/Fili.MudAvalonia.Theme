@@ -34,6 +34,7 @@
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ToggleButton.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/HyperlinkButton.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/SplitButton.axaml" />
+    <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/Chip.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ComboBox.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/ListBox.axaml" />
     <ResourceInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Controls/TreeView.axaml" />

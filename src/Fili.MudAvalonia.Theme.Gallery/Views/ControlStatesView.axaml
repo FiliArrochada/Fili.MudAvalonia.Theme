@@ -138,6 +138,67 @@
                    Text="A split button is MudButtonGroup, with the same classes as Button: text by default, outlined, filled, any colour, small and large. The halves square off their inner corners and a 1px line sits between them — text-primary or the colour at FULL strength, because Palette.cs sets BorderOpacity to 1.0; divider when filled; the colour&apos;s lighten shade between filled coloured segments." />
       </StackPanel>
 
+      <!-- Icon buttons, chips, alerts, skeletons -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="overline" Text="Icon button" />
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Classes="icon" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryMenuIcon}" /></Button>
+          <Button Classes="icon primary" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryFavoriteIcon}" /></Button>
+          <Button Classes="icon error" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryDeleteIcon}" /></Button>
+          <Button Classes="icon primary small" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryFavoriteIcon}" /></Button>
+          <Button Classes="icon primary large" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryFavoriteIcon}" /></Button>
+          <Button Classes="icon outlined primary" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryAddIcon}" /></Button>
+          <Button Classes="icon filled primary" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryAddIcon}" /></Button>
+          <Button Classes="icon" IsEnabled="False" VerticalAlignment="Center"><PathIcon Data="{StaticResource GalleryDeleteIcon}" /></Button>
+          <Button Classes="filled primary flat" Content="Flat" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Chip" Margin="0,8,0,0" />
+        <WrapPanel Orientation="Horizontal">
+          <Button Classes="chip" Content="Default" />
+          <Button Classes="chip primary" Content="Primary" />
+          <Button Classes="chip outlined" Content="Outlined" />
+          <Button Classes="chip outlined secondary" Content="Secondary" />
+          <Button Classes="chip text" Content="Text" />
+          <Button Classes="chip text success" Content="Success" />
+          <ToggleButton Classes="chip primary" Content="Selected" IsChecked="True" />
+          <ToggleButton Classes="chip outlined primary" Content="Selected" IsChecked="True" />
+          <Button Classes="chip small primary" Content="Small" VerticalAlignment="Center" />
+          <Button Classes="chip large primary" Content="Large" VerticalAlignment="Center" />
+          <Button Classes="chip" Content="Disabled" IsEnabled="False" />
+        </WrapPanel>
+
+        <TextBlock Classes="overline" Text="Alert" Margin="0,8,0,0" />
+        <StackPanel Spacing="8" Width="560" HorizontalAlignment="Left">
+          <Border Classes="alert"><TextBlock Text="A normal alert, Variant.Text" /></Border>
+          <Border Classes="alert info"><TextBlock Text="Library scan finished" /></Border>
+          <Border Classes="alert outlined warning"><TextBlock Text="Two folders were skipped" /></Border>
+          <Border Classes="alert filled error"><TextBlock Text="Could not reach the store" /></Border>
+          <Border Classes="alert filled success dense"><TextBlock Text="Dense" /></Border>
+        </StackPanel>
+
+        <TextBlock Classes="overline" Text="Skeleton and light divider" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+          <StackPanel Width="220" Spacing="4">
+            <Border Classes="skeleton" Width="200" HorizontalAlignment="Left" />
+            <Border Classes="skeleton" Width="160" HorizontalAlignment="Left" />
+          </StackPanel>
+          <Border Classes="skeleton circle" Width="40" Height="40" />
+          <Border Classes="skeleton rectangle" Width="120" Height="60" />
+          <StackPanel Width="200" Spacing="8">
+            <TextBlock Classes="caption" Text="Divider" />
+            <Separator />
+            <TextBlock Classes="caption" Text="Divider, light" />
+            <Separator Classes="light" />
+          </StackPanel>
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="Each of these is a class on a control Avalonia already has. icon on a Button is MudIconButton: round, 12px round a 24px PathIcon, and action-default rather than text-primary; flat is DropShadow=&quot;false&quot;. chip on a Button or ToggleButton is MudChip, filled by default, and a selected filled chip draws as text. alert and skeleton on a Border are MudAlert, whose text is the colour&apos;s darken shade, and MudSkeleton, pulsing. light on a Separator is MudDivider.Light." />
+      </StackPanel>
+
       <!-- Selection -->
       <StackPanel Spacing="8">
         <TextBlock Classes="overline" Text="Selection" />

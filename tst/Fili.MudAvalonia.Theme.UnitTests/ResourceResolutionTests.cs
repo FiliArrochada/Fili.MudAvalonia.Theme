@@ -41,6 +41,7 @@ public class ResourceResolutionTests
         "FiliInputFilledColor",
         "FiliOverlayDarkColor", "FiliOverlayLightColor", "FiliTooltipBackgroundColor",
         "FiliSwitchThumbColor",
+        "FiliDividerLightColor",
         "FiliDarkContrastTextColor", "FiliActionDefaultHoverColor",
         "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
         "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",
@@ -69,6 +70,7 @@ public class ResourceResolutionTests
         // DynamicResource is not type-checked, so the mistake compiles and ships.
         "FiliTooltipBackgroundBrush",
         "FiliSwitchThumbBrush",
+        "FiliDividerLightBrush",
         "FiliInputFilledBrush",
         "FiliDarkContrastTextBrush", "FiliActionDefaultHoverBrush",
         "FiliSecondaryHoverBrush", "FiliTertiaryHoverBrush", "FiliInfoHoverBrush", "FiliSuccessHoverBrush",

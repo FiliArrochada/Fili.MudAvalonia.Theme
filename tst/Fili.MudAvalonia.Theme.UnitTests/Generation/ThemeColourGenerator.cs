@@ -27,6 +27,8 @@ public static class ThemeColourGenerator
     public const string SwitchLabel = "switch colours and sizes.";
     public const string SliderLabel = "slider colours and sizes.";
     public const string ProgressLabel = "progress bar colours.";
+    public const string ChipLabel = "chip variants, colours, selection and sizes.";
+    public const string AlertLabel = "alert colours.";
 
     private static readonly string[] Colours =
         ["Primary", "Secondary", "Tertiary", "Info", "Success", "Warning", "Error", "Dark"];
@@ -49,6 +51,8 @@ public static class ThemeColourGenerator
             (Controls("ToggleSwitch.axaml"), SwitchLabel, SwitchRegion()),
             (Controls("Slider.axaml"), SliderLabel, SliderRegion()),
             (Controls("ProgressBar.axaml"), ProgressLabel, ProgressRegion()),
+            (Controls("Chip.axaml"), ChipLabel, ChipRegion()),
+            (FiliThemePath, AlertLabel, AlertRegion()),
         };
 
         // A file can hold more than one region, so each file's regions are applied in turn.
@@ -116,6 +120,12 @@ public static class ThemeColourGenerator
     private static string ButtonStates(string prefix, string part, string property, string value) =>
         string.Concat(States.Select(s => Style($"^{prefix}{s} /template/ Border#{part}", (property, value))));
 
+    /// <summary>DropShadow="false" - `.mud-button-disable-elevation`: no shadow at rest or in any state.</summary>
+    private static string Flat(string part, string[] states, string prefix = "") =>
+        "\n    <!-- `flat` is DropShadow=\"false\": `.mud-button-disable-elevation` drops the shadow in every state. -->\n"
+        + Style($"^{prefix}.flat /template/ Border#{part}", ("BoxShadow", Res("FiliElevation0")))
+        + string.Concat(states.Select(st => Style($"^{prefix}.flat{st} /template/ Border#{part}", ("BoxShadow", Res("FiliElevation0")))));
+
     private static string Sizes(string small, string large) =>
         Style("^.small", ("Padding", small), ("FontSize", "13"))
         + Style("^.large", ("Padding", large), ("FontSize", "15"));
@@ -181,12 +191,14 @@ public static class ThemeColourGenerator
     Color     none (Color.Default), primary, secondary, tertiary, info, success, warning, error,
               dark, inherit
     Size      none (Size.Medium), small, large
+    Shape     icon (MudIconButton), flat (DropShadow="false")
 
     <Button Content="Learn more" />                        text, default colour
     <Button Classes="primary" Content="Learn more" />      text, primary
     <Button Classes="outlined error" Content="Delete" />   outlined, error
     <Button Classes="filled primary" Content="Save" />     filled, primary
     <Button Classes="filled success small" Content="OK" /> filled, success, small
+    <Button Classes="icon primary"><PathIcon /></Button>   a round primary icon button
 
   A colour class is ONLY a colour, as Color is in MudBlazor. `primary` on its own is a primary
   TEXT button; the fill comes from `filled`. Each variant follows one rule for every colour:
@@ -244,6 +256,10 @@ public static class ThemeColourGenerator
 
 """);
         o.Append(ButtonStates("", "PART_StateLayer", "Background", Res("FiliActionDefaultHoverBrush"))).Append('\n');
+        o.Append("    <!-- MudIconButton, Variant.Text: round, 12px round a 24px icon, and action-default rather\n");
+        o.Append("         than text-primary - `.mud-icon-button` comes after `.mud-button` in MudBlazor's\n");
+        o.Append("         bundle, so its colour wins. Before the colours, so a colour class still beats it. -->\n");
+        o.Append(Style("^.icon", ("CornerRadius", "999"), ("Padding", "12"), ("MinWidth", "0"), ("Foreground", Res("FiliActionDefaultBrush")))).Append('\n');
 
         foreach (var c in Colours)
         {
@@ -259,7 +275,10 @@ public static class ThemeColourGenerator
 """);
         o.Append(Style("^.inherit", ("Foreground", "{Binding $parent[Control].(TextElement.Foreground)}")));
         o.Append("\n    <!-- `.mud-button-text-size-*`: 4px 5px / 8px 11px at 0.8125rem / 0.9375rem. -->\n");
-        o.Append(Sizes("5,4", "11,8")).Append('\n');
+        o.Append(Sizes("5,4", "11,8"));
+        o.Append("\n    <!-- `.mud-icon-button-size-small`: 3px; large keeps 12px and grows the icon instead. -->\n");
+        o.Append(Style("^.icon.small", ("Padding", "3")));
+        o.Append(Style("^.icon.large", ("Padding", "12"))).Append('\n');
         o.Append(Style("^:disabled /template/ ContentPresenter#PART_ContentPresenter", ("Foreground", Res("FiliActionDisabledBrush"))));
         o.Append(Style("^:disabled /template/ Border#PART_StateLayer", ("Background", "Transparent")));
         o.Append("  </ControlTheme>\n\n");
@@ -290,7 +309,11 @@ public static class ThemeColourGenerator
         o.Append("\n    <!-- `.mud-button-outlined-inherit`: `border-color: currentColor`. -->\n");
         o.Append(Style("^.inherit", ("BorderBrush", "{Binding $self.Foreground}")));
         o.Append("\n    <!-- `.mud-button-outlined-size-*`: 3px 9px / 7px 21px. -->\n");
-        o.Append(Sizes("9,3", "21,7")).Append('\n');
+        o.Append(Sizes("9,3", "21,7"));
+        o.Append("\n    <!-- `.mud-button-outlined.mud-icon-button`: the default radius again, 5px; 4px small or large. -->\n");
+        o.Append(Style("^.icon", ("CornerRadius", Res("FiliCornerRadius")), ("Padding", "5")));
+        o.Append(Style("^.icon.small", ("Padding", "4")));
+        o.Append(Style("^.icon.large", ("Padding", "4"))).Append('\n');
         o.Append(Style("^:disabled /template/ Border#PART_Root", ("BorderBrush", Res("FiliActionDisabledBackgroundBrush"))));
         o.Append("  </ControlTheme>\n\n");
         return o.ToString();
@@ -320,6 +343,8 @@ public static class ThemeColourGenerator
         o.Append(Style("^:pressed /template/ Border#PART_Root", ("BoxShadow", Res("FiliElevation8"))));
         o.Append("\n    <!-- No colour: grey, going to action-disabled-background. -->\n");
         o.Append(ButtonStates("", "PART_Root", "Background", Res("FiliActionDisabledBackgroundBrush"))).Append('\n');
+        o.Append("    <!-- `.mud-button-filled.mud-icon-button`: 5px inside a transparent 1px border. -->\n");
+        o.Append(Style("^.icon", ("MinWidth", "0"), ("Padding", "5"), ("BorderThickness", "1"), ("BorderBrush", "Transparent"), ("Foreground", Res("FiliActionDefaultBrush")))).Append('\n');
 
         foreach (var c in Colours)
         {
@@ -336,6 +361,9 @@ public static class ThemeColourGenerator
         o.Append(Style("^.inherit", ("Foreground", "{Binding $parent[Control].(TextElement.Foreground)}")));
         o.Append("\n    <!-- `.mud-button-filled-size-*`: 4px 10px / 8px 22px. -->\n");
         o.Append(Sizes("10,4", "22,8"));
+        o.Append(Style("^.icon.small", ("Padding", "4")));
+        o.Append(Style("^.icon.large", ("Padding", "4")));
+        o.Append(Flat("PART_Root", [":pointerover", ":focus-visible", ":pressed"]));
         o.Append("\n    <!-- Disabled drops to the ground: no shadow at all, not a dimmed one. -->\n");
         o.Append(Style("^:disabled /template/ Border#PART_Root", ("BoxShadow", Res("FiliElevation0")), ("Background", Res("FiliActionDisabledBackgroundBrush"))));
         o.Append(Style("^:disabled /template/ ContentPresenter#PART_ContentPresenter", ("Foreground", Res("FiliActionDisabledBrush"))));
@@ -419,6 +447,7 @@ public static class ThemeColourGenerator
 
         o.Append(Style("^.filled.small", ("Padding", "10,4"), ("FontSize", "13")));
         o.Append(Style("^.filled.large", ("Padding", "22,8"), ("FontSize", "15")));
+        o.Append(Flat("PART_Root", [":pointerover", ":focus-visible"], ".filled"));
         o.Append("\n    <!-- Disabled last, so it beats every colour. -->\n");
         o.Append(Style("^:disabled", ("Foreground", Res("FiliActionDisabledBrush")), ("BorderBrush", Res("FiliActionDisabledBackgroundBrush"))));
         o.Append(Style("^:disabled /template/ Button", ("BorderBrush", "Transparent")));
@@ -483,6 +512,7 @@ public static class ThemeColourGenerator
 
         o.Append(Style("^.filled.small", ("Padding", "10,4"), ("FontSize", "13")));
         o.Append(Style("^.filled.large", ("Padding", "22,8"), ("FontSize", "15")));
+        o.Append(Flat("RootBorder", [":pointerover", ":focus-visible", ":flyout-open", ":pressed"], ".filled"));
 
         o.Append("\n    <!-- Disabled last, so it beats every colour. -->\n");
         o.Append(Style("^:disabled", ("Foreground", Res("FiliActionDisabledBrush"))));
@@ -612,6 +642,154 @@ public static class ThemeColourGenerator
 
     private static string ProgressRegion() =>
         string.Concat(Colours.Select(c => Style($"^.{c.ToLowerInvariant()}", ("Background", Res($"Fili{c}Brush")), ("Foreground", Res($"Fili{c}Brush")))));
+
+    // ---------------------------------------------------------------------------------------
+    // Chip.axaml: MudChip, from _chip.scss. Filled is the default variant. The 12% tint of a text
+    // chip is the colour itself on the state layer at Opacity 0.12, since it has no token.
+    // Selected (ToggleButton :checked) is MudChip.GetVariant's swap: filled draws as text, text
+    // draws as filled, outlined keeps its line and gains the colour's tint.
+    // ---------------------------------------------------------------------------------------
+
+    private static string ChipStates(string prefix, string part, params (string, string)[] setters) =>
+        string.Concat(States.Select(s => Style($"^{prefix}{s} /template/ Border#{part}", setters)));
+
+    /// <summary>The text look for one colour (or none): 6% fill, the colour as text, 12% on hover.</summary>
+    private static string ChipTextLook(string prefix, string? colour)
+    {
+        var o = new StringBuilder();
+
+        if (colour is null)
+        {
+            o.Append(Style($"^{prefix}", ("Background", Res("FiliActionDefaultHoverBrush")), ("Foreground", Res("FiliTextPrimaryBrush")), ("BorderThickness", "0")));
+            o.Append(ChipStates(prefix, "PART_Root", ("Background", Res("FiliActionDisabledBackgroundBrush"))));
+            o.Append(ChipStates(prefix, "PART_StateLayer", ("Background", "Transparent")));
+        }
+        else
+        {
+            o.Append(Style($"^{prefix}", ("Background", Res($"Fili{colour}HoverBrush")), ("Foreground", Res($"Fili{colour}Brush")), ("BorderThickness", "0")));
+            o.Append(ChipStates(prefix, "PART_Root", ("Background", "Transparent")));
+            o.Append(ChipStates(prefix, "PART_StateLayer", ("Background", Res($"Fili{colour}Brush")), ("Opacity", "0.12")));
+        }
+
+        return o.ToString();
+    }
+
+    /// <summary>The filled look for one colour (or none): the fill, darkening on hover.</summary>
+    private static string ChipFilledLook(string prefix, string? colour)
+    {
+        var o = new StringBuilder();
+
+        if (colour is null)
+        {
+            o.Append(Style($"^{prefix}", ("Background", Res("FiliActionDisabledBackgroundBrush")), ("Foreground", Res("FiliTextPrimaryBrush"))));
+            o.Append(ChipStates(prefix, "PART_Root", ("Background", Res("FiliActionDisabledBrush"))));
+        }
+        else
+        {
+            o.Append(Style($"^{prefix}", ("Background", Res($"Fili{colour}Brush")), ("Foreground", Res($"Fili{colour}ContrastTextBrush"))));
+            o.Append(ChipStates(prefix, "PART_Root", ("Background", Res($"Fili{colour}DarkenBrush"))));
+        }
+
+        o.Append(ChipStates(prefix, "PART_StateLayer", ("Background", "Transparent")));
+        return o.ToString();
+    }
+
+    private static string ChipRegion()
+    {
+        var o = new StringBuilder();
+        o.Append("    <!-- Filled, the default: action-disabled-background, action-disabled on hover. -->\n");
+        o.Append(ChipStates("", "PART_Root", ("Background", Res("FiliActionDisabledBrush"))));
+        foreach (var c in Colours)
+        {
+            o.Append(ChipFilledLook($".{c.ToLowerInvariant()}", c));
+        }
+
+        o.Append("\n    <!-- Outlined: lines-inputs or the colour as a 1px line, the tint on hover. -->\n");
+        o.Append(Style("^.outlined", ("Background", "Transparent"), ("Foreground", Res("FiliTextPrimaryBrush")), ("BorderBrush", Res("FiliLinesInputsBrush")), ("BorderThickness", "1")));
+        o.Append(ChipStates(".outlined", "PART_Root", ("Background", "Transparent")));
+        o.Append(ChipStates(".outlined", "PART_StateLayer", ("Background", Res("FiliActionDefaultHoverBrush"))));
+        foreach (var c in Colours)
+        {
+            var cls = c.ToLowerInvariant();
+            o.Append(Style($"^.outlined.{cls}", ("Background", "Transparent"), ("Foreground", Res($"Fili{c}Brush")), ("BorderBrush", Res($"Fili{c}Brush"))));
+            o.Append(ChipStates($".outlined.{cls}", "PART_StateLayer", ("Background", Res($"Fili{c}HoverBrush"))));
+        }
+
+        o.Append("\n    <!-- Text: the colour at 6% as fill and the colour as text; 12% on hover. -->\n");
+        o.Append(ChipTextLook(".text", null));
+        foreach (var c in Colours)
+        {
+            o.Append(ChipTextLook($".text.{c.ToLowerInvariant()}", c));
+        }
+
+        o.Append("\n    <!-- Selected: a filled chip draws as text, a text chip as filled. -->\n");
+        o.Append(ChipTextLook(":checked", null));
+        foreach (var c in Colours)
+        {
+            o.Append(ChipTextLook($".{c.ToLowerInvariant()}:checked", c));
+        }
+
+        o.Append(ChipFilledLook(".text:checked", null));
+        foreach (var c in Colours)
+        {
+            o.Append(ChipFilledLook($".text.{c.ToLowerInvariant()}:checked", c));
+        }
+
+        o.Append("\n    <!-- A selected outlined chip keeps its line and gains the tint, 12% on hover. -->\n");
+        o.Append(Style("^.outlined:checked", ("Background", "Transparent"), ("Foreground", Res("FiliTextPrimaryBrush")), ("BorderThickness", "1")));
+        o.Append(ChipStates(".outlined:checked", "PART_Root", ("Background", "Transparent")));
+        o.Append(ChipStates(".outlined:checked", "PART_StateLayer", ("Background", Res("FiliActionDefaultHoverBrush")), ("Opacity", "1")));
+        foreach (var c in Colours)
+        {
+            var cls = c.ToLowerInvariant();
+            o.Append(Style($"^.outlined.{cls}:checked", ("Background", Res($"Fili{c}HoverBrush")), ("Foreground", Res($"Fili{c}Brush")), ("BorderThickness", "1")));
+            o.Append(ChipStates($".outlined.{cls}:checked", "PART_Root", ("Background", "Transparent")));
+            o.Append(ChipStates($".outlined.{cls}:checked", "PART_StateLayer", ("Background", Res($"Fili{c}Brush")), ("Opacity", "0.12")));
+        }
+
+        o.Append("\n    <!-- `.mud-chip-size-small` / `-large`: 24px / 40px, radius half the height. -->\n");
+        o.Append(Style("^.small", ("Height", "24"), ("CornerRadius", "12"), ("FontSize", "12"), ("Padding", "8,0")));
+        o.Append(Style("^.large", ("Height", "40"), ("CornerRadius", "20"), ("FontSize", "16"), ("Padding", "16,0")));
+        o.Append("\n    <!-- `.mud-disabled`: half opacity. -->\n");
+        o.Append(Style("^:disabled", ("Opacity", "0.5")));
+        return o.ToString();
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // FiliTheme.axaml region: MudAlert's Severity, from _alert.scss. Text and outlined alerts draw
+    // their text in the colour's darken shade and the icon in the colour; filled ones the colour
+    // with its contrast text.
+    // ---------------------------------------------------------------------------------------
+
+    private static string TopStyle(string selector, params (string Property, string Value)[] setters) =>
+        "  <Style Selector=\"" + selector + "\">\n"
+        + string.Concat(setters.Select(s => $"    <Setter Property=\"{s.Property}\" Value=\"{s.Value}\" />\n"))
+        + "  </Style>\n";
+
+    private static string AlertRegion()
+    {
+        var o = new StringBuilder();
+        foreach (var c in Colours)
+        {
+            var cls = c.ToLowerInvariant();
+            o.Append(TopStyle($"Border.alert.{cls}", ("Background", Res($"Fili{c}HoverBrush")), ("TextElement.Foreground", Res($"Fili{c}DarkenBrush"))));
+            o.Append(TopStyle($"Border.alert.{cls} PathIcon", ("Foreground", Res($"Fili{c}Brush"))));
+        }
+
+        foreach (var c in Colours)
+        {
+            o.Append(TopStyle($"Border.alert.outlined.{c.ToLowerInvariant()}", ("Background", "Transparent"), ("BorderBrush", Res($"Fili{c}Brush"))));
+        }
+
+        foreach (var c in Colours)
+        {
+            var cls = c.ToLowerInvariant();
+            o.Append(TopStyle($"Border.alert.filled.{cls}", ("Background", Res($"Fili{c}Brush")), ("TextElement.Foreground", Res($"Fili{c}ContrastTextBrush"))));
+            o.Append(TopStyle($"Border.alert.filled.{cls} PathIcon", ("Foreground", Res($"Fili{c}ContrastTextBrush"))));
+        }
+
+        return o.ToString();
+    }
 
     // ---------------------------------------------------------------------------------------
     // FiliTheme.axaml region: MudText's Color, one class per palette colour.

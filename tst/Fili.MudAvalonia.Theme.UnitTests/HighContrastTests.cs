@@ -47,6 +47,7 @@ public class HighContrastTests
         "FiliOverlayHoverColor", "FiliOverlayPressedColor", "FiliInputFilledColor",
         "FiliOverlayDarkColor", "FiliOverlayLightColor", "FiliTooltipBackgroundColor",
         "FiliSwitchThumbColor",
+        "FiliDividerLightColor",
         "FiliDarkContrastTextColor", "FiliActionDefaultHoverColor",
         "FiliSecondaryHoverColor", "FiliTertiaryHoverColor", "FiliInfoHoverColor", "FiliSuccessHoverColor",
         "FiliWarningHoverColor", "FiliErrorHoverColor", "FiliDarkHoverColor",

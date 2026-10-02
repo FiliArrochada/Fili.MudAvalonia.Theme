@@ -35,6 +35,11 @@
     </Setter>
 
     <!-- .mud-divider-vertical: the rule turns 90 degrees, so the fixed dimension swaps. -->
+    <!-- MudDivider.Light: `.mud-divider-light`, the divider-light colour. -->
+    <Style Selector="^.light">
+      <Setter Property="Background" Value="{DynamicResource FiliDividerLightBrush}" />
+    </Style>
+
     <Style Selector="^.vertical">
       <Setter Property="Height" Value="NaN" />
       <Setter Property="Width" Value="1" />

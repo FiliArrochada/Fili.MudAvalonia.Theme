@@ -67,6 +67,9 @@
       <Color x:Key="FiliLinesDefaultColor">#1F000000</Color>
       <Color x:Key="FiliLinesInputsColor">#BDBDBD</Color>
       <Color x:Key="FiliDividerColor">#E0E0E0</Color>
+      <!-- Palette.cs DividerLight: black at 0.8 (CC), and PaletteDark.cs white at 0.06 (0F).
+           `.mud-divider-light` paints it - in light, the STRONGER line, despite the name. -->
+      <Color x:Key="FiliDividerLightColor">#CC000000</Color>
       <Color x:Key="FiliTableLinesColor">#E0E0E0</Color>
       <Color x:Key="FiliTableStripedColor">#05000000</Color>
       <Color x:Key="FiliTableHoverColor">#0A000000</Color>
@@ -199,6 +202,7 @@
       <Color x:Key="FiliLinesDefaultColor">#1FFFFFFF</Color>
       <Color x:Key="FiliLinesInputsColor">#4DFFFFFF</Color>
       <Color x:Key="FiliDividerColor">#1FFFFFFF</Color>
+      <Color x:Key="FiliDividerLightColor">#0FFFFFFF</Color>
       <Color x:Key="FiliTableLinesColor">#1FFFFFFF</Color>
       <Color x:Key="FiliTableStripedColor">#33FFFFFF</Color>
       <Color x:Key="FiliTableHoverColor">#14FFFFFF</Color>
@@ -331,6 +335,8 @@
       <Color x:Key="FiliLinesDefaultColor">#E8E8EE</Color>
       <Color x:Key="FiliLinesInputsColor">#E8E8EE</Color>
       <Color x:Key="FiliDividerColor">#9C9CA8</Color>
+      <!-- The line colour, opaque: a 6% hairline over black would not exist. -->
+      <Color x:Key="FiliDividerLightColor">#E8E8EE</Color>
       <Color x:Key="FiliTableLinesColor">#9C9CA8</Color>
       <Color x:Key="FiliTableStripedColor">#1F1F1F</Color>
       <Color x:Key="FiliTableHoverColor">#333333</Color>
@@ -465,6 +471,7 @@
   <SolidColorBrush x:Key="FiliLinesDefaultBrush" Color="{DynamicResource FiliLinesDefaultColor}" />
   <SolidColorBrush x:Key="FiliLinesInputsBrush"  Color="{DynamicResource FiliLinesInputsColor}" />
   <SolidColorBrush x:Key="FiliDividerBrush"      Color="{DynamicResource FiliDividerColor}" />
+  <SolidColorBrush x:Key="FiliDividerLightBrush" Color="{DynamicResource FiliDividerLightColor}" />
   <SolidColorBrush x:Key="FiliTableLinesBrush"   Color="{DynamicResource FiliTableLinesColor}" />
   <SolidColorBrush x:Key="FiliTableStripedBrush" Color="{DynamicResource FiliTableStripedColor}" />
   <SolidColorBrush x:Key="FiliTableHoverBrush"   Color="{DynamicResource FiliTableHoverColor}" />

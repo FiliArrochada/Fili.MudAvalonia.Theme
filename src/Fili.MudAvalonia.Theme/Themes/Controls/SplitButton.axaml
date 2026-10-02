@@ -508,6 +508,17 @@
       <Setter Property="FontSize" Value="15" />
     </Style>
 
+    <!-- `flat` is DropShadow="false": `.mud-button-disable-elevation` drops the shadow in every state. -->
+    <Style Selector="^.filled.flat /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:pointerover /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:focus-visible /template/ Border#PART_Root">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+
     <!-- Disabled last, so it beats every colour. -->
     <Style Selector="^:disabled">
       <Setter Property="Foreground" Value="{DynamicResource FiliActionDisabledBrush}" />
@@ -954,6 +965,23 @@
     <Style Selector="^.filled.large">
       <Setter Property="Padding" Value="22,8" />
       <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <!-- `flat` is DropShadow="false": `.mud-button-disable-elevation` drops the shadow in every state. -->
+    <Style Selector="^.filled.flat /template/ Border#RootBorder">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:pointerover /template/ Border#RootBorder">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:focus-visible /template/ Border#RootBorder">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:flyout-open /template/ Border#RootBorder">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
+    </Style>
+    <Style Selector="^.filled.flat:pressed /template/ Border#RootBorder">
+      <Setter Property="BoxShadow" Value="{DynamicResource FiliElevation0}" />
     </Style>
 
     <!-- Disabled last, so it beats every colour. -->

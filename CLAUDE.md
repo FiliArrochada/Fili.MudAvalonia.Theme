@@ -33,10 +33,14 @@ exist; a public type still needs a separate package.
 Scope discipline matters here, and the line is between **retemplating an Avalonia control** and
 **inventing a new one**. The first is in scope: `Button` needed it because `Button` has no
 `BoxShadow`, and `TextBox` needed it for the floating label. The second is not — a `Card`, a
-`Chip`, a `DataGrid` or a dialog service turns this into a different, much larger project, the
+`DataGrid`, a date picker or a dialog service turns this into a different, much larger project, the
 kind that takes years, and there are already several (Semi.Avalonia, SukiUI, Ursa,
-Material.Avalonia, Flowery.NET). If a new control genuinely needs to exist, it belongs in a
-separate `Fili.MudAvalonia.*` package that depends on this one.
+Material.Avalonia, Flowery.NET). A MudBlazor component that is a *look* on a control Avalonia
+already has is a class, not a new control: MudIconButton (`Button.icon`), MudChip (`Button.chip`
+/ `ToggleButton.chip`, themed by the keyed `FiliChip`), MudAlert (`Border.alert`) and MudSkeleton
+(`Border.skeleton`) are all in scope, and `ComponentClassTests` pins them. If a new control
+genuinely needs to exist, it belongs in a separate `Fili.MudAvalonia.*` package that depends on
+this one.
 
 ## The one rule
 
@@ -97,9 +101,10 @@ Two conversions are already applied and should stay applied consistently:
   `Foreground="{DynamicResource FiliTextSecondaryBrush}"`. `text`/`outlined`/`filled` switch the
   ControlTheme (FiliTheme.axaml); colour and size are nested `^.primary` / `^.small` styles inside
   each theme.
-- **Button.axaml, and marked regions in SplitButton.axaml (split and drop-down), CheckBox,
-  RadioButton, ToggleSwitch, Slider, ProgressBar and FiliTheme.axaml, are GENERATED** by
-  `ThemeColourGenerator` (unit-test project, `Generation/`) from one list of eight colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
+- **Button.axaml, and marked regions in SplitButton.axaml (split and drop-down), Chip, CheckBox,
+  RadioButton, ToggleSwitch, Slider, ProgressBar and FiliTheme.axaml (TextBlock and alert
+  colours), are GENERATED** by `ThemeColourGenerator` (unit-test project, `Generation/`) from one
+  list of eight colours. Change the generator, never one colour's block by hand: `GeneratedThemeTests` fails on
   any difference, and rewrites the files when `FILI_REGENERATE=1` is set. Each colour needs five
   tokens - `Fili{C}Color`, `…ContrastTextColor`, `…HoverColor` (the colour at 6%, 35% in high
   contrast), `…DarkenColor` and `…LightenColor`. The last two are MudBlazor's derivation, ported
