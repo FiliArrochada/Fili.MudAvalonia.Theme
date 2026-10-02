@@ -623,10 +623,11 @@ themselves and are unaffected. So a theme-less app is not a blank window — it 
 rectangles laid out correctly with every interactive control missing, which is a worse failure
 than blank because it looks half-working.
 
-**The gallery lets you switch substrate at runtime**, Fluent or Simple, from the app bar. Watch the
-themed controls while it flips: they do not change at all, because they carry full templates.
-Everything else does. That difference is the honest measure of how much of the look is still
-borrowed — and it is the right way to settle which substrate to stand on, rather than arguing it.
+**The gallery let you switch substrate at runtime**, Fluent or Simple, from the app bar. The
+themed controls did not change at all while it flipped, because they carry full templates;
+everything else did. That difference was the honest measure of how much of the look was still
+borrowed — and it was how the choice of substrate was settled, rather than by arguing it. (The
+selector was removed once the base became a fork; see *Gallery*.)
 
 **What Fluent is actually worth**, beyond "templates exist":
 
@@ -670,7 +671,7 @@ theme.Palettes[ThemeVariant.Dark]  = new ColorPaletteResources { Accent = Color.
 
 Doing it the other way fails **silently** — every unthemed control just stays the OS accent blue.
 That is exactly what the first rendered capture of this gallery showed, after the wrong approach
-had been confidently written down here. `FluentAccentIsTheMudPrimary` now pins it.
+had been confidently written down here. A test pinned it for as long as the gallery used Fluent.
 
 `SimpleTheme` has no equivalent and ignores `Palettes` entirely; retinting it means overriding its
 own `ThemeAccentBrush` family. That is not done, so the gallery's Simple substrate still renders
@@ -704,11 +705,8 @@ the boundary between themed and unthemed controls is *more* obvious, not less.
 Fluent also turned out to have an accidental advantage: its `TabItem` indicator is a coloured
 underline, which is very close to what Material does anyway.
 
-Regenerate the evidence any time:
-
-```powershell
-dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop -- --capture screenshots
-```
+The evidence came from `--capture`, which rendered both substrates at the time. It renders the
+shipping base only now.
 
 `Material.Avalonia` would be a visually closer substrate, but consuming it means binding to *its*
 slot names (`PrimaryHueMidBrush`, `MaterialCardBackgroundBrush`) — exactly the coupling
@@ -888,9 +886,15 @@ ramp, a control-state matrix, and a realistic sample screen. The variant selecto
 switches between light, dark and high contrast at runtime — which is the fastest way to find a
 token that was wired statically, or one that high contrast never got its own value for.
 
-`--capture <dir>` renders every view in every substrate and variant to PNG without a display, for
-reviewing without running the app. High contrast is captured for the standalone substrate only:
-asking Fluent for it would render Fluent's dark theme under a filename that claims otherwise.
+`--capture <dir>` renders every view in every variant to PNG without a display, for reviewing
+without running the app. They are the same nine frames the pixel suite compares.
+
+There used to be a substrate selector beside the variant one, flipping the base under the forked
+controls between this package's Simple fork and Avalonia's Fluent. It mattered while the package
+layered over Fluent; once the base was a fork it only showed a look this theme does not ship (and
+drew Fluent's dark theme under the "High contrast" label), so it was removed along with the
+gallery's Fluent reference. `StandaloneReadinessTests` is what says which controls are hand-written
+and which are forked.
 
 The sample screen matters more than the control matrix: a wall of buttons looks fine under any
 theme, and only a real layout exposes flat hierarchy and wrong spacing.
@@ -913,15 +917,13 @@ Every URL the page loads is relative, so the published output works unchanged un
 sub-path and at the root of a local server. The first time, Pages has to be switched to
 **Settings → Pages → Source: GitHub Actions**; until then the deploy job fails.
 
-One thing the browser build forced: `App` keeps the base theme App.axaml declared and puts that
-same instance back when the substrate flips from Fluent, rather than constructing a new
-`StyleInclude` in code. A StyleInclude built at runtime loads its source by reflection, which
-trimming can strip, so the gallery would lose its whole base the first time someone flipped back.
-`SubstrateRoundTripTests` pins it.
+The theme is loaded only by the two `StyleInclude`s in App.axaml, which compile to code. Keep it
+that way: a `StyleInclude` constructed in C# loads its source by reflection at runtime, which the
+browser build's trimming can strip, and the page would then render with no base theme at all.
 
 ## Pixel baselines
 
-Nine frames — three views, standalone, in all three variants — are rendered on every test run and
+Nine frames — three views in all three variants — are rendered on every test run and
 compared with PNGs committed under `tst/Fili.MudAvalonia.Theme.PixelTests/Baselines`.
 
 ```powershell
@@ -967,8 +969,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 92 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 92 unit tests **and** the 10 pixel tests (9 baselines + a substrate round trip) |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 89 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 89 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows

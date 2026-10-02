@@ -9,7 +9,7 @@ internal static class Program
     public static void Main(string[] args)
     {
         // dotnet run --project ... -- --capture <dir>
-        // Renders every view, substrate and variant to PNG without a display. See Capture.cs.
+        // Renders every view in every variant to PNG without a display. See Capture.cs.
         var capture = Array.IndexOf(args, "--capture");
         if (capture >= 0)
         {

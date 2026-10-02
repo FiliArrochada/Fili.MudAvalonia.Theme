@@ -4,49 +4,9 @@
              RequestedThemeVariant="Light">
 
   <!--
-    Retinting Fluent itself.
-
-    These live in Application.Resources rather than inside the theme package on purpose:
-    resources declared here reliably win over resources carried by a Style, so the accent
-    override is deterministic. FluentTheme derives its accent brushes from SystemAccentColor
-    and the six Light1-3 / Dark1-3 variants.
-
-    The variants below are hand-picked approximations around the MudBlazor primary, not
-    values from MudBlazor - it generates its own shades at runtime instead of declaring
-    them. Tuning these is a good first job once the gallery is running.
-  -->
-  <Application.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.ThemeDictionaries>
-
-        <ResourceDictionary x:Key="Light">
-          <Color x:Key="SystemAccentColor">#594AE2</Color>
-          <Color x:Key="SystemAccentColorLight1">#7265E7</Color>
-          <Color x:Key="SystemAccentColorLight2">#8B80EC</Color>
-          <Color x:Key="SystemAccentColorLight3">#A49BF1</Color>
-          <Color x:Key="SystemAccentColorDark1">#4A3CC9</Color>
-          <Color x:Key="SystemAccentColorDark2">#3B2FA6</Color>
-          <Color x:Key="SystemAccentColorDark3">#2C2283</Color>
-        </ResourceDictionary>
-
-        <ResourceDictionary x:Key="Dark">
-          <Color x:Key="SystemAccentColor">#776BE7</Color>
-          <Color x:Key="SystemAccentColorLight1">#8C82EC</Color>
-          <Color x:Key="SystemAccentColorLight2">#A199F1</Color>
-          <Color x:Key="SystemAccentColorLight3">#B6B0F5</Color>
-          <Color x:Key="SystemAccentColorDark1">#6055D0</Color>
-          <Color x:Key="SystemAccentColorDark2">#4E44AD</Color>
-          <Color x:Key="SystemAccentColorDark3">#3C348A</Color>
-        </ResourceDictionary>
-
-      </ResourceDictionary.ThemeDictionaries>
-    </ResourceDictionary>
-  </Application.Resources>
-
-  <!--
-    Styles[0] is swapped in code (App.UseSubstrate) when the gallery flips to Fluent and back;
-    the instance declared here is kept and put back, never rebuilt.
-    A consuming app writes the two lines directly and needs no code at all.
+    The whole theme, exactly as a consuming app writes it: the forked base first, then FiliTheme.
+    Order is load-bearing - later styles win, which is what lets the hand-written control themes
+    beat their forked counterparts.
   -->
   <Application.Styles>
     <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />

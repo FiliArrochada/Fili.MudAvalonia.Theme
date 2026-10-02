@@ -29,20 +29,6 @@
             <TextBlock Classes="caption"
                        VerticalAlignment="Center"
                        Foreground="{DynamicResource FiliAppbarTextBrush}"
-                       Text="Substrate" />
-            <ComboBox x:Name="SubstrateSelector"
-                      Width="110"
-                      SelectedIndex="0"
-                      VerticalAlignment="Center"
-                      SelectionChanged="OnSubstrateChanged">
-              <ComboBoxItem>Standalone</ComboBoxItem>
-              <ComboBoxItem>Fluent</ComboBoxItem>
-            </ComboBox>
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <TextBlock Classes="caption"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource FiliAppbarTextBrush}"
                        Text="Variant" />
             <!-- A selector rather than the light/dark switch it replaces, because there are three
                  variants now and high contrast is the one worth being able to reach in one click:

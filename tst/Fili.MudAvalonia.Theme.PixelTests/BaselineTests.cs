@@ -44,7 +44,7 @@ public class BaselineTests
         {
             var data = new TheoryData<string>();
 
-            foreach (var frame in GalleryFrames.Baselined)
+            foreach (var frame in GalleryFrames.All)
             {
                 data.Add(frame.ToString());
             }
@@ -57,7 +57,7 @@ public class BaselineTests
     [MemberData(nameof(BaselinedFrames))]
     public Task FrameMatchesItsBaseline(string name) => UiThread.RunAsync(() =>
     {
-        var frame = GalleryFrames.Baselined.Single(f => f.ToString() == name);
+        var frame = GalleryFrames.All.Single(f => f.ToString() == name);
         var baselinePath = Path.Combine(Baselines.Directory, frame.FileName);
 
         using var rendered = GalleryFrames.Render(frame);

@@ -17,11 +17,11 @@ using Fili.MudAvalonia.Theme.Gallery.Views;
 
 namespace Fili.MudAvalonia.Theme.Gallery.Desktop;
 
-/// <summary>One rendered gallery frame: a view, under a substrate, in a theme variant.</summary>
-public readonly record struct GalleryFrame(string View, Substrate Substrate, ThemeVariant Variant)
+/// <summary>One rendered gallery frame: a view, in a theme variant.</summary>
+public readonly record struct GalleryFrame(string View, ThemeVariant Variant)
 {
     /// <summary>The frame's file name, which is also its baseline's and its identity in a test.</summary>
-    public string FileName => $"{View}-{Substrate}-{Variant}.png".ToLowerInvariant();
+    public string FileName => $"{View}-{Variant}.png".ToLowerInvariant();
 
     public override string ToString() => FileName[..^4];
 }
@@ -55,26 +55,19 @@ public static class GalleryFrames
         ("palette", () => new PaletteView()),
     ];
 
-    /// <summary>Every frame the screenshot mode writes.</summary>
-    public static IReadOnlyList<GalleryFrame> All { get; } =
-    [
-        .. from substrate in new[] { Substrate.Standalone, Substrate.Fluent }
-           from variant in Variants(substrate)
-           from view in Views
-           select new GalleryFrame(view.Name, substrate, variant),
-    ];
+    private static readonly ThemeVariant[] Variants =
+        [ThemeVariant.Light, ThemeVariant.Dark, FiliThemeVariants.HighContrast];
 
     /// <summary>
-    /// The frames with a committed baseline: the standalone substrate only.
-    ///
-    /// <para>
-    /// Fluent is excluded deliberately rather than forgotten. It is a comparison aid, and what it
-    /// renders belongs to Avalonia — baselining it would turn every Avalonia upgrade into a
-    /// failing test about someone else's theme, which is noise pretending to be coverage.
-    /// </para>
+    /// Every frame: each view in each variant. The screenshot mode writes all of them, and every
+    /// one has a committed baseline.
     /// </summary>
-    public static IReadOnlyList<GalleryFrame> Baselined { get; } =
-        [.. All.Where(f => f.Substrate == Substrate.Standalone)];
+    public static IReadOnlyList<GalleryFrame> All { get; } =
+    [
+        .. from variant in Variants
+           from view in Views
+           select new GalleryFrame(view.Name, variant),
+    ];
 
     /// <summary>
     /// The app builder both callers use.
@@ -120,10 +113,7 @@ public static class GalleryFrames
 
     private static RenderedFrame RenderUnderCurrentCulture(GalleryFrame frame)
     {
-        var app = (App)Application.Current!;
-
-        app.UseSubstrate(frame.Substrate);
-        app.RequestedThemeVariant = frame.Variant;
+        Application.Current!.RequestedThemeVariant = frame.Variant;
 
         var view = Views.Single(v => v.Name == frame.View).Build();
 
@@ -141,9 +131,9 @@ public static class GalleryFrames
             Height = 800,
         };
 
-        // Match MainWindow. Without this the window falls back to the substrate's own background
-        // — near-black under Fluent dark — and every dark capture misrepresents the theme, whose
-        // page ground is the much lighter #32333D.
+        // Match the gallery page, which MainView paints with this brush behind every tab. A bare
+        // window would show the base theme's own window background instead, and every capture
+        // would misrepresent the page ground the views are designed against.
         window[!Window.BackgroundProperty] = new DynamicResourceExtension("FiliBackgroundGrayBrush");
 
         window.Show();
@@ -253,11 +243,4 @@ public static class GalleryFrames
                     (int)Math.Ceiling(bar.Bounds.Height) + 4);
             }),
     ];
-
-    // High contrast only on the standalone substrate: it is this package's variant, and asking
-    // Fluent for it would render its dark theme under a filename that claims otherwise.
-    private static ThemeVariant[] Variants(Substrate substrate) =>
-        substrate == Substrate.Standalone
-            ? [ThemeVariant.Light, ThemeVariant.Dark, FiliThemeVariants.HighContrast]
-            : [ThemeVariant.Light, ThemeVariant.Dark];
 }

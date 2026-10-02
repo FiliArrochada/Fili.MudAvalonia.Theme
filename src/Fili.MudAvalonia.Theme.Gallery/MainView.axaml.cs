@@ -7,7 +7,7 @@ using Fili.MudAvalonia.Theme;
 namespace Fili.MudAvalonia.Theme.Gallery;
 
 /// <summary>
-/// The gallery itself: the app bar with its substrate and variant selectors, and the tabs.
+/// The gallery itself: the app bar with its variant selector, and the tabs.
 /// Desktop hosts it in <see cref="MainWindow"/>; the browser build sets it as the single view.
 /// </summary>
 public partial class MainView : UserControl
@@ -38,23 +38,5 @@ public partial class MainView : UserControl
             2 => FiliThemeVariants.HighContrast,
             _ => ThemeVariant.Light,
         };
-    }
-
-    /// <summary>
-    /// Swaps the substrate theme underneath this one, live.
-    /// <para>
-    /// Worth watching while it flips: the 39 control types with hand-written themes do not change
-    /// at all, because they carry full templates. The rest wear the forked Simple templates in
-    /// Standalone and Fluent's in Fluent, so they are the part of the page that moves.
-    /// </para>
-    /// </summary>
-    private void OnSubstrateChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (Application.Current is not App app || sender is not ComboBox selector)
-        {
-            return;
-        }
-
-        app.UseSubstrate(selector.SelectedIndex == 1 ? Substrate.Fluent : Substrate.Standalone);
     }
 }

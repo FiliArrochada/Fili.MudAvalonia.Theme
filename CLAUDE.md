@@ -227,10 +227,6 @@ Two conversions are already applied and should stay applied consistently:
   which is the signature to recognise. `GalleryFrames.Render` pins the invariant culture for the
   capture. Anything else that varies per machine (time zone, current date) needs the same
   treatment before it appears in a baselined view.
-- **Fluent's internal brush keys move between Avalonia versions.** Only the gallery's Fluent
-  comparison mode touches them now; the library has no `Avalonia.Themes.*` reference. If that mode
-  is ever edited, read the keys from Avalonia's `Themes/Fluent/Accents/*.axaml` for the version in
-  use rather than guessing.
 - **Elevation does not vary between light and dark**, matching MudBlazor - but it DOES vary
   in high contrast, where every raised level becomes a hard 1px ring instead of a shadow. That is
   what gives the variant its separation without a single control template knowing it exists.
@@ -254,8 +250,12 @@ Two consequences to keep in mind when editing:
 - **The accent is now just a token.** Standalone, `FiliPrimaryColor` flows into the forked
   templates through `ThemeAccentBrush`/`ThemeAccentColor` in `Accents.axaml` — no theme-specific
   API. (Historically it had to go through `FluentTheme.Palettes`, and setting a `SystemAccentColor`
-  resource instead failed silently; the gallery keeps a Fluent comparison mode that still does it
-  the correct way.)
+  resource instead failed silently.)
+
+**Nothing in this repo references `Avalonia.Themes.Fluent` any more.** The gallery's substrate
+selector, which flipped the forked controls to Fluent for comparison, was removed: it showed a look
+the package does not ship and drew Fluent's dark theme under the High contrast label. Do not bring
+Fluent back for a comparison - `StandaloneReadinessTests` is the record of what is hand-written.
 
 **Coverage is pinned, not reported.** `StandaloneReadinessTests` asserts the exact set of
 hand-written themes — **39 of the 89 templated types** — plus the count of both. The other 50 wear
@@ -339,10 +339,8 @@ per environment, never a wider tolerance.
 **The gallery has two heads and one view.** `MainView` is the whole UI; `MainWindow` hosts it on
 desktop and the browser head sets it as the single view. Put gallery UI in `MainView`, never in
 the window, or the GitHub Pages build silently loses it. And never construct a `StyleInclude` in
-gallery code: one built at runtime loads by reflection, which the browser build's trimming can
-strip. `App` keeps the XAML-declared base and puts the same instance back instead, pinned by
-`SubstrateRoundTripTests` against the committed baseline - not against a frame rendered in the
-same test, which a broken restore breaks identically.
+gallery code: the two in App.axaml compile to code, while one built in C# loads by reflection,
+which the browser build's trimming can strip - leaving the page with no base theme at all.
 
 The gallery is the development loop, not a deliverable added at the end. A theme has no surface of
 its own, so tune against the gallery rather than against an app.

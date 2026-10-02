@@ -33,8 +33,8 @@ public static class UiThread
 }
 
 /// <summary>
-/// The harness application. It must load the theme exactly as a consuming app does: Fluent
-/// first for the control templates, then FiliTheme over it. A harness that composes itself
+/// The harness application. It must load the theme exactly as a consuming app does: the forked
+/// base first for the control templates, then FiliTheme over it. A harness that composes itself
 /// differently does not fail — it silently measures a theme nobody renders.
 /// </summary>
 public class TestApp : Application
