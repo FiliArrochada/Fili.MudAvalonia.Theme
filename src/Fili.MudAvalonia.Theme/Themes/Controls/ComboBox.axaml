@@ -14,6 +14,11 @@
     padding-left / padding-right: 16px   on a row
     padding-top / padding-bottom: 8px    on the list
 
+  Variant and Margin follow the text field's exactly, because a select IS one: `filled` and
+  `outlined` switch to the two themes below (FiliTheme.axaml), `dense` is Margin.Dense, `error`
+  is Error, and the helper line under the field carries the validation error or
+  AutomationProperties.HelpText. The metrics and their derivation are in Controls/TextBox.axaml.
+
   Avalonia requires PART_Popup and PART_ItemsPresenter by name; PART_EditableTextBox is only
   needed for IsEditable, which this theme does not style differently.
 -->
@@ -87,12 +92,42 @@
 
     <Setter Property="Template">
       <ControlTemplate>
+        <!-- The helper line, as Controls/TextBox.axaml has it: the error list, or else
+             AutomationProperties.HelpText. Before it was here a select had no error host at all,
+             so a failing binding showed nothing, not even the red rule. MudSelect has no
+             counter. -->
+        <DockPanel>
+          <Grid x:Name="PART_HelperLine"
+                DockPanel.Dock="Bottom"
+                TextElement.Foreground="{DynamicResource FiliTextSecondaryBrush}">
+            <ContentControl x:Name="PART_Errors"
+                            Margin="0,3,0,0"
+                            Content="{TemplateBinding (DataValidationErrors.Errors)}"
+                            ContentTemplate="{DynamicResource FiliValidationErrorsTemplate}"
+                            IsVisible="{TemplateBinding (DataValidationErrors.HasErrors)}" />
+            <!-- The binding is on this Panel, not on the TextBlock: a {Binding} in a template
+                 binds at LocalValue and outranks every style, so the error could not hide it. -->
+            <Panel IsVisible="{Binding $parent[ComboBox].(AutomationProperties.HelpText), Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <TextBlock x:Name="PART_HelperText"
+                         Margin="0,3,0,0"
+                         FontFamily="{DynamicResource FiliFontFamily}"
+                         FontSize="{DynamicResource FiliCaptionFontSize}"
+                         FontWeight="Normal"
+                         LineHeight="20"
+                         LetterSpacing="0.4"
+                         TextWrapping="Wrap"
+                         Text="{TemplateBinding (AutomationProperties.HelpText)}" />
+            </Panel>
+          </Grid>
         <Border x:Name="PART_Root"
                 Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
                 MinHeight="{TemplateBinding MinHeight}">
           <Panel>
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,20,0,7">
+            <Grid x:Name="PART_ContentArea" ColumnDefinitions="*,Auto">
               <ContentPresenter x:Name="PART_ContentPresenter"
                                 Grid.Column="0"
                                 Content="{TemplateBinding SelectionBoxItem}"
@@ -154,7 +189,6 @@
                        FontSize="{DynamicResource FiliCaptionFontSize}"
                        LineHeight="NaN"
                        Foreground="{DynamicResource FiliTextSecondaryBrush}"
-                       RenderTransform="translateY(-14px)"
                        IsVisible="{Binding SelectionBoxItem, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
             <Border x:Name="PART_Underline"
@@ -197,8 +231,27 @@
 
           </Panel>
         </Border>
+        </DockPanel>
       </ControlTemplate>
     </Setter>
+
+    <!--
+      The content area's margin is a STYLE, not inline in the template, and so is everything else
+      a variant moves. A literal written in a ControlTemplate binds at Template priority, which a
+      plain `^ /template/` style in a derived theme cannot override - only one with an activator
+      can. That is how filled and outlined fields shipped with none of their 12px / 14px
+      horizontal padding while their `.dense` margins, which do carry an activator, applied fine.
+    -->
+    <Style Selector="^ /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="0,20,0,7" />
+    </Style>
+
+    <!-- The selected label's floated position is a style, NOT inline in the template: a value
+         written there binds at Template priority, which a plain style cannot override, and the
+         filled and outlined themes need to move it. -->
+    <Style Selector="^ /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="RenderTransform" Value="translateY(-14px)" />
+    </Style>
 
     <Style Selector="^:pointerover /template/ Border#PART_Underline">
       <Setter Property="Background" Value="{DynamicResource FiliActionDefaultBrush}" />
@@ -250,6 +303,199 @@
     </Style>
     <Style Selector="^.error /template/ Border#PART_UnderlineActive">
       <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_Underline">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_UnderlineActive">
+      <Setter Property="Background" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+
+    <!-- The helper line: in error the row takes the error colour and the error replaces the
+         helper text. -->
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ TextBlock#PART_HelperText">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^.error /template/ TextBlock#PART_HelperText">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^.error /template/ Grid#PART_HelperLine">
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+
+    <!-- Margin.Dense, as Controls/TextBox.axaml derives it. -->
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="45" />
+    </Style>
+    <Style Selector="^.dense /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="0,17,0,7" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-1.5px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-12.5px)" />
+    </Style>
+    <Style Selector="^.dense:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-12.5px)" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="RenderTransform" Value="translateY(-12.5px)" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Filled: Controls/TextBox.axaml's filled field, with the drop-down adornment. -->
+  <ControlTheme x:Key="FiliFilledComboBox" TargetType="ComboBox" BasedOn="{StaticResource FiliComboBox}">
+    <Setter Property="Background" Value="{DynamicResource FiliInputFilledBrush}" />
+    <Setter Property="CornerRadius" Value="4,4,0,0" />
+    <Setter Property="MinHeight" Value="56" />
+
+    <Style Selector="^ /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="12,20,12,8" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Margin" Value="12,0" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Margin" Value="12,0" />
+    </Style>
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-10px)" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-10px)" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="RenderTransform" Value="translateY(-10px)" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Grid#PART_HelperLine">
+      <Setter Property="Margin" Value="4,0" />
+    </Style>
+
+    <!-- Margin.Dense, as Controls/TextBox.axaml derives it. -->
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="48" />
+    </Style>
+    <Style Selector="^.dense /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="12,16,12,4" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(1px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-9px)" />
+    </Style>
+    <Style Selector="^.dense:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-9px)" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="RenderTransform" Value="translateY(-9px)" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Outlined: Controls/TextBox.axaml's outlined field, with the drop-down adornment. -->
+  <ControlTheme x:Key="FiliOutlinedComboBox" TargetType="ComboBox" BasedOn="{StaticResource FiliComboBox}">
+    <Setter Property="BorderBrush" Value="{DynamicResource FiliLinesInputsBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource FiliCornerRadius}" />
+    <Setter Property="MinHeight" Value="56" />
+
+    <Style Selector="^ /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="14,16,14,12" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Margin" Value="14,0" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Margin" Value="14,0" />
+    </Style>
+    <Style Selector="^ /template/ Border#PART_Underline">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^ /template/ Border#PART_UnderlineActive">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliTextPrimaryBrush}" />
+    </Style>
+    <Style Selector="^:focus /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliPrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <!-- The floated label sits on the stroke behind a surface-coloured mask, with the same limit
+         as the text field's: on any ground but FiliSurface the patch shows. -->
+    <Style Selector="^:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="10,0" />
+      <Setter Property="RenderTransform" Value="translateY(-26px)" />
+    </Style>
+    <Style Selector="^:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="10,0" />
+      <Setter Property="RenderTransform" Value="translateY(-26px)" />
+    </Style>
+    <Style Selector="^ /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="Background" Value="{DynamicResource FiliSurfaceBrush}" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="10,0" />
+      <Setter Property="RenderTransform" Value="translateY(-26px)" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Grid#PART_HelperLine">
+      <Setter Property="Margin" Value="8,0" />
+    </Style>
+
+    <!-- Margin.Dense, as Controls/TextBox.axaml derives it. -->
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="40" />
+    </Style>
+    <Style Selector="^.dense /template/ Grid#PART_ContentArea">
+      <Setter Property="Margin" Value="14,8,14,4" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(0px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-18px)" />
+    </Style>
+    <Style Selector="^.dense:dropdownopen /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-18px)" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_SelectedLabel">
+      <Setter Property="RenderTransform" Value="translateY(-18px)" />
     </Style>
   </ControlTheme>
 

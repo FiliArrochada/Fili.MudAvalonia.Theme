@@ -30,6 +30,16 @@
       through a fieldset legend; Avalonia has no fieldset, and the mask only blends on
       FiliSurface.
 
+  Margin.Dense is `dense`, from the .mud-input-root-margin-dense and .mud-input-label-margin-dense
+  rules: standard loses 3px above the text, filled 4px above and below, outlined 8px above and
+  below, and each label rests and floats correspondingly higher. The label is centred in the
+  field, so its translations below are those deltas less half the change in height.
+
+    variant    height     content margin     label resting    label floated
+    standard   48 -> 45   0,20,0,7 -> 0,17,0,7     0 -> -1.5       -14 -> -12.5
+    filled     56 -> 48   12,20,12,8 -> 12,16,12,4  0 -> 1         -10 -> -9
+    outlined   56 -> 40   14,16,14,12 -> 14,8,14,4  0 -> 0         -26 -> -18
+
   PlaceholderText DOUBLES AS THE LABEL. Avalonia's TextBox has no Label property, and adding an
   attached one would be the first real API in a package whose point is not having any. The cost
   is that these variants have no separate placeholder.
@@ -57,11 +67,55 @@
 
     <Setter Property="Template">
       <ControlTemplate>
-        <!-- The DataValidationErrors wrapper is what makes a binding error VISIBLE. Without it
-             a field with a failing binding shows the red rule and no message at all, because
-             nothing in the template hosts the error list. Controls/Fields.axaml themes it to
-             put that message under the field, the way MudBlazor does. -->
-        <DataValidationErrors>
+        <!--
+          The helper line: MudInputControl's one row under the field. The error replaces the
+          helper text on the left and the counter sits on the right, so each part carries its own
+          3px top margin and an empty line takes no room at all.
+
+          Helper text is AutomationProperties.HelpText, Avalonia's own attached property, so it
+          needs no API of this package's and reaches a screen reader too, as MudBlazor wires
+          HelperText into aria-describedby. The counter is the `counter` class over MaxLength:
+          "12 / 50", or "12" when MaxLength is 0, MudBlazor's Counter="0".
+        -->
+        <DockPanel>
+          <Grid x:Name="PART_HelperLine"
+                DockPanel.Dock="Bottom"
+                ColumnDefinitions="*,Auto"
+                TextElement.Foreground="{DynamicResource FiliTextSecondaryBrush}">
+            <ContentControl x:Name="PART_Errors"
+                            Margin="0,3,0,0"
+                            Content="{TemplateBinding (DataValidationErrors.Errors)}"
+                            ContentTemplate="{DynamicResource FiliValidationErrorsTemplate}"
+                            IsVisible="{TemplateBinding (DataValidationErrors.HasErrors)}" />
+            <!-- The binding is on this Panel, not on the TextBlock: a {Binding} in a template
+                 binds at LocalValue and outranks every style, so the error could not hide it. -->
+            <Panel IsVisible="{Binding $parent[TextBox].(AutomationProperties.HelpText), Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <TextBlock x:Name="PART_HelperText"
+                         Margin="0,3,0,0"
+                         FontFamily="{DynamicResource FiliFontFamily}"
+                         FontSize="{DynamicResource FiliCaptionFontSize}"
+                         FontWeight="Normal"
+                         LineHeight="20"
+                         LetterSpacing="0.4"
+                         TextWrapping="Wrap"
+                         Text="{TemplateBinding (AutomationProperties.HelpText)}" />
+            </Panel>
+            <StackPanel x:Name="PART_Counter" Grid.Column="1" Orientation="Horizontal" Margin="0,3,0,0" IsVisible="False">
+              <TextBlock Text="{Binding $parent[TextBox].Text.Length, FallbackValue=0, TargetNullValue=0}"
+                         FontFamily="{DynamicResource FiliFontFamily}"
+                         FontSize="{DynamicResource FiliCaptionFontSize}"
+                         FontWeight="Normal"
+                         LineHeight="20"
+                         LetterSpacing="0.4" />
+              <TextBlock x:Name="PART_CounterLimit"
+                         FontFamily="{DynamicResource FiliFontFamily}"
+                         FontSize="{DynamicResource FiliCaptionFontSize}"
+                         FontWeight="Normal"
+                         LineHeight="20"
+                         LetterSpacing="0.4"
+                         Text="{Binding $parent[TextBox].MaxLength, StringFormat=' / {0}'}" />
+            </StackPanel>
+          </Grid>
         <Border x:Name="PART_Root"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
@@ -71,7 +125,7 @@
           <Panel>
 
             <!-- Named so the variants below can change the box model without a new template. -->
-            <DockPanel x:Name="PART_ContentArea" Margin="0,20,0,7">
+            <DockPanel x:Name="PART_ContentArea">
               <ContentPresenter x:Name="PART_InnerLeftContent"
                                 Content="{TemplateBinding InnerLeftContent}"
                                 DockPanel.Dock="Left"
@@ -103,7 +157,6 @@
                  can interpolate it; a TranslateTransform object cannot be transitioned. -->
             <TextBlock x:Name="PART_FloatingLabel"
                        Text="{TemplateBinding PlaceholderText}"
-                       Margin="0"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"
                        IsHitTestVisible="False"
@@ -139,9 +192,20 @@
 
           </Panel>
         </Border>
-        </DataValidationErrors>
+        </DockPanel>
       </ControlTemplate>
     </Setter>
+
+    <!--
+      The content area's margin is a STYLE, not inline in the template, and so is everything else
+      a variant moves. A literal written in a ControlTemplate binds at Template priority, which a
+      plain `^ /template/` style in a derived theme cannot override - only one with an activator
+      can. That is how filled and outlined fields shipped with none of their 12px / 14px
+      horizontal padding while their `.dense` margins, which do carry an activator, applied fine.
+    -->
+    <Style Selector="^ /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="0,20,0,7" />
+    </Style>
 
     <Style Selector="^:pointerover /template/ Border#PART_Underline">
       <Setter Property="Background" Value="{DynamicResource FiliActionDefaultBrush}" />
@@ -202,6 +266,46 @@
     <Style Selector="^.error /template/ TextBlock#PART_FloatingLabel">
       <Setter Property="Foreground" Value="{DynamicResource FiliErrorBrush}" />
     </Style>
+
+    <!-- The helper line's type is inline in the template, from _inputcontrol.scss's
+         .mud-input-helper-text: caption size at weight 400, line-height 1.66 (20px), 0.03333em
+         (0.4px) and text-secondary. In error the whole row takes the error colour, and the error
+         takes the helper text's place. -->
+    <Style Selector="^.counter /template/ StackPanel#PART_Counter">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="^[MaxLength=0] /template/ TextBlock#PART_CounterLimit">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ TextBlock#PART_HelperText">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^.error /template/ TextBlock#PART_HelperText">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Grid#PART_HelperLine">
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^.error /template/ Grid#PART_HelperLine">
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+
+    <!-- Margin.Dense. -->
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="45" />
+    </Style>
+    <Style Selector="^.dense /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="0,17,0,7" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-1.5px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-12.5px)" />
+    </Style>
+    <Style Selector="^.dense:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-12.5px)" />
+    </Style>
   </ControlTheme>
 
   <!-- Filled: the standard field on a tinted sheet, top corners only. -->
@@ -227,6 +331,27 @@
 
     <Style Selector="^:disabled /template/ Border#PART_Root">
       <Setter Property="Background" Value="{DynamicResource FiliActionDisabledBackgroundBrush}" />
+    </Style>
+
+    <!-- MudInputControl's helper container is px-1 under a filled field. -->
+    <Style Selector="^ /template/ Grid#PART_HelperLine">
+      <Setter Property="Margin" Value="4,0" />
+    </Style>
+
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="48" />
+    </Style>
+    <Style Selector="^.dense /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="12,16,12,4" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(1px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-9px)" />
+    </Style>
+    <Style Selector="^.dense:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-9px)" />
     </Style>
   </ControlTheme>
 
@@ -279,6 +404,30 @@
     </Style>
     <Style Selector="^.error /template/ Border#PART_Root">
       <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+    <Style Selector="^[(DataValidationErrors.HasErrors)=True] /template/ Border#PART_Root">
+      <Setter Property="BorderBrush" Value="{DynamicResource FiliErrorBrush}" />
+    </Style>
+
+    <!-- MudInputControl's helper container is px-2 under an outlined field. -->
+    <Style Selector="^ /template/ Grid#PART_HelperLine">
+      <Setter Property="Margin" Value="8,0" />
+    </Style>
+
+    <Style Selector="^.dense">
+      <Setter Property="MinHeight" Value="40" />
+    </Style>
+    <Style Selector="^.dense /template/ DockPanel#PART_ContentArea">
+      <Setter Property="Margin" Value="14,8,14,4" />
+    </Style>
+    <Style Selector="^.dense /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(0px)" />
+    </Style>
+    <Style Selector="^.dense:focus /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-18px)" />
+    </Style>
+    <Style Selector="^.dense:not(:empty) /template/ TextBlock#PART_FloatingLabel">
+      <Setter Property="RenderTransform" Value="translateY(-18px)" />
     </Style>
   </ControlTheme>
 

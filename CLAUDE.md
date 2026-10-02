@@ -230,6 +230,17 @@ Two conversions are already applied and should stay applied consistently:
   a `:focus`. It is also why the high-contrast drawer edge is selected through the four
   `DisplayMode` pseudo-classes rather than on the bare type. Pinned by
   `TheDrawerGainsAnEdgeInHighContrastOnly`.
+
+  **It also applies between a theme and the themes `BasedOn` it.** A variant theme's plain
+  `^ /template/ X#PART_Y` style is not an activator either, so it cannot move anything the base
+  template wrote inline. Filled and outlined text fields shipped with NONE of their 12px / 14px
+  side padding for exactly this reason, while their `.dense` styles, which do carry an
+  activator, applied fine. The rule: **a value a variant theme changes is set by a style in the base
+  theme, never inline in the template.** `VariantsPadTheirContentFromTheSide` pins it.
+
+  And a `{Binding}` in a template is stronger still: it binds at **LocalValue**, which beats
+  every style, activator or not. So a part whose `IsVisible` a style must be able to switch off
+  cannot also bind it - put the binding on a wrapping `Panel` instead, as the helper line does.
 - **A dictionary's own entries are found BEFORE its `ThemeDictionaries`.** So a token declared
   once outside the variant dictionaries cannot be given a per-variant value by adding one - the
   outer value wins in every variant, silently. This is why the elevation ladder had to move

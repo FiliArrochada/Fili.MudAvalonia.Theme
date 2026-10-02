@@ -206,6 +206,21 @@ the bar's colour instead.
 `PlaceholderText` is the floating label. A binding that fails validation shows its message under
 the field without `error`, like MudBlazor's validation does.
 
+```razor
+<MudTextField @bind-Value="_email" Label="Email" HelperText="We never share it" />
+<MudTextField @bind-Value="_title" Label="Title" Counter="40" MaxLength="40" />
+<MudTextField @bind-Value="_email" Label="Email" Margin="Margin.Dense" Variant="Variant.Outlined" />
+```
+
+```xml
+<TextBox Text="{Binding Email}" PlaceholderText="Email" AutomationProperties.HelpText="We never share it" />
+<TextBox Text="{Binding Title}" PlaceholderText="Title" Classes="counter" MaxLength="40" />
+<TextBox Text="{Binding Email}" PlaceholderText="Email" Classes="outlined dense" />
+```
+
+The helper text is the accessibility property, so a screen reader reads it as well. The counter
+counts against `MaxLength`; without one it shows the length alone, as `Counter="0"` does.
+
 ## Selects and numbers
 
 ```razor
@@ -213,6 +228,9 @@ the field without `error`, like MudBlazor's validation does.
     <MudSelectItem Value="@("PC")">PC</MudSelectItem>
     <MudSelectItem Value="@("Switch")">Switch</MudSelectItem>
 </MudSelect>
+
+<MudSelect T="string" @bind-Value="_library" Label="Library" Variant="Variant.Outlined"
+           HelperText="Where new files go" Margin="Margin.Dense">…</MudSelect>
 
 <MudNumericField @bind-Value="_quantity" Label="Quantity" />
 ```
@@ -224,6 +242,11 @@ the field without `error`, like MudBlazor's validation does.
 </ComboBox>
 
 <NumericUpDown Value="{Binding Quantity}" PlaceholderText="Quantity" />
+```
+
+```xml
+<ComboBox SelectedItem="{Binding Library}" PlaceholderText="Library" Classes="outlined dense"
+          AutomationProperties.HelpText="Where new files go">…</ComboBox>
 ```
 
 ## Selection controls

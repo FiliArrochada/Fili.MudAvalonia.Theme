@@ -6,7 +6,7 @@ where the two differ. For side-by-side markup, see [Razor and AXAML](razor-vs-ax
 The rule behind every row: **a class only ever names a MudBlazor variant.** Every control the
 theme templates is keyed to its type, so an unclassed control is already the MudBlazor default.
 Class names are MudBlazor's own words (`primary`, `outlined`, `small`), deliberately not
-namespaced. `ClassVocabularyTests` pins the full list of 53.
+namespaced. `ClassVocabularyTests` pins the full list of 54.
 
 | Mark | Meaning |
 |---|---|
@@ -110,10 +110,12 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | `Variant.Filled` / `Outlined` | `filled` / `outlined` | ✅ |
 | `Label` | `PlaceholderText` | ≈ **the placeholder is the floating label**, so there is no separate placeholder |
 | `Error="true"` | `error` | ✅ |
-| validation | a binding's own validation error | ✅ message under the field at 12px |
-| `HelperText` | — | ❌ |
-| `Counter` | — | ❌ |
-| `Margin.Dense` | — | ❌ |
+| validation | a binding's own validation error | ✅ message under the field at 12px, in the helper text's place |
+| `HelperText` | `AutomationProperties.HelpText` | ✅ caption, text-secondary; inset 4px under filled, 8px under outlined; read by a screen reader too |
+| `HelperTextOnFocus` | — | ❌ |
+| `Counter` | `counter` with `MaxLength` | ✅ `12 / 50` on the right; the length alone when `MaxLength` is 0, as `Counter="0"` |
+| `Margin.Dense` | `dense` | ✅ standard 3px shorter, filled 8px, outlined 16px, with the label resting and floating to match |
+| `Margin.Normal` | `Margin` | ≈ only an outer margin in MudBlazor; an ordinary Avalonia property |
 | `Adornment` | `InnerLeftContent` / `InnerRightContent` | ≈ ordinary Avalonia properties |
 
 ### MudSelect, MudAutocomplete, MudNumericField
@@ -123,7 +125,8 @@ Put a `PathIcon` in `Content`: `<Button Classes="icon primary"><PathIcon Data="�
 | `MudSelect` | `ComboBox` | ✅ a standard text field with a drop-down adornment, as `_select.scss` makes it |
 | `Label` | `PlaceholderText` | ≈ the floating label |
 | `Error` | `error` | ✅ |
-| `Variant` on a select | — | ❌ standard only |
+| `Variant` on a select | `filled` / `outlined` | ✅ the text field's own variants |
+| `HelperText`, `Margin.Dense` on a select | `AutomationProperties.HelpText`, `dense` | ✅ as on a text field; a failing binding shows its message too |
 | `MudAutocomplete` | `AutoCompleteBox` | ✅ |
 | `MudNumericField` | `NumericUpDown` | ✅ 24px spin column, as `_inputcontrol.scss` reserves |
 

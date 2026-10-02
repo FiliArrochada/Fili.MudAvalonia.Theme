@@ -28,6 +28,28 @@
 
   <fili:ErrorMessageConverter x:Key="FiliErrorMessage" />
 
+  <!-- The error list, shared: DataValidationErrors shows it for the controls it wraps, and the
+       TextBox and ComboBox templates show it themselves, in their helper line beside the
+       counter - the one row MudInputControl renders for error, helper text and counter alike. -->
+  <DataTemplate x:Key="FiliValidationErrorsTemplate">
+    <!-- Every error, stacked, not just the first: a field can fail two rules at once and
+         MudBlazor shows both. -->
+    <ItemsControl ItemsSource="{Binding}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding Converter={StaticResource FiliErrorMessage}}"
+                     TextWrapping="Wrap"
+                     FontFamily="{DynamicResource FiliFontFamily}"
+                     FontSize="{DynamicResource FiliCaptionFontSize}"
+                     FontWeight="Normal"
+                     LineHeight="20"
+                     LetterSpacing="0.4"
+                     Foreground="{DynamicResource FiliErrorBrush}" />
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </DataTemplate>
+
   <ControlTheme x:Key="FiliDataValidationErrors" TargetType="DataValidationErrors">
     <Setter Property="Template">
       <ControlTemplate>
@@ -51,26 +73,7 @@
       </ControlTemplate>
     </Setter>
 
-    <Setter Property="ErrorTemplate">
-      <DataTemplate>
-        <!-- Every error, stacked, not just the first: a field can fail two rules at once and
-             MudBlazor shows both. -->
-        <ItemsControl ItemsSource="{Binding}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Converter={StaticResource FiliErrorMessage}}"
-                         TextWrapping="Wrap"
-                         FontFamily="{DynamicResource FiliFontFamily}"
-                         FontSize="{DynamicResource FiliCaptionFontSize}"
-                         FontWeight="Normal"
-                         LineHeight="20"
-                         LetterSpacing="0.4"
-                         Foreground="{DynamicResource FiliErrorBrush}" />
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </DataTemplate>
-    </Setter>
+    <Setter Property="ErrorTemplate" Value="{StaticResource FiliValidationErrorsTemplate}" />
   </ControlTheme>
 
   <ControlTheme x:Key="FiliLabel" TargetType="Label">

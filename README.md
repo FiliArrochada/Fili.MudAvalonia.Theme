@@ -113,7 +113,7 @@ the matrix, at rest and on a real pointer hover. Both helpers live in the unit-t
 `Variant.Outlined`, `Variant.Text` and `Variant.Filled` — API familiarity is the point of this
 package, so they are not namespaced to `mud-primary` or hidden behind an attached property.
 
-**All 53 of them, which is the list to grep an app against before adopting:**
+**All 54 of them, which is the list to grep an app against before adopting:**
 
 | | |
 |---|---|
@@ -123,7 +123,7 @@ package, so they are not namespaced to `mud-primary` or hidden behind an attache
 | Shape (`Variant`) | `text`, `filled`, `outlined`, `rounded`, `flat` |
 | Size (`Size`) | `small`, `medium`, `large`, `dense` |
 | Placement | `inset`, `middle`, `vertical`, `light`, `underline`, `no-underline` |
-| Component | `icon`, `chip`, `alert`, `skeleton`, `circle`, `rectangle` |
+| Component | `icon`, `chip`, `alert`, `skeleton`, `circle`, `rectangle`, `counter` |
 
 `ClassVocabularyTests` asserts that list is exactly what the theme uses, in both directions — an
 undeclared class is a collision nobody signed off on, and a declared one no selector uses is a
@@ -237,6 +237,30 @@ sets `DataValidationErrors.HasErrors`. The template hosts a `DataValidationError
 renders **under the field** at 12px the way MudBlazor's helper text does — not as the forked
 template's red circle with a tooltip off to the right. Before this was wired, a failing binding
 recoloured nothing and showed nothing.
+
+**Under the field is MudInputControl's helper line**, one row for three things:
+
+```xml
+<TextBox Classes="filled" PlaceholderText="Email" AutomationProperties.HelpText="We never share it" />
+<TextBox Classes="outlined counter" PlaceholderText="Title" MaxLength="40" />     17 / 40
+<TextBox Classes="dense" PlaceholderText="Email" />                              Margin.Dense
+```
+
+- **Helper text is `AutomationProperties.HelpText`**, Avalonia's own attached property, so it
+  costs no API and a screen reader announces it, as MudBlazor wires `HelperText` into
+  `aria-describedby`. An error takes its place, as MudBlazor's does.
+- **`counter` is `MudTextField.Counter` over `MaxLength`**: `17 / 40` on the right, or the length
+  alone when `MaxLength` is 0, which is `Counter="0"`. It turns red with the field.
+- **`dense` is `Margin.Dense`**: 3px off a standard field, 8px off a filled one, 16px off an
+  outlined one, from `.mud-input-root-margin-dense`, with the label resting and floating to match.
+
+A `ComboBox` takes the same: `filled`, `outlined`, `dense`, `error`, and helper text. A select
+used to have no error host at all, so a failing binding on one showed nothing.
+
+**Filled and outlined fields had no side padding until 0.2.0**, though the themes declared 12px
+and 14px. The template wrote the content margin inline, which binds at Template priority, and a
+variant's plain `^ /template/` style cannot beat that; see the trap in `CLAUDE.md`.
+`VariantsPadTheirContentFromTheSide` now pins it.
 
 The outlined variant masks the border behind the floated label with an opaque patch rather than
 cutting a real notch in the stroke — a notch needs a generated `Geometry`, and the mask is
@@ -1051,8 +1075,8 @@ pinning it would turn every Avalonia upgrade into a failing test about someone e
 
 | Runner | Builds | Runs |
 |---|---|---|
-| `ubuntu-latest` | the whole solution, browser gallery included | the 293 unit tests |
-| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 293 unit tests **and** the 9 pixel baselines |
+| `ubuntu-latest` | the whole solution, browser gallery included | the 313 unit tests |
+| `windows-latest` | the two test projects, which reference every project but the browser gallery | the 313 unit tests **and** the 9 pixel baselines |
 
 **Only Linux installs the `wasm-tools` workload.** The browser gallery's build natively links Skia
 and HarfBuzz into `dotnet.wasm`, so even restoring it needs the workload. Installing it on Windows
@@ -1165,8 +1189,6 @@ And the things that are not controls:
   applied, the casing is not.
 - **No separate placeholder on a text field** — `PlaceholderText` is the floating label; see
   *Text fields* above.
-- **No counter under a field.** The error/helper line exists; `MudTextField`'s character counter
-  would need an attached property.
 - **The `dark` colour barely shows as text or a line in dark mode, and not at all in high
   contrast**: `#27272F` on a `#32333D` page, and black on black. MudBlazor's dark theme behaves the
   same way. A filled dark button stays visible.

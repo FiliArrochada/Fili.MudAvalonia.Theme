@@ -304,6 +304,48 @@
           <NumericUpDown Width="190" Value="42" />
           <AutoCompleteBox Width="190" PlaceholderText="Autocomplete" />
         </StackPanel>
+
+        <TextBlock Classes="overline" Text="Field details — helper text, counter, dense, select variants" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Top">
+          <TextBox Classes="filled" Width="190" VerticalAlignment="Top" PlaceholderText="Email"
+                   AutomationProperties.HelpText="We never share it" />
+          <TextBox Classes="outlined counter" Width="190" VerticalAlignment="Top" PlaceholderText="Title"
+                   MaxLength="40" Text="Fili Manga Reader"
+                   AutomationProperties.HelpText="Shown on the card" />
+          <TextBox Classes="counter" Width="190" VerticalAlignment="Top" PlaceholderText="Notes" Text="No limit" />
+          <TextBox Classes="filled error counter" Width="190" VerticalAlignment="Top" PlaceholderText="Code"
+                   MaxLength="6" Text="1234567"
+                   AutomationProperties.HelpText="Hidden in error" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Top">
+          <TextBox Classes="dense" Width="190" VerticalAlignment="Top" PlaceholderText="Dense" Text="Standard" />
+          <TextBox Classes="filled dense" Width="190" VerticalAlignment="Top" PlaceholderText="Dense" Text="Filled" />
+          <TextBox Classes="outlined dense" Width="190" VerticalAlignment="Top" PlaceholderText="Dense" Text="Outlined" />
+          <ComboBox Classes="outlined dense" Width="190" VerticalAlignment="Top" PlaceholderText="Dense" SelectedIndex="0">
+            <ComboBoxItem>Outlined select</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Top">
+          <ComboBox Classes="filled" Width="190" VerticalAlignment="Top" PlaceholderText="Library"
+                    AutomationProperties.HelpText="Where new files go">
+            <ComboBoxItem>Manga</ComboBoxItem>
+            <ComboBoxItem>Comics</ComboBoxItem>
+          </ComboBox>
+          <ComboBox Classes="filled" Width="190" VerticalAlignment="Top" PlaceholderText="Library" SelectedIndex="0">
+            <ComboBoxItem>Filled select</ComboBoxItem>
+          </ComboBox>
+          <ComboBox Classes="outlined" Width="190" VerticalAlignment="Top" PlaceholderText="Library">
+            <ComboBoxItem>Manga</ComboBoxItem>
+          </ComboBox>
+          <ComboBox Classes="outlined error" Width="190" VerticalAlignment="Top" PlaceholderText="Library" SelectedIndex="0">
+            <ComboBoxItem>Outlined, error</ComboBoxItem>
+          </ComboBox>
+        </StackPanel>
+        <TextBlock Classes="caption"
+                   TextWrapping="Wrap"
+                   MaxWidth="760"
+                   HorizontalAlignment="Left"
+                   Text="Helper text is AutomationProperties.HelpText, which a screen reader announces too; an error takes its place. counter is MudTextField's Counter over MaxLength, the length alone when there is none. dense is Margin.Dense, and a select takes filled and outlined exactly as a text field does." />
       </StackPanel>
 
       <!-- Range and progress -->

@@ -60,7 +60,7 @@ public class ClassVocabularyTests
 
         // Components that are a class on an existing control: MudIconButton and MudChip on a
         // Button, MudAlert and MudSkeleton on a Border, with MudSkeleton's SkeletonType.
-        "alert", "chip", "circle", "icon", "rectangle", "skeleton",
+        "alert", "chip", "circle", "counter", "icon", "rectangle", "skeleton",
     ];
 
     /// <summary>

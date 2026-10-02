@@ -533,6 +533,14 @@
     <Setter Property="Theme" Value="{StaticResource FiliOutlinedTextBox}" />
   </Style>
 
+  <Style Selector="ComboBox.filled">
+    <Setter Property="Theme" Value="{StaticResource FiliFilledComboBox}" />
+  </Style>
+
+  <Style Selector="ComboBox.outlined">
+    <Setter Property="Theme" Value="{StaticResource FiliOutlinedComboBox}" />
+  </Style>
+
   <!--
     ============================== Drawer ==============================
 
