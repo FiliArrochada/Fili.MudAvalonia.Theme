@@ -371,7 +371,9 @@ $env:FILI_REGENERATE = "1"; dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --f
 key; the `NUGET_USER` repository variable names the account) and creates the GitHub release. A
 nuget.org version can never be replaced, so a release is outward-facing and permanent: bump
 `<Version>` in a reviewed commit and leave creating and pushing the tag to the human, like every
-other git write here.
+other git write here. The same commit adds the version's row to `docs/versions.md`, and an
+"Upgrading" section there when it changes what existing markup looks like; the README links to it
+rather than carrying the history itself.
 
 **There are two test projects.** `tst/{Name}.UnitTests` is the fast one and renders nothing;
 `tst/{Name}.PixelTests` renders nine gallery frames with Skia and diffs them against committed

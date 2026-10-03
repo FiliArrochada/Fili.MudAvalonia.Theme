@@ -1,4 +1,4 @@
-# Fili.MudAvalonia.Theme
+# Fili - MudAvalonia Theme
 
 [![NuGet](https://img.shields.io/nuget/v/Fili.MudAvalonia.Theme?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
 [![Downloads](https://img.shields.io/nuget/dt/Fili.MudAvalonia.Theme?logo=nuget&label=downloads)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
@@ -9,6 +9,29 @@
 
 A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light, dark
 and high contrast, with a gallery app to look at it in.
+
+**[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
+compiled to WebAssembly and served by GitHub Pages.
+
+Coming from MudBlazor? [MudBlazor parity](docs/mudblazor-parity.md) maps every component
+parameter and palette property to its class or token, and [Razor and AXAML](docs/razor-vs-axaml.md)
+shows the same UI written both ways.
+
+The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
+aim is the *look* — this is not a component library: no new control types, no services, and one
+public type. That type is `FiliThemeVariants`, whose only member is the high-contrast
+`ThemeVariant`; it has to be public, because XAML can reach a custom variant only through
+`x:Static`. Two `internal` converters exist where XAML cannot express a MudBlazor rule; see
+*Two converters* below.
+
+```
+src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
+src/Fili.MudAvalonia.Theme.Gallery          gallery UI, shared across heads
+src/Fili.MudAvalonia.Theme.Gallery.Desktop  desktop head
+src/Fili.MudAvalonia.Theme.Gallery.Browser  browser head (WebAssembly), deployed to GitHub Pages
+tst/Fili.MudAvalonia.Theme.UnitTests        headless resource-resolution tests
+tst/Fili.MudAvalonia.Theme.PixelTests       gallery frames diffed against committed PNGs
+```
 
 ## Install
 
@@ -34,56 +57,10 @@ version-less.
 | Fonts | Roboto (Light, Regular, Medium) embedded, under the SIL Open Font License |
 | Licence | MIT |
 
+What changed in each version, and what to change when upgrading, is in
+[Versions](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/blob/master/docs/versions.md).
+
 Then add the two includes under [Using it](#using-it).
-
-### Versions
-
-| Version | |
-|---|---|
-| **0.2.0** | MudBlazor parity. A colour class is now only a colour, as `Color` is in MudBlazor - on buttons, split and drop-down buttons, checkboxes, radios, switches, sliders, progress bars, text, tabs and the app bar - with Button's full Variant × Color × Size matrix. Icon buttons, chips, alerts and skeletons as classes; helper text, a counter and dense fields; select variants; MudTabs and MudAppBar options. See *Upgrading from 0.1* below. |
-| 0.1.1 | The app bar's text colour is inherited rather than set on every `TextBlock`, which had turned an app-bar select's drop-down white on white. The gallery loses its Fluent comparison switch. |
-| 0.1.0 | First release: the palette, elevation, typography and geometry tokens, the hand-written control themes over a forked Avalonia Simple base, light, dark and high contrast. |
-
-Every version and its release notes are on the
-[releases page](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/releases); a version on
-nuget.org can be unlisted but never replaced.
-
-#### Upgrading from 0.1
-
-0.2.0 changes what some existing markup looks like:
-
-- **`Classes="primary"` on a button is a primary *text* button.** It used to mean filled; add
-  `filled` for that. The same holds on `SplitButton`, and an unclassed `DropDownButton` is no
-  longer primary.
-- **`secondary` on a `TextBlock` is the pink secondary colour**, MudText's `Color`. Grey
-  supporting text is `Foreground="{DynamicResource FiliTextSecondaryBrush}"`.
-- **Tabs follow MudTabs' defaults:** a surface bar with no rule under it (add `border` for one),
-  tabs at least 160px wide, labels in text-primary.
-- **An app bar has 24px side padding**, MudAppBar's `Gutters`; `Padding="0"` removes it.
-- **Filled and outlined fields gain their 12px / 14px side padding**, which 0.1 never applied.
-
-**[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
-compiled to WebAssembly and served by GitHub Pages.
-
-Coming from MudBlazor? [MudBlazor parity](docs/mudblazor-parity.md) maps every component
-parameter and palette property to its class or token, and [Razor and AXAML](docs/razor-vs-axaml.md)
-shows the same UI written both ways.
-
-The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
-aim is the *look* — this is not a component library: no new control types, no services, and one
-public type. That type is `FiliThemeVariants`, whose only member is the high-contrast
-`ThemeVariant`; it has to be public, because XAML can reach a custom variant only through
-`x:Static`. Two `internal` converters exist where XAML cannot express a MudBlazor rule; see
-*Two converters* below.
-
-```
-src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
-src/Fili.MudAvalonia.Theme.Gallery          gallery UI, shared across heads
-src/Fili.MudAvalonia.Theme.Gallery.Desktop  desktop head
-src/Fili.MudAvalonia.Theme.Gallery.Browser  browser head (WebAssembly), deployed to GitHub Pages
-tst/Fili.MudAvalonia.Theme.UnitTests        headless resource-resolution tests
-tst/Fili.MudAvalonia.Theme.PixelTests       gallery frames diffed against committed PNGs
-```
 
 ## Using it
 
