@@ -375,6 +375,10 @@ other git write here. The same commit adds the version's row to `docs/versions.m
 "Upgrading" section there when it changes what existing markup looks like; the README links to it
 rather than carrying the history itself.
 
+`docs/testing.md` describes every test class and workflow, with per-class counts. Like the
+README's CI table and the comment in `build.yml`, it carries the unit-test total, so a change that
+adds tests updates all three.
+
 **There are two test projects.** `tst/{Name}.UnitTests` is the fast one and renders nothing;
 `tst/{Name}.PixelTests` renders nine gallery frames with Skia and diffs them against committed
 PNGs. The split is deliberate - the pixel suite needs headless drawing turned OFF, which changes
@@ -388,11 +392,16 @@ those PNGs were rendered on Windows with Skia. A failing frame uploads the rende
 diff as the `pixel-diffs` artifact - which is why the diff directory is overridable through
 `FILI_PIXEL_DIFF_DIR`, the default being a system temp path no artifact upload can reach.
 
-**The hosted Windows runner rasterises identically to a developer machine.** Its only failures so
-far were the locale (see the trap above). If a frame fails in CI and nowhere else, compare the
-uploaded artifact with the committed baseline and look for something machine-dependent first; if
-the runner ever genuinely rasterises differently, the fix is a second committed set of baselines
-per environment, never a wider tolerance.
+**The hosted Windows runner rasterises like a developer machine, to within 4/255 on an
+antialiased edge.** Its failures so far were the locale (see the trap above) and, once, two pixels
+on a slider rail's rounded end 4/255 apart: Skia picks a SIMD path for the CPU it finds, and a
+hosted job lands on whichever VM is free, so the same frames passed on the commit before.
+`Frames.Tolerance` is 4 for that, and it bounds how FAR a pixel may drift per channel, never how
+MANY pixels may differ - the latter is the budget the traps above rule out. If a frame fails in
+CI and nowhere else, compare the uploaded artifact with the committed baseline and look for
+something machine-dependent first; if the runner ever rasterises differently by more than a few
+levels on edges (fonts, a Skia upgrade), the fix is a second committed set of baselines per
+environment, never a larger tolerance.
 
 **The gallery has two heads and one view.** `MainView` is the whole UI; `MainWindow` hosts it on
 desktop and the browser head sets it as the single view. Put gallery UI in `MainView`, never in

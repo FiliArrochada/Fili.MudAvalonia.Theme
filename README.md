@@ -15,7 +15,8 @@ compiled to WebAssembly and served by GitHub Pages.
 
 Coming from MudBlazor? [MudBlazor parity](docs/mudblazor-parity.md) maps every component
 parameter and palette property to its class or token, and [Razor and AXAML](docs/razor-vs-axaml.md)
-shows the same UI written both ways.
+shows the same UI written both ways. [Testing](docs/testing.md) explains what the 345 unit tests
+and nine pixel frames check, how CI runs them, and why each exists.
 
 The token values are MudBlazor's defaults, transcribed from its source rather than eyeballed. The
 aim is the *look* — this is not a component library: no new control types, no services, and one
@@ -1117,11 +1118,19 @@ Three things to know before changing any of it:
   rasterisation differs across platforms — a Linux runner would fail every frame on glyph edges
   alone. A second committed set per platform is the answer if that day comes; a tolerance wide
   enough to cover it would be wide enough to hide real changes.
+- **A pixel may drift by 4/255 per channel, and that is the only slack.** Hosted runners land on
+  different CPUs, and Skia's SIMD path for each rounds an antialiased edge slightly differently -
+  CI once failed on two pixels of a slider rail's rounded end, 4 levels apart, with frames that
+  had passed the run before. The tolerance bounds how far a pixel may move, never how many may
+  differ; a redrawn glyph or a moved edge changes far more than 4 levels and still fails.
 
 Fluent frames are captured but **not** baselined. What Fluent renders belongs to Avalonia, and
 pinning it would turn every Avalonia upgrade into a failing test about someone else's theme.
 
 ## Continuous integration
+
+[Testing](docs/testing.md) walks through every test class and workflow and what each one
+guards; this is the summary.
 
 `.github/workflows/build.yml`, on push and pull request to `master`, and on demand.
 `.github/workflows/pages.yml` deploys the browser gallery separately; see *In the browser*.

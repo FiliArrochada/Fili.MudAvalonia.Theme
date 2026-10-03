@@ -46,13 +46,21 @@ public static class Frames
     /// How far a channel may drift before a pixel counts as different.
     ///
     /// <para>
-    /// Zero would be ideal and is nearly true — two runs of the same build produce identical
-    /// frames once the animated region is masked. One is kept as headroom for a Skia point
-    /// release rounding an antialiased edge differently, which is a change in someone else's
-    /// code rather than a regression in this theme.
+    /// Zero would be ideal and is nearly true — two runs of the same build on one machine produce
+    /// identical frames once the animated region is masked. The headroom is for Skia rounding an
+    /// antialiased edge differently, which is a change in someone else's code rather than a
+    /// regression in this theme.
+    /// </para>
+    /// <para>
+    /// It is 4 because that is what the hosted Windows runner was seen to need: two pixels on the
+    /// rounded end of a slider rail, 4/255 apart, on one run and not the next with the same
+    /// frames. Skia picks a SIMD path for the CPU it finds, and a hosted job lands on whichever VM
+    /// is free, so a second baseline set cannot cover it. This bounds how FAR a pixel may drift,
+    /// never how MANY may: a redrawn glyph, a moved edge or a wrong colour still fails, because
+    /// each changes its pixels by far more than 4 levels.
     /// </para>
     /// </summary>
-    public const int Tolerance = 1;
+    public const int Tolerance = 4;
 
     public static Pixels Read(Bitmap bitmap)
     {
