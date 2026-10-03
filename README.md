@@ -1,7 +1,66 @@
 # Fili.MudAvalonia.Theme
 
+[![NuGet](https://img.shields.io/nuget/v/Fili.MudAvalonia.Theme?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
+[![Downloads](https://img.shields.io/nuget/dt/Fili.MudAvalonia.Theme?logo=nuget&label=downloads)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
+[![Build](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/build.yml)
+[![Gallery](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/pages.yml/badge.svg?branch=master)](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)
+[![Avalonia](https://img.shields.io/badge/Avalonia-12.1-8B44AC)](https://avaloniaui.net/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/blob/master/LICENSE)
+
 A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light, dark
 and high contrast, with a gallery app to look at it in.
+
+## Install
+
+```bash
+dotnet add package Fili.MudAvalonia.Theme
+```
+
+or, in a project file:
+
+```xml
+<PackageReference Include="Fili.MudAvalonia.Theme" Version="0.2.0" />
+```
+
+Under Central Package Management the version goes in `Directory.Packages.props` instead, as
+`<PackageVersion Include="Fili.MudAvalonia.Theme" Version="0.2.0" />`, and the reference stays
+version-less.
+
+| | |
+|---|---|
+| Package | [`Fili.MudAvalonia.Theme`](https://www.nuget.org/packages/Fili.MudAvalonia.Theme) on nuget.org, with symbols (`.snupkg`) |
+| Target framework | `net10.0` |
+| Depends on | `Avalonia` 12.1.2 or later, and nothing else - no `Avalonia.Themes.*` package |
+| Fonts | Roboto (Light, Regular, Medium) embedded, under the SIL Open Font License |
+| Licence | MIT |
+
+Then add the two includes under [Using it](#using-it).
+
+### Versions
+
+| Version | |
+|---|---|
+| **0.2.0** | MudBlazor parity. A colour class is now only a colour, as `Color` is in MudBlazor - on buttons, split and drop-down buttons, checkboxes, radios, switches, sliders, progress bars, text, tabs and the app bar - with Button's full Variant × Color × Size matrix. Icon buttons, chips, alerts and skeletons as classes; helper text, a counter and dense fields; select variants; MudTabs and MudAppBar options. See *Upgrading from 0.1* below. |
+| 0.1.1 | The app bar's text colour is inherited rather than set on every `TextBlock`, which had turned an app-bar select's drop-down white on white. The gallery loses its Fluent comparison switch. |
+| 0.1.0 | First release: the palette, elevation, typography and geometry tokens, the hand-written control themes over a forked Avalonia Simple base, light, dark and high contrast. |
+
+Every version and its release notes are on the
+[releases page](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/releases); a version on
+nuget.org can be unlisted but never replaced.
+
+#### Upgrading from 0.1
+
+0.2.0 changes what some existing markup looks like:
+
+- **`Classes="primary"` on a button is a primary *text* button.** It used to mean filled; add
+  `filled` for that. The same holds on `SplitButton`, and an unclassed `DropDownButton` is no
+  longer primary.
+- **`secondary` on a `TextBlock` is the pink secondary colour**, MudText's `Color`. Grey
+  supporting text is `Foreground="{DynamicResource FiliTextSecondaryBrush}"`.
+- **Tabs follow MudTabs' defaults:** a surface bar with no rule under it (add `border` for one),
+  tabs at least 160px wide, labels in text-primary.
+- **An app bar has 24px side padding**, MudAppBar's `Gutters`; `Padding="0"` removes it.
+- **Filled and outlined fields gain their 12px / 14px side padding**, which 0.1 never applied.
 
 **[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
 compiled to WebAssembly and served by GitHub Pages.
