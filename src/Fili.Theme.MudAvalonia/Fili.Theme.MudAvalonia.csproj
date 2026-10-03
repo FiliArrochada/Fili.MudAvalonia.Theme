@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Fili.Theme.MudAvalonia</RootNamespace>
+    <AssemblyName>Fili.Theme.MudAvalonia</AssemblyName>
+    <PackageId>Fili.MudAvalonia.Theme</PackageId>
+    <Description>A Material-flavoured design-token theme for Avalonia: palette, elevation, typography and geometry, in light, dark and high contrast.</Description>
+    <PackageTags>avalonia;theme;material;design-tokens</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- A .snupkg beside the .nupkg; `dotnet nuget push` uploads both. -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Roboto, embedded. Three static instances rather than the variable Roboto[wdth,wght].ttf,
+      because Avalonia resolves a weight by picking a matching face, not by setting a variable
+      axis - a variable file would render Light and Medium as Regular.
+      Light 300 / Regular 400 / Medium 500 are the three weights this theme actually uses.
+    -->
+    <AvaloniaResource Include="Assets\Fonts\*.ttf" />
+    <None Include="Assets\Fonts\OFL.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

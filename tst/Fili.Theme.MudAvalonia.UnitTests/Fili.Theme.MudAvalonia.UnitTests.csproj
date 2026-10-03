@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Fili.Theme.MudAvalonia.UnitTests</RootNamespace>
+    <AssemblyName>Fili.Theme.MudAvalonia.UnitTests</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Fili.Theme.MudAvalonia\Fili.Theme.MudAvalonia.csproj" />
+  </ItemGroup>
+
+</Project>

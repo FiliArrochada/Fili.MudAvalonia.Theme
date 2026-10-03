@@ -5,6 +5,12 @@ applies too; this file wins where they differ.
 
 ## What this is
 
+**The project is `Fili.Theme.MudAvalonia`; its NuGet id is `Fili.MudAvalonia.Theme`.** It was
+renamed after 0.2.0, on the workspace's terms for a published identity: the directory, solution,
+projects, assemblies, namespaces, `avares://` paths and GitHub repository carry the new name, and
+the package id keeps the old one, because a nuget.org id is permanent and that one has downloads.
+Never "fix" `<PackageId>` or the nuget.org links to match the project name.
+
 A **design-token theme for Avalonia 12**, not a component library. Resource dictionaries, a set of
 style classes, `ControlTheme`s for the controls a Material look genuinely cannot be faked without,
 and a gallery to look at it all in. No new control *types* and no services. Read `README.md`
@@ -39,7 +45,7 @@ Material.Avalonia, Flowery.NET). A MudBlazor component that is a *look* on a con
 already has is a class, not a new control: MudIconButton (`Button.icon`), MudChip (`Button.chip`
 / `ToggleButton.chip`, themed by the keyed `FiliChip`), MudAlert (`Border.alert`) and MudSkeleton
 (`Border.skeleton`) are all in scope, and `ComponentClassTests` pins them. If a new control
-genuinely needs to exist, it belongs in a separate `Fili.MudAvalonia.*` package that depends on
+genuinely needs to exist, it belongs in a separate `Fili.Theme.MudAvalonia.*` package that depends on
 this one.
 
 ## The one rule
@@ -353,16 +359,16 @@ needs on SDK 10.
 
 ```powershell
 dotnet workload install wasm-tools   # once - the solution includes the browser gallery
-dotnet build Fili.MudAvalonia.Theme.sln
-dotnet test  Fili.MudAvalonia.Theme.sln
-dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
-dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser     # needs the wasm-tools workload
+dotnet build Fili.Theme.MudAvalonia.sln
+dotnet test  Fili.Theme.MudAvalonia.sln
+dotnet run --project src/Fili.Theme.MudAvalonia.Gallery.Desktop
+dotnet run --project src/Fili.Theme.MudAvalonia.Gallery.Browser     # needs the wasm-tools workload
 
 # Accept new pixel baselines, after looking at the diff image the failure printed:
-$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.Theme.MudAvalonia.PixelTests
 
 # Button.axaml and the marked regions are generated - edit ThemeColourGenerator, then rewrite them:
-$env:FILI_REGENERATE = "1"; dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --filter-class "*GeneratedThemeTests"
+$env:FILI_REGENERATE = "1"; dotnet test tst/Fili.Theme.MudAvalonia.UnitTests --filter-class "*GeneratedThemeTests"
 ```
 
 **Releasing is a tag, and the tag is the human's to push.** `.github/workflows/release.yml` runs on

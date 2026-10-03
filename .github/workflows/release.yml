@@ -1,6 +1,6 @@
 name: release
 
-# Publishes Fili.MudAvalonia.Theme to nuget.org when a version tag is pushed:
+# Publishes the Fili.MudAvalonia.Theme package to nuget.org when a version tag is pushed:
 #
 #   1. bump <Version> in Directory.Build.props and commit it
 #   2. git tag v<that version> && git push origin v<that version>
@@ -11,7 +11,7 @@ name: release
 # Authentication is nuget.org trusted publishing: GitHub's OIDC token is exchanged for an API key
 # that lives for one hour, so no long-lived key is stored anywhere. One-time setup:
 #   - nuget.org -> account -> Trusted Publishing: add a policy for repository owner
-#     FiliArrochada, repository Fili.MudAvalonia.Theme, workflow file release.yml
+#     FiliArrochada, repository Fili.Theme.MudAvalonia, workflow file release.yml
 #   - this repository -> Settings -> Secrets and variables -> Actions -> Variables:
 #     NUGET_USER = the nuget.org username that owns that policy (a name, not a secret)
 
@@ -50,15 +50,15 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          for p in tst/Fili.MudAvalonia.Theme.UnitTests tst/Fili.MudAvalonia.Theme.PixelTests; do
+          for p in tst/Fili.Theme.MudAvalonia.UnitTests tst/Fili.Theme.MudAvalonia.PixelTests; do
             dotnet build "$p" --configuration Release
           done
 
       - name: Test (unit)
-        run: dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --configuration Release --no-build
+        run: dotnet test tst/Fili.Theme.MudAvalonia.UnitTests --configuration Release --no-build
 
       - name: Test (pixel baselines)
-        run: dotnet test tst/Fili.MudAvalonia.Theme.PixelTests --configuration Release --no-build
+        run: dotnet test tst/Fili.Theme.MudAvalonia.PixelTests --configuration Release --no-build
 
       - name: Upload pixel diffs
         if: failure()
@@ -86,7 +86,7 @@ jobs:
       - name: Check the tag matches the package version
         id: version
         run: |
-          version="$(dotnet msbuild src/Fili.MudAvalonia.Theme/Fili.MudAvalonia.Theme.csproj -getProperty:Version)"
+          version="$(dotnet msbuild src/Fili.Theme.MudAvalonia/Fili.Theme.MudAvalonia.csproj -getProperty:Version)"
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match <Version>$version</Version> in Directory.Build.props."
             exit 1
@@ -106,7 +106,7 @@ jobs:
       # GITHUB_ACTIONS), so the PDBs carry no runner paths and Source Link points at this commit.
       - name: Pack
         run: >
-          dotnet pack src/Fili.MudAvalonia.Theme
+          dotnet pack src/Fili.Theme.MudAvalonia
           --configuration Release
           --output artifacts/package
 
@@ -140,6 +140,6 @@ jobs:
           prerelease=""
           case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" artifacts/package/* \
-            --title "Fili.MudAvalonia.Theme $VERSION" \
+            --title "Fili.Theme.MudAvalonia $VERSION" \
             --generate-notes \
             $prerelease

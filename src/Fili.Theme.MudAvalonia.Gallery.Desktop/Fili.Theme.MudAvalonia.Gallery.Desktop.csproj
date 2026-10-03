@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Fili.Theme.MudAvalonia.Gallery.Desktop</RootNamespace>
+    <AssemblyName>Fili.Theme.MudAvalonia.Gallery.Desktop</AssemblyName>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" />
+    <!-- Headless + Skia power the screenshot capture mode; see Capture.cs. -->
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fili.Theme.MudAvalonia.Gallery\Fili.Theme.MudAvalonia.Gallery.csproj" />
+  </ItemGroup>
+
+</Project>

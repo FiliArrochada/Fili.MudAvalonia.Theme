@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Fili.Theme.MudAvalonia - Gallery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live gallery of Fili.Theme.MudAvalonia, a MudBlazor-flavoured design-token theme for Avalonia, running in the browser.">
+    <link rel="stylesheet" href="./app.css" />
+</head>
+
+<body>
+<div id="out">
+    <!-- Shown until the WebAssembly runtime has booted and Avalonia paints over it. The class name
+         is Avalonia's own: its startup code adds .splash-close to fade it out, so renaming it
+         would leave the splash on screen forever. -->
+    <div class="avalonia-splash">
+        <div class="gallery-splash">
+            <h1>Fili.Theme.MudAvalonia</h1>
+            <p>Loading the gallery…</p>
+        </div>
+    </div>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+
+</html>

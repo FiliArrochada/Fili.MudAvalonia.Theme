@@ -2,15 +2,15 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Fili.MudAvalonia.Theme?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
 [![Downloads](https://img.shields.io/nuget/dt/Fili.MudAvalonia.Theme?logo=nuget&label=downloads)](https://www.nuget.org/packages/Fili.MudAvalonia.Theme)
-[![Build](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/build.yml)
-[![Gallery](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/actions/workflows/pages.yml/badge.svg?branch=master)](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)
+[![Build](https://github.com/FiliArrochada/Fili.Theme.MudAvalonia/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/FiliArrochada/Fili.Theme.MudAvalonia/actions/workflows/build.yml)
+[![Gallery](https://github.com/FiliArrochada/Fili.Theme.MudAvalonia/actions/workflows/pages.yml/badge.svg?branch=master)](https://filiarrochada.github.io/Fili.Theme.MudAvalonia/)
 [![Avalonia](https://img.shields.io/badge/Avalonia-12.1-8B44AC)](https://avaloniaui.net/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/FiliArrochada/Fili.Theme.MudAvalonia/blob/master/LICENSE)
 
 A design-token theme for Avalonia 12: palette, elevation, typography and geometry, in light, dark
 and high contrast, with a gallery app to look at it in.
 
-**[See the gallery live](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/)** — the same app,
+**[See the gallery live](https://filiarrochada.github.io/Fili.Theme.MudAvalonia/)** — the same app,
 compiled to WebAssembly and served by GitHub Pages.
 
 Coming from MudBlazor? [MudBlazor parity](docs/mudblazor-parity.md) maps every component
@@ -26,15 +26,19 @@ public type. That type is `FiliThemeVariants`, whose only member is the high-con
 *Two converters* below.
 
 ```
-src/Fili.MudAvalonia.Theme                  the theme (the NuGet package)
-src/Fili.MudAvalonia.Theme.Gallery          gallery UI, shared across heads
-src/Fili.MudAvalonia.Theme.Gallery.Desktop  desktop head
-src/Fili.MudAvalonia.Theme.Gallery.Browser  browser head (WebAssembly), deployed to GitHub Pages
-tst/Fili.MudAvalonia.Theme.UnitTests        headless resource-resolution tests
-tst/Fili.MudAvalonia.Theme.PixelTests       gallery frames diffed against committed PNGs
+src/Fili.Theme.MudAvalonia                  the theme (the NuGet package, id Fili.MudAvalonia.Theme)
+src/Fili.Theme.MudAvalonia.Gallery          gallery UI, shared across heads
+src/Fili.Theme.MudAvalonia.Gallery.Desktop  desktop head
+src/Fili.Theme.MudAvalonia.Gallery.Browser  browser head (WebAssembly), deployed to GitHub Pages
+tst/Fili.Theme.MudAvalonia.UnitTests        headless resource-resolution tests
+tst/Fili.Theme.MudAvalonia.PixelTests       gallery frames diffed against committed PNGs
 ```
 
 ## Install
+
+The NuGet package keeps its original id, **`Fili.MudAvalonia.Theme`**: a nuget.org id is
+permanent, and this one already has downloads. Everything else - the assembly, the namespaces,
+the `avares://` paths and the repository - is `Fili.Theme.MudAvalonia`.
 
 ```bash
 dotnet add package Fili.MudAvalonia.Theme
@@ -59,7 +63,7 @@ version-less.
 | Licence | MIT |
 
 What changed in each version, and what to change when upgrading, is in
-[Versions](https://github.com/FiliArrochada/Fili.MudAvalonia.Theme/blob/master/docs/versions.md).
+[Versions](https://github.com/FiliArrochada/Fili.Theme.MudAvalonia/blob/master/docs/versions.md).
 
 Then add the two includes under [Using it](#using-it).
 
@@ -70,8 +74,8 @@ because later styles win for overlapping setters:
 
 ```xml
 <Application.Styles>
-  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
-  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+  <StyleInclude Source="avares://Fili.Theme.MudAvalonia/Themes/Base/FiliBaseTheme.axaml" />
+  <StyleInclude Source="avares://Fili.Theme.MudAvalonia/FiliTheme.axaml" />
 </Application.Styles>
 ```
 
@@ -521,7 +525,7 @@ Application.Current.RequestedThemeVariant = FiliThemeVariants.HighContrast;
 ```
 
 ```xml
-<Application xmlns:theme="using:Fili.MudAvalonia.Theme"
+<Application xmlns:theme="using:Fili.Theme.MudAvalonia"
              RequestedThemeVariant="{x:Static theme:FiliThemeVariants.HighContrast}">
 ```
 
@@ -977,7 +981,7 @@ whatever was there before simply stays, so a typo becomes a colour that quietly 
 rather than an error. Likewise a `StaticResource` where a `DynamicResource` belonged: it freezes
 the light value and that control stops following the theme at runtime, with no warning.
 
-`tst/Fili.MudAvalonia.Theme.UnitTests/ResourceResolutionTests.cs` is what turns both into failures.
+`tst/Fili.Theme.MudAvalonia.UnitTests/ResourceResolutionTests.cs` is what turns both into failures.
 Every token is asserted to resolve under **both** theme variants. Add a token, add it there.
 
 ## Tokens
@@ -1008,7 +1012,7 @@ Three things worth knowing before changing any of them:
 
 ## Fonts
 
-Roboto is **embedded** (`src/Fili.MudAvalonia.Theme/Assets/Fonts`), in three static instances —
+Roboto is **embedded** (`src/Fili.Theme.MudAvalonia/Assets/Fonts`), in three static instances —
 Light 300, Regular 400, Medium 500 — which are the weights this theme uses.
 
 Two things to know before changing them:
@@ -1029,7 +1033,7 @@ same text renders as nothing, silently. An app targeting the browser has to embe
 script it displays and register it with `FontManagerOptions.FontFallbacks`. The theme does not do
 this for you — which scripts an app needs is the app's decision, and each one is a few hundred
 kilobytes. The gallery is the worked example: it ships static Noto Sans Arabic for the
-right-to-left section, in `src/Fili.MudAvalonia.Theme.Gallery/Assets/Fonts`, and `GalleryFonts`
+right-to-left section, in `src/Fili.Theme.MudAvalonia.Gallery/Assets/Fonts`, and `GalleryFonts`
 registers it for every head. Registering it on desktop too is deliberate even though Windows has
 Arabic fonts of its own: an OS fallback is whatever that machine has installed, so text drawn with
 it is not the same on Linux, on macOS, or on another Windows image — including the CI runner the
@@ -1038,7 +1042,7 @@ pixel baselines are compared on.
 ## Gallery
 
 ```powershell
-dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Desktop
+dotnet run --project src/Fili.Theme.MudAvalonia.Gallery.Desktop
 ```
 
 Five tabs: palette swatches with computed WCAG contrast ratios, the elevation ladder, the type
@@ -1061,14 +1065,14 @@ theme, and only a real layout exposes flat hierarchy and wrong spacing.
 
 ### In the browser
 
-The same gallery runs in a browser, from `src/Fili.MudAvalonia.Theme.Gallery.Browser`, and
+The same gallery runs in a browser, from `src/Fili.Theme.MudAvalonia.Gallery.Browser`, and
 `.github/workflows/pages.yml` publishes it to
-[GitHub Pages](https://filiarrochada.github.io/Fili.MudAvalonia.Theme/) on every push to `master`.
+[GitHub Pages](https://filiarrochada.github.io/Fili.Theme.MudAvalonia/) on every push to `master`.
 Both heads share one `MainView`; the desktop's `MainWindow` only hosts it.
 
 ```powershell
 dotnet workload install wasm-tools     # once: Avalonia.Browser links Skia and HarfBuzz natively
-dotnet run --project src/Fili.MudAvalonia.Theme.Gallery.Browser
+dotnet run --project src/Fili.Theme.MudAvalonia.Gallery.Browser
 ```
 
 Building the solution needs the workload too, because the browser head is part of it.
@@ -1084,13 +1088,13 @@ browser build's trimming can strip, and the page would then render with no base 
 ## Pixel baselines
 
 Nine frames — three views in all three variants — are rendered on every test run and
-compared with PNGs committed under `tst/Fili.MudAvalonia.Theme.PixelTests/Baselines`.
+compared with PNGs committed under `tst/Fili.Theme.MudAvalonia.PixelTests/Baselines`.
 
 ```powershell
-dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+dotnet test tst/Fili.Theme.MudAvalonia.PixelTests
 
 # after an intended change, and only after looking at the diff:
-$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+$env:FILI_PIXEL_BASELINES = "accept"; dotnet test tst/Fili.Theme.MudAvalonia.PixelTests
 ```
 
 **This is the only suite that can notice a control theme restyling a screen nobody was looking
@@ -1189,7 +1193,7 @@ Publishing uses **nuget.org trusted publishing**: the workflow swaps GitHub's OI
 key that expires within the hour, so no key is stored anywhere. Two one-time steps:
 
 1. On nuget.org, under *Trusted Publishing*, add a policy for owner `FiliArrochada`, repository
-   `Fili.MudAvalonia.Theme`, workflow `release.yml`.
+   `Fili.Theme.MudAvalonia`, workflow `release.yml`.
 2. In this repository's *Settings → Secrets and variables → Actions → Variables*, set
    `NUGET_USER` to the nuget.org username that owns that policy. It is a name, not a secret; the
    workflow fails early with a clear message if it is missing.
@@ -1297,6 +1301,6 @@ descriptive — an Avalonia theme in MudBlazor's visual idiom — and the discla
 now that the package name carries it, not less. Keep this section.
 
 Roboto is © 2011 The Roboto Project Authors, under the **SIL Open Font License 1.1**; the licence
-travels with the fonts in `src/Fili.MudAvalonia.Theme/Assets/Fonts/OFL.txt` and is packed into the
+travels with the fonts in `src/Fili.Theme.MudAvalonia/Assets/Fonts/OFL.txt` and is packed into the
 NuGet package. OFL requires that the licence stays with the font files and that they are not sold
 on their own — neither constrains this use, but the file must not be removed.

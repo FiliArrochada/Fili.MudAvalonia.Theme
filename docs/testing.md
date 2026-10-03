@@ -10,8 +10,8 @@ those silent failures into red builds, because looking at the app cannot be reli
 
 | Project | What it does | Speed |
 |---|---|---|
-| `tst/Fili.MudAvalonia.Theme.UnitTests` | 345 tests on a headless Avalonia session. They resolve resources, template controls, move a real pointer over them, and read back the values the theme applied. Nothing is rendered. | seconds |
-| `tst/Fili.MudAvalonia.Theme.PixelTests` | 9 tests. Each renders one gallery frame with Skia and compares it pixel by pixel with a PNG committed in `Baselines/`. | ~20 seconds |
+| `tst/Fili.Theme.MudAvalonia.UnitTests` | 345 tests on a headless Avalonia session. They resolve resources, template controls, move a real pointer over them, and read back the values the theme applied. Nothing is rendered. | seconds |
+| `tst/Fili.Theme.MudAvalonia.PixelTests` | 9 tests. Each renders one gallery frame with Skia and compares it pixel by pixel with a PNG committed in `Baselines/`. | ~20 seconds |
 
 They are separate on purpose. The pixel suite needs Skia with headless drawing turned **off** -
 Avalonia's default headless renderer draws nothing at all, and a pixel suite built on it would
@@ -150,17 +150,17 @@ include that trimming strips, shows up there and nowhere else.
 ## Running them
 
 ```bash
-dotnet test tst/Fili.MudAvalonia.Theme.UnitTests                     # everything, seconds
-dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --filter-class "*FieldDetailTests"
-dotnet test tst/Fili.MudAvalonia.Theme.PixelTests                    # the nine frames
+dotnet test tst/Fili.Theme.MudAvalonia.UnitTests                     # everything, seconds
+dotnet test tst/Fili.Theme.MudAvalonia.UnitTests --filter-class "*FieldDetailTests"
+dotnet test tst/Fili.Theme.MudAvalonia.PixelTests                    # the nine frames
 ```
 
 ```bash
 # After changing ThemeColourGenerator: rewrite the generated files.
-FILI_REGENERATE=1 dotnet test tst/Fili.MudAvalonia.Theme.UnitTests --filter-class "*GeneratedThemeTests"
+FILI_REGENERATE=1 dotnet test tst/Fili.Theme.MudAvalonia.UnitTests --filter-class "*GeneratedThemeTests"
 
 # After an intended visual change: look at the diff first, then accept the new frames.
-FILI_PIXEL_BASELINES=accept dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+FILI_PIXEL_BASELINES=accept dotnet test tst/Fili.Theme.MudAvalonia.PixelTests
 git restore $(git status --porcelain | grep png | grep -v "<the frames you meant to change>" | cut -c4-)
 ```
 

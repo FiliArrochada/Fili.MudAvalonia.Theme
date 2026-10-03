@@ -35,15 +35,15 @@
   <PropertyGroup>
     <Company>FiliArrochada</Company>
     <Authors>FiliArrochada</Authors>
-    <Product>Fili.MudAvalonia.Theme</Product>
+    <Product>Fili.Theme.MudAvalonia</Product>
     <Copyright>Copyright (c) FiliArrochada</Copyright>
     <Version>0.2.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/FiliArrochada/Fili.MudAvalonia.Theme</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/FiliArrochada/Fili.MudAvalonia.Theme.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/FiliArrochada/Fili.Theme.MudAvalonia</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/FiliArrochada/Fili.Theme.MudAvalonia.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 

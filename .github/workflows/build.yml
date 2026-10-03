@@ -47,10 +47,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            projects: Fili.MudAvalonia.Theme.sln
+            projects: Fili.Theme.MudAvalonia.sln
             wasm: true
           - os: windows-latest
-            projects: tst/Fili.MudAvalonia.Theme.UnitTests tst/Fili.MudAvalonia.Theme.PixelTests
+            projects: tst/Fili.Theme.MudAvalonia.UnitTests tst/Fili.Theme.MudAvalonia.PixelTests
             wasm: false
 
     env:
@@ -93,7 +93,7 @@ jobs:
       # The fast suite: 345 tests, no rendering, identical everywhere.
       - name: Test (unit)
         run: >
-          dotnet test tst/Fili.MudAvalonia.Theme.UnitTests
+          dotnet test tst/Fili.Theme.MudAvalonia.UnitTests
           --configuration Release
           --no-build
           --
@@ -105,7 +105,7 @@ jobs:
       - name: Test (pixel baselines)
         if: runner.os == 'Windows'
         run: >
-          dotnet test tst/Fili.MudAvalonia.Theme.PixelTests
+          dotnet test tst/Fili.Theme.MudAvalonia.PixelTests
           --configuration Release
           --no-build
           --

@@ -22,8 +22,8 @@ Two rules explain almost every pair below:
 ```xml
 <!-- App.axaml -->
 <Application.Styles>
-  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/Themes/Base/FiliBaseTheme.axaml" />
-  <StyleInclude Source="avares://Fili.MudAvalonia.Theme/FiliTheme.axaml" />
+  <StyleInclude Source="avares://Fili.Theme.MudAvalonia/Themes/Base/FiliBaseTheme.axaml" />
+  <StyleInclude Source="avares://Fili.Theme.MudAvalonia/FiliTheme.axaml" />
 </Application.Styles>
 ```
 

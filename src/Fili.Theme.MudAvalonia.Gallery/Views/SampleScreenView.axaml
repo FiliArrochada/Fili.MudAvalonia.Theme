@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Fili.Theme.MudAvalonia.Gallery.Views.SampleScreenView">
+
+  <!--
+    A realistic screen, deliberately.
+
+    A wall of controls looks fine under any theme; a real layout is what exposes flat
+    hierarchy and wrong spacing. This one is shaped like a Fili.PlaySphere library view:
+    drawer, content header, filter row, card grid, detail panel.
+  -->
+  <Border Background="{DynamicResource FiliBackgroundGrayBrush}">
+    <Grid ColumnDefinitions="240,*,300">
+
+      <!-- Drawer -->
+      <Border Grid.Column="0" Background="{DynamicResource FiliDrawerBackgroundBrush}">
+        <StackPanel Margin="0,16">
+          <TextBlock Classes="overline" Margin="16,0,16,8" Text="Library" />
+          <ListBox SelectedIndex="0" Background="Transparent" BorderThickness="0">
+            <ListBoxItem Content="All games" />
+            <ListBoxItem Content="Installed" />
+            <ListBoxItem Content="Recently played" />
+            <ListBoxItem Content="Collections" />
+          </ListBox>
+          <Separator Margin="16,16" />
+          <TextBlock Classes="overline" Margin="16,0,16,8" Text="Stores" />
+          <ListBox Background="Transparent" BorderThickness="0">
+            <ListBoxItem Content="Steam" />
+            <ListBoxItem Content="GOG" />
+            <ListBoxItem Content="Epic" />
+            <ListBoxItem Content="Amazon" />
+          </ListBox>
+        </StackPanel>
+      </Border>
+
+      <!-- Content -->
+      <ScrollViewer Grid.Column="1">
+        <StackPanel Margin="24" Spacing="16">
+
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="0" Spacing="2">
+              <TextBlock Classes="h5" Text="All games" />
+              <TextBlock Classes="caption" Text="148 titles across 4 stores" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Button Classes="primary" Content="Scan" />
+              <Button Classes="filled primary" Content="Add game" />
+            </StackPanel>
+          </Grid>
+
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Classes="outlined" Width="260" PlaceholderText="Search library" />
+            <ComboBox Width="150" SelectedIndex="0">
+              <ComboBoxItem>All platforms</ComboBoxItem>
+              <ComboBoxItem>PC</ComboBoxItem>
+              <ComboBoxItem>Console</ComboBoxItem>
+            </ComboBox>
+            <ComboBox Width="170" SelectedIndex="0">
+              <ComboBoxItem>Recently added</ComboBoxItem>
+              <ComboBoxItem>Name</ComboBoxItem>
+              <ComboBoxItem>Playtime</ComboBoxItem>
+            </ComboBox>
+          </StackPanel>
+
+          <WrapPanel>
+            <Border Classes="surface elevation2" Width="160" Height="210" Margin="0,0,16,16">
+              <StackPanel>
+                <Border Height="140" Background="{DynamicResource FiliPrimaryBrush}" CornerRadius="4,4,0,0" />
+                <StackPanel Margin="12,8" Spacing="2">
+                  <TextBlock Classes="subtitle2" Text="Hollow Knight" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Classes="caption" Text="GOG · 42h" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="surface elevation2" Width="160" Height="210" Margin="0,0,16,16">
+              <StackPanel>
+                <Border Height="140" Background="{DynamicResource FiliTertiaryBrush}" CornerRadius="4,4,0,0" />
+                <StackPanel Margin="12,8" Spacing="2">
+                  <TextBlock Classes="subtitle2" Text="Celeste" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Classes="caption" Text="Steam · 18h" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="surface elevation2" Width="160" Height="210" Margin="0,0,16,16">
+              <StackPanel>
+                <Border Height="140" Background="{DynamicResource FiliSecondaryBrush}" CornerRadius="4,4,0,0" />
+                <StackPanel Margin="12,8" Spacing="2">
+                  <TextBlock Classes="subtitle2" Text="Disco Elysium" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Classes="caption" Text="Epic · 61h" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="surface elevation2" Width="160" Height="210" Margin="0,0,16,16">
+              <StackPanel>
+                <!--
+                  Info, not Dark. FiliDark is #27272F in the dark variant — all but identical to
+                  the surface it sits on, so a card using it vanished entirely in dark mode. A
+                  token named for a colour is a bad choice for a fill that must stay visible in
+                  both variants; a semantic one survives the flip.
+                -->
+                <Border Height="140" Background="{DynamicResource FiliInfoBrush}" CornerRadius="4,4,0,0" />
+                <StackPanel Margin="12,8" Spacing="2">
+                  <TextBlock Classes="subtitle2" Text="Outer Wilds" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Classes="caption" Text="Steam · 27h" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </WrapPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Detail panel -->
+      <Border Grid.Column="2"
+              Classes="surface elevation8"
+              Margin="0,16,16,16"
+              Padding="20">
+        <StackPanel Spacing="12">
+          <TextBlock Classes="h6" Text="Hollow Knight" />
+          <TextBlock Classes="caption" Text="Team Cherry · 2017" />
+          <Separator />
+          <TextBlock Classes="body2"
+                     TextWrapping="Wrap"
+                     Text="Forge your own path in an ancient, ruined kingdom of insects and heroes." />
+          <StackPanel Spacing="6">
+            <TextBlock Classes="overline" Text="Playtime" />
+            <ProgressBar Value="70" />
+            <TextBlock Classes="caption" Text="42 hours · last played 3 days ago" />
+          </StackPanel>
+          <StackPanel Spacing="6">
+            <TextBlock Classes="overline" Text="Achievements" />
+            <ProgressBar Value="45" />
+            <TextBlock Classes="caption" Text="29 of 63 unlocked" />
+          </StackPanel>
+          <Button Classes="filled primary" Content="Play" HorizontalAlignment="Stretch" />
+          <Button Classes="outlined" Content="Uninstall" HorizontalAlignment="Stretch" />
+        </StackPanel>
+      </Border>
+
+    </Grid>
+  </Border>
+
+</UserControl>
