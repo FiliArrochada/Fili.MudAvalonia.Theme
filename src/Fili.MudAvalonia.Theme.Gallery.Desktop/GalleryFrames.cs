@@ -8,6 +8,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
@@ -159,10 +160,7 @@ public static class GalleryFrames
         SettleAnimations(shown);
 
         var unstable = UnstableRegions(window);
-
-        var frameBitmap = window.CaptureRenderedFrame()
-            ?? throw new InvalidOperationException(
-                $"{frame} rendered no frame. The usual cause is headless drawing being left on.");
+        var frameBitmap = Capture(window);
 
         window.Close();
 
@@ -201,9 +199,42 @@ public static class GalleryFrames
         }
 
         // One tick after the wait, so the clock observes the elapsed time and applies the final
-        // key frames; CaptureRenderedFrame then renders that state.
+        // key frames; Capture then draws that state.
         AvaloniaHeadlessPlatform.ForceRenderTimerTick();
         Dispatcher.UIThread.RunJobs();
+    }
+
+    /// <summary>
+    /// Draws the window's whole tree, once, into a fresh bitmap.
+    ///
+    /// <para>
+    /// NOT <c>window.CaptureRenderedFrame()</c>, which this used to be. That returns the
+    /// compositor's own frame, and the compositor repaints only what changed since the frame
+    /// before - so the captured pixels are the sum of every partial redraw since the window
+    /// opened, and how many there were depends on how the render timer happened to interleave
+    /// with layout. On a loaded machine the antialiased ends of a few pill shapes - a large
+    /// slider's rail and knob, a large switch's track - came out up to 36 levels off on roughly one
+    /// run in three, and CI's slower runners failed a build and then a release on it. A
+    /// RenderTargetBitmap has no history: under the same load it produced identical frames fifteen
+    /// times out of fifteen, and pixel for pixel the same frames as before outside the masked
+    /// animations, so no baseline changed.
+    /// </para>
+    /// </summary>
+    private static WriteableBitmap Capture(Window window)
+    {
+        var size = new PixelSize((int)Math.Ceiling(window.Bounds.Width), (int)Math.Ceiling(window.Bounds.Height));
+        var dpi = new Vector(96, 96);
+
+        using var drawn = new RenderTargetBitmap(size, dpi);
+        drawn.Render(window);
+
+        var frame = new WriteableBitmap(size, dpi, PixelFormat.Bgra8888, AlphaFormat.Premul);
+        using (var buffer = frame.Lock())
+        {
+            drawn.CopyPixels(new PixelRect(size), buffer.Address, buffer.RowBytes * size.Height, buffer.RowBytes);
+        }
+
+        return frame;
     }
 
     /// <summary>

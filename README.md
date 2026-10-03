@@ -1118,11 +1118,11 @@ Three things to know before changing any of it:
   rasterisation differs across platforms — a Linux runner would fail every frame on glyph edges
   alone. A second committed set per platform is the answer if that day comes; a tolerance wide
   enough to cover it would be wide enough to hide real changes.
-- **A pixel may drift by 4/255 per channel, and that is the only slack.** Hosted runners land on
-  different CPUs, and Skia's SIMD path for each rounds an antialiased edge slightly differently -
-  CI once failed on two pixels of a slider rail's rounded end, 4 levels apart, with frames that
-  had passed the run before. The tolerance bounds how far a pixel may move, never how many may
-  differ; a redrawn glyph or a moved edge changes far more than 4 levels and still fails.
+- **A frame is drawn in one pass, into a fresh bitmap.** Reading the window's own rendered frame
+  instead gave the sum of its partial redraws, which depends on timing: on a loaded machine, or a
+  slow CI runner, the antialiased ends of a few rounded shapes came out a few levels off on about
+  one run in three. `GalleryFrames.Capture` draws the whole tree with `RenderTargetBitmap`, which
+  has no history, and the frames are identical run after run.
 
 Fluent frames are captured but **not** baselined. What Fluent renders belongs to Avalonia, and
 pinning it would turn every Avalonia upgrade into a failing test about someone else's theme.

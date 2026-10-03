@@ -92,11 +92,17 @@ Four things keep a frame reproducible, and each was learned from a failure:
 - **The culture is pinned.** The palette view formats contrast ratios with the current culture,
   so baselines recorded on a pt-PT machine (`6,00:1`) failed on an en-US runner (`6.00:1`).
   Frames render under the invariant culture.
-- **A pixel may drift by 4/255 per channel, and that is the only slack.** Hosted runners land on
-  different CPUs, and Skia rounds an antialiased edge slightly differently on each. CI once failed
-  on two pixels of a slider rail's rounded end, 4 levels apart, with frames that had passed the run
-  before. The tolerance bounds how *far* a pixel may move, never how *many* may differ, so a
-  redrawn glyph or a moved edge still fails.
+- **The frame is drawn in one pass.** The capture used to read the window's own rendered frame,
+  which is the sum of every partial redraw since it opened - and how many there were depends on
+  timing. On a loaded machine, and on CI's slower runners, the antialiased ends of a large slider's
+  rail and knob and a large switch's track came out up to 36 levels off on about one run in three,
+  failing a build and then a release. Drawing the whole tree with `RenderTargetBitmap` has no
+  history: fifteen runs out of fifteen were identical under full load. To check a fix like this,
+  run the pixel suite while every core is busy; an idle machine hides it.
+
+Each channel of each pixel may differ by 1/255, as headroom for a Skia release rounding an edge
+differently. That is the only slack, and it should stay that small: a pixel that keeps failing by
+a few levels means a capture that is not deterministic, which is how this one was found.
 
 What is deliberately **not** done: there is no budget of differing pixels. A budget wide enough
 to absorb an animation is wide enough to hide a redrawn glyph anywhere in the frame. And the

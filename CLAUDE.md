@@ -392,16 +392,21 @@ those PNGs were rendered on Windows with Skia. A failing frame uploads the rende
 diff as the `pixel-diffs` artifact - which is why the diff directory is overridable through
 `FILI_PIXEL_DIFF_DIR`, the default being a system temp path no artifact upload can reach.
 
-**The hosted Windows runner rasterises like a developer machine, to within 4/255 on an
-antialiased edge.** Its failures so far were the locale (see the trap above) and, once, two pixels
-on a slider rail's rounded end 4/255 apart: Skia picks a SIMD path for the CPU it finds, and a
-hosted job lands on whichever VM is free, so the same frames passed on the commit before.
-`Frames.Tolerance` is 4 for that, and it bounds how FAR a pixel may drift per channel, never how
-MANY pixels may differ - the latter is the budget the traps above rule out. If a frame fails in
-CI and nowhere else, compare the uploaded artifact with the committed baseline and look for
-something machine-dependent first; if the runner ever rasterises differently by more than a few
-levels on edges (fonts, a Skia upgrade), the fix is a second committed set of baselines per
-environment, never a larger tolerance.
+**The hosted Windows runner rasterises identically to a developer machine.** Its failures so
+far were the locale (see the trap above) and the capture itself (below). If a frame fails in CI
+and nowhere else, compare the uploaded artifact with the committed baseline and look for
+something machine-dependent first, then try to reproduce it under load - run the pixel suite
+while every core is busy. If the runner ever genuinely rasterises differently, the fix is a
+second committed set of baselines per environment, never a wider tolerance.
+
+**A frame is captured with `RenderTargetBitmap`, never `CaptureRenderedFrame`.** The latter
+returns the compositor's frame, which is the sum of every partial redraw since the window opened,
+and how many there were depends on timing. The antialiased ends of a few pill shapes - a large
+slider's rail and knob, a large switch's track - came out up to 36 levels off on about one run in
+three on a loaded machine, failed a build and then the v0.2.0 release in CI, and passed on an
+idle machine every time. It was first misread as CPU-dependent rasterisation and answered with a
+4/255 tolerance, which was the wrong fix and has been reverted. The tell was that it always hit
+the same few pixels: a rasteriser difference would touch every rounded edge in the frame.
 
 **The gallery has two heads and one view.** `MainView` is the whole UI; `MainWindow` hosts it on
 desktop and the browser head sets it as the single view. Put gallery UI in `MainView`, never in
